@@ -1,0 +1,25 @@
+# System related
+.DS_Store
+.checkpoints/
+
+# Environment variables (Secrets)
+.env
+*.env
+!.env.example
+
+# Docker
+docker-compose.override.yml
+
+# n8n local data (if running locally without bind mounts or different path)
+.n8n/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# IDEs
+.idea/
+.vscode/
+
+# Temporary data
+data/tmp/
