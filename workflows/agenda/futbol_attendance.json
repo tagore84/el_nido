@@ -1,0 +1,366 @@
+{
+  "name": "Fútbol Match Attendance",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                5
+              ],
+              "triggerAtHour": 15
+            }
+          ]
+        }
+      },
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Calculate start of next week (Monday)\nconst today = new Date();\nconst nextMonday = new Date(today);\nnextMonday.setDate(today.getDate() + ((1 + 7 - today.getDay()) % 7) || 7);\nnextMonday.setHours(0, 0, 0, 0);\n\n// Calculate end of next week (Sunday)\nconst nextSunday = new Date(nextMonday);\nnextSunday.setDate(nextMonday.getDate() + 6);\nnextSunday.setHours(23, 59, 59, 999);\n\nreturn [\n  {\n    json: {\n      start: nextMonday.toISOString(),\n      end: nextSunday.toISOString()\n    }\n  }\n];"
+      },
+      "name": "Date Calculation",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        450,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": "primary"
+        },
+        "returnAll": true,
+        "options": {
+          "timeMin": "={{$node[\"Date Calculation\"].json[\"start\"]}}",
+          "timeMax": "={{$node[\"Date Calculation\"].json[\"end\"]}}",
+          "query": "Fútbol"
+        }
+      },
+      "name": "Get Matches",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [
+        650,
+        300
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "GOOGLE_CALENDAR_CREDENTIAL_ID",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json[\"id\"] ? true : false}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "name": "Match Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        850,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "ALBERTO_CHAT_ID",
+        "text": "Found a football match on {{$node[\"Get Matches\"].json[\"start\"][\"dateTime\"]}}. Are you going?",
+        "replyMarkup": "inlineKeyboard",
+        "additionalFields": {
+          "inline_keyboard": [
+            [
+              {
+                "text": "Yes",
+                "callback_data": "yes_football"
+              },
+              {
+                "text": "No",
+                "callback_data": "no_football"
+              }
+            ]
+          ]
+        }
+      },
+      "name": "Ask Alberto",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        1050,
+        300
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "TELEGRAM_CREDENTIAL_ID",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "events": [
+          "callback_query"
+        ],
+        "options": {}
+      },
+      "name": "Wait for Response",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [
+        1250,
+        300
+      ],
+      "webhookId": "cb-football-response",
+      "credentials": {
+        "telegramApi": {
+          "id": "TELEGRAM_CREDENTIAL_ID",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"data\"]}}",
+              "value2": "yes_football"
+            }
+          ]
+        }
+      },
+      "name": "Is Yes?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1450,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": "SHARED_CALENDAR_ID"
+        },
+        "start": "={{$node[\"Get Matches\"].json[\"start\"][\"dateTime\"]}}",
+        "end": "={{$node[\"Get Matches\"].json[\"end\"][\"dateTime\"]}}",
+        "summary": "Alberto Fútbol",
+        "additionalFields": {}
+      },
+      "name": "Add to Shared Calendar",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [
+        1650,
+        200
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "GOOGLE_CALENDAR_CREDENTIAL_ID",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "LAURA_CHAT_ID",
+        "text": "Alberto has confirmed he is going to football on {{$node[\"Get Matches\"].json[\"start\"][\"dateTime\"]}}.",
+        "additionalFields": {}
+      },
+      "name": "Notify Laura",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        1850,
+        200
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "TELEGRAM_CREDENTIAL_ID",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "HOME_ASSISTANT_URL/api/states/input_boolean.alberto_football",
+        "method": "POST",
+        "authentication": "header",
+        "headerParametersUi": {
+          "parameter": [
+            {
+              "name": "Authorization",
+              "value": "Bearer HOME_ASSISTANT_TOKEN"
+            }
+          ]
+        },
+        "bodyParametersUi": {
+          "parameter": [
+            {
+              "name": "state",
+              "value": "on"
+            }
+          ]
+        }
+      },
+      "name": "Update Home Assistant",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        2050,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "ALBERTO_CHAT_ID",
+        "text": "Okay, maybe next time!",
+        "additionalFields": {}
+      },
+      "name": "Ack No",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        1650,
+        400
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "TELEGRAM_CREDENTIAL_ID",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Date Calculation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date Calculation": {
+      "main": [
+        [
+          {
+            "node": "Get Matches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Matches": {
+      "main": [
+        [
+          {
+            "node": "Match Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Match Found?": {
+      "main": [
+        [
+          {
+            "node": "Ask Alberto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask Alberto": {
+      "main": [
+        [
+          {
+            "node": "Wait for Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Response": {
+      "main": [
+        [
+          {
+            "node": "Is Yes?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Yes?": {
+      "main": [
+        [
+          {
+            "node": "Add to Shared Calendar",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ack No",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add to Shared Calendar": {
+      "main": [
+        [
+          {
+            "node": "Notify Laura",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Laura": {
+      "main": [
+        [
+          {
+            "node": "Update Home Assistant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

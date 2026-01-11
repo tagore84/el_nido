@@ -24,6 +24,7 @@ __pycache__/
 
 # Temporary data
 data/tmp/
+temp/
 
 # Synology n8n persistence (ignore content, keep folder)
 infra/synology/n8n_data/*
