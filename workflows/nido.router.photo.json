@@ -1,0 +1,248 @@
+{
+    "name": "nido.router.photo",
+    "nodes": [
+        {
+            "parameters": {
+                "updates": [
+                    "message"
+                ],
+                "additionalFields": {
+                    "updateType": [
+                        "photo"
+                    ]
+                }
+            },
+            "name": "Telegram Trigger",
+            "type": "n8n-nodes-base.telegramTrigger",
+            "typeVersion": 1,
+            "position": [
+                250,
+                300
+            ],
+            "webhookId": "nido-router-photo",
+            "credentials": {
+                "telegramApi": {
+                    "id": "JLG33gMQcdi4JvQq",
+                    "name": "Telegram account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "resource": "file",
+                "operation": "get",
+                "fileId": "={{ $json.message.photo[$json.message.photo.length - 1].file_id }}"
+            },
+            "name": "Get Photo",
+            "type": "n8n-nodes-base.telegram",
+            "typeVersion": 1,
+            "position": [
+                450,
+                300
+            ],
+            "credentials": {
+                "telegramApi": {
+                    "id": "JLG33gMQcdi4JvQq",
+                    "name": "Telegram account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "fileName": "=/storage/inbox_photos/{{ new Date().getFullYear() }}/{{ (new Date().getMonth() + 1).toString().padStart(2, '0') }}/{{ new Date().getDate().toString().padStart(2, '0') }}/{{ $node[\"Telegram Trigger\"].json.message.message_id }}.jpg"
+            },
+            "name": "Save to Disk",
+            "type": "n8n-nodes-base.writeBinaryFile",
+            "typeVersion": 1,
+            "position": [
+                650,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "resource": "image",
+                "operation": "analyze",
+                "modelId": {
+                    "__rl": true,
+                    "value": "models/gemini-1.5-flash",
+                    "mode": "list",
+                    "cachedResultName": "models/gemini-1.5-flash"
+                },
+                "text": "Analiza esta imagen. Clasifícala en una de las siguientes categorías:\n- whiteboard_calendar: Una pizarra blanca con una cuadrícula de calendario mensual.\n- whiteboard_notes: Una pizarra blanca con notas generales, lista de la compra, o dibujos sin estructura de calendario.\n- receipt: Un ticket de compra o factura.\n- document: Un documento formal, carta o formulario.\n- screenshot: Captura de pantalla digital.\n- other: Cualquier otra cosa.\n\nDevuelve SOLAMENTE un JSON válido con este formato:\n{\n  \"image_type\": \"...\",\n  \"confidence\": 0.XX,\n  \"reason\": \"...\",\n  \"routing_hints\": {\n     \"month_suggestion\": \"YYYY-MM\" (si es calendario y visible)\n  }\n}",
+                "inputType": "binary",
+                "binaryPropertyName": "data",
+                "options": {}
+            },
+            "name": "Classify Image",
+            "type": "@n8n/n8n-nodes-langchain.googleGemini",
+            "typeVersion": 1.1,
+            "position": [
+                850,
+                300
+            ],
+            "credentials": {
+                "googlePalmApi": {
+                    "id": "JJHsBmH2qC9U0KQA",
+                    "name": "Google Gemini(PaLM) Api account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "dataType": "string",
+                "value1": "={{ $json.image_type }}",
+                "rules": {
+                    "rules": [
+                        {
+                            "value2": "whiteboard_calendar"
+                        }
+                    ]
+                }
+            },
+            "name": "Switch Type",
+            "type": "n8n-nodes-base.switch",
+            "typeVersion": 1,
+            "position": [
+                1050,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "values": {
+                    "string": [
+                        {
+                            "name": "image_path",
+                            "value": "={{ $node[\"Save to Disk\"].parameter[\"fileName\"] }}"
+                        },
+                        {
+                            "name": "chat_id",
+                            "value": "={{ $node[\"Telegram Trigger\"].json.message.chat.id }}"
+                        },
+                        {
+                            "name": "message_id",
+                            "value": "={{ $node[\"Telegram Trigger\"].json.message.message_id }}"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "name": "Set Input Data",
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 1,
+            "position": [
+                1050,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "workflowId": "nido.pizarra.ingest",
+                "mode": "each"
+            },
+            "name": "Route to Ingest",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1,
+            "position": [
+                1250,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "chatId": "={{ $node[\"Telegram Trigger\"].json[\"message\"][\"chat\"][\"id\"] }}",
+                "text": "📷 Imagen recibida, pero no detecto que sea el calendario de la pizarra.\nClasificación: {{ $json.image_type }} ({{ $json.confidence * 100 }}%)",
+                "additionalFields": {}
+            },
+            "name": "Reply Other",
+            "type": "n8n-nodes-base.telegram",
+            "typeVersion": 1,
+            "position": [
+                1250,
+                400
+            ],
+            "credentials": {
+                "telegramApi": {
+                    "id": "JLG33gMQcdi4JvQq",
+                    "name": "Telegram account"
+                }
+            }
+        }
+    ],
+    "connections": {
+        "Telegram Trigger": {
+            "main": [
+                [
+                    {
+                        "node": "Get Photo",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Get Photo": {
+            "main": [
+                [
+                    {
+                        "node": "Save to Disk",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Save to Disk": {
+            "main": [
+                [
+                    {
+                        "node": "Classify Image",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Classify Image": {
+            "main": [
+                [
+                    {
+                        "node": "Switch Type",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Switch Type": {
+            "main": [
+                [
+                    {
+                        "node": "Set Input Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Reply Other",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Set Input Data": {
+            "main": [
+                [
+                    {
+                        "node": "Route to Ingest",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}

@@ -8,9 +8,10 @@
             {
               "field": "weeks",
               "triggerAtDay": [
+                2,
                 5
               ],
-              "triggerAtHour": 15
+              "triggerAtHour": 22
             }
           ]
         }
@@ -25,7 +26,7 @@
     },
     {
       "parameters": {
-        "functionCode": "// Calculate start of next week (Monday)\nconst today = new Date();\nconst nextMonday = new Date(today);\nnextMonday.setDate(today.getDate() + ((1 + 7 - today.getDay()) % 7) || 7);\nnextMonday.setHours(0, 0, 0, 0);\n\n// Calculate end of next week (Sunday)\nconst nextSunday = new Date(nextMonday);\nnextSunday.setDate(nextMonday.getDate() + 6);\nnextSunday.setHours(23, 59, 59, 999);\n\nreturn [\n  {\n    json: {\n      start: nextMonday.toISOString(),\n      end: nextSunday.toISOString()\n    }\n  }\n];"
+        "functionCode": "// Start: Now\nconst now = new Date();\n\n// End: Now + 3 days\nconst endDate = new Date(now);\nendDate.setDate(now.getDate() + 3);\nendDate.setHours(23, 59, 59, 999);\n\nreturn [\n  {\n    json: {\n      start: now.toISOString(),\n      end: endDate.toISOString()\n    }\n  }\n];"
       },
       "name": "Date Calculation",
       "type": "n8n-nodes-base.function",
@@ -45,6 +46,7 @@
         },
         "returnAll": true,
         "options": {
+          "singleEvents": true,
           "timeMin": "={{$node[\"Date Calculation\"].json[\"start\"]}}",
           "timeMax": "={{$node[\"Date Calculation\"].json[\"end\"]}}",
           "query": "Fútbol"
@@ -59,7 +61,7 @@
       ],
       "credentials": {
         "googleCalendarOAuth2Api": {
-          "id": "GOOGLE_CALENDAR_CREDENTIAL_ID",
+          "id": "FrzV2bMzBnHfLNY2",
           "name": "Google Calendar account"
         }
       }
@@ -85,21 +87,29 @@
     },
     {
       "parameters": {
-        "chatId": "ALBERTO_CHAT_ID",
-        "text": "Found a football match on {{$node[\"Get Matches\"].json[\"start\"][\"dateTime\"]}}. Are you going?",
+        "chatId": "5785514136",
+        "text": "=⚽ ¡Partido el {{new Date($node[\"Get Matches\"].json[\"start\"][\"dateTime\"]).toLocaleString(\"es-ES\", {weekday: 'long', day: 'numeric', timeZone: 'Europe/Madrid'})}}!\n\n🕒 Hora: {{new Date($node[\"Get Matches\"].json[\"start\"][\"dateTime\"]).toLocaleTimeString(\"es-ES\", {hour:'2-digit', minute:'2-digit', timeZone: 'Europe/Madrid'})}}\n\n¿Te apuntas?",
         "replyMarkup": "inlineKeyboard",
-        "additionalFields": {
-          "inline_keyboard": [
-            [
-              {
-                "text": "Yes",
-                "callback_data": "yes_football"
-              },
-              {
-                "text": "No",
-                "callback_data": "no_football"
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "Sí, voy",
+                    "additionalFields": {
+                      "callback_data": "=yes_football|{{$node[\"Get Matches\"].json[\"start\"][\"dateTime\"]}}|{{$node[\"Get Matches\"].json[\"end\"][\"dateTime\"]}}"
+                    }
+                  },
+                  {
+                    "text": "No puedo",
+                    "additionalFields": {
+                      "callback_data": "no_football"
+                    }
+                  }
+                ]
               }
-            ]
+            }
           ]
         }
       },
@@ -112,14 +122,14 @@
       ],
       "credentials": {
         "telegramApi": {
-          "id": "TELEGRAM_CREDENTIAL_ID",
+          "id": "JLG33gMQcdi4JvQq",
           "name": "Telegram account"
         }
       }
     },
     {
       "parameters": {
-        "events": [
+        "updates": [
           "callback_query"
         ],
         "options": {}
@@ -128,24 +138,36 @@
       "type": "n8n-nodes-base.telegramTrigger",
       "typeVersion": 1,
       "position": [
-        1250,
-        300
+        250,
+        600
       ],
       "webhookId": "cb-football-response",
       "credentials": {
         "telegramApi": {
-          "id": "TELEGRAM_CREDENTIAL_ID",
+          "id": "JLG33gMQcdi4JvQq",
           "name": "Telegram account"
         }
       }
     },
     {
       "parameters": {
+        "functionCode": "const json = items[0].json;\nif (!json.callback_query || !json.callback_query.data) {\n  return [{ json: { answer: 'no_data' } }];\n}\n\nconst data = json.callback_query.data;\nconst parts = data.split('|');\n\nif (parts[0] === 'yes_football') {\n  return [\n    {\n      json: {\n        answer: 'yes',\n        start: parts[1],\n        end: parts[2]\n      }\n    }\n  ];\n} else {\n  return [\n    {\n      json: {\n        answer: 'no'\n      }\n    }\n  ];\n}"
+      },
+      "name": "Parse Response",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        450,
+        600
+      ]
+    },
+    {
+      "parameters": {
         "conditions": {
           "string": [
             {
-              "value1": "={{$json[\"data\"]}}",
-              "value2": "yes_football"
+              "value1": "={{$json[\"answer\"]}}",
+              "value2": "yes"
             }
           ]
         }
@@ -154,102 +176,96 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        1450,
-        300
+        650,
+        600
       ]
     },
     {
       "parameters": {
+        "resource": "event",
+        "operation": "create",
         "calendar": {
           "__rl": true,
           "mode": "list",
-          "value": "SHARED_CALENDAR_ID"
+          "value": "albertolau@pozoesteban.es"
         },
-        "start": "={{$node[\"Get Matches\"].json[\"start\"][\"dateTime\"]}}",
-        "end": "={{$node[\"Get Matches\"].json[\"end\"][\"dateTime\"]}}",
-        "summary": "Alberto Fútbol",
-        "additionalFields": {}
+        "start": "={{$json[\"start\"]}}",
+        "end": "={{$json[\"end\"]}}",
+        "additionalFields": {
+          "summary": "⚽ Partido de Fútbol de Alberto"
+        }
       },
       "name": "Add to Shared Calendar",
       "type": "n8n-nodes-base.googleCalendar",
       "typeVersion": 1,
       "position": [
-        1650,
-        200
+        850,
+        500
       ],
       "credentials": {
         "googleCalendarOAuth2Api": {
-          "id": "GOOGLE_CALENDAR_CREDENTIAL_ID",
+          "id": "bB5cLTUIh2iApkRb",
           "name": "Google Calendar account"
         }
       }
     },
     {
       "parameters": {
-        "chatId": "LAURA_CHAT_ID",
-        "text": "Alberto has confirmed he is going to football on {{$node[\"Get Matches\"].json[\"start\"][\"dateTime\"]}}.",
+        "chatId": "8486964833",
+        "text": "=✅ Alberto ha confirmado que irá al fútbol el {{new Date($node[\"Parse Response\"].json[\"start\"]).toLocaleString(\"es-ES\", {weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid'})}}.",
         "additionalFields": {}
       },
       "name": "Notify Laura",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1,
       "position": [
-        1850,
-        200
+        1050,
+        500
       ],
       "credentials": {
         "telegramApi": {
-          "id": "TELEGRAM_CREDENTIAL_ID",
+          "id": "JLG33gMQcdi4JvQq",
           "name": "Telegram account"
         }
       }
     },
     {
       "parameters": {
-        "url": "HOME_ASSISTANT_URL/api/states/input_boolean.alberto_football",
-        "method": "POST",
-        "authentication": "header",
-        "headerParametersUi": {
-          "parameter": [
-            {
-              "name": "Authorization",
-              "value": "Bearer HOME_ASSISTANT_TOKEN"
-            }
-          ]
-        },
-        "bodyParametersUi": {
-          "parameter": [
-            {
-              "name": "state",
-              "value": "on"
-            }
-          ]
-        }
+        "resource": "state",
+        "operation": "upsert",
+        "entityId": "input_datetime.proximo_futbol",
+        "state": "={{ new Date($node[\"Parse Response\"].json[\"start\"]).toLocaleString(\"sv-SE\", { timeZone: \"Europe/Madrid\" }) }}"
       },
       "name": "Update Home Assistant",
-      "type": "n8n-nodes-base.httpRequest",
+      "type": "n8n-nodes-base.homeAssistant",
       "typeVersion": 1,
       "position": [
-        2050,
-        200
-      ]
+        1250,
+        500
+      ],
+      "credentials": {
+        "homeAssistantApi": {
+          "id": "I3MbDcoMCh6VZ8R1",
+          "name": "Home Assistant Account"
+        }
+      }
     },
     {
       "parameters": {
-        "chatId": "ALBERTO_CHAT_ID",
-        "text": "Okay, maybe next time!",
+        "chatId": "5785514136",
+        "text": "Vale, ¡quizás a la próxima! 👋",
         "additionalFields": {}
       },
       "name": "Ack No",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1,
       "position": [
-        1650,
-        400
+        850,
+        700
       ],
       "credentials": {
         "telegramApi": {
-          "id": "TELEGRAM_CREDENTIAL_ID",
+          "id": "JLG33gMQcdi4JvQq",
           "name": "Telegram account"
         }
       }
@@ -300,18 +316,18 @@
         ]
       ]
     },
-    "Ask Alberto": {
+    "Wait for Response": {
       "main": [
         [
           {
-            "node": "Wait for Response",
+            "node": "Parse Response",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Wait for Response": {
+    "Parse Response": {
       "main": [
         [
           {

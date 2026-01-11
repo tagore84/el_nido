@@ -1,0 +1,280 @@
+{
+    "name": "nido.pizarra.ingest",
+    "nodes": [
+        {
+            "parameters": {},
+            "name": "Execute Workflow Trigger",
+            "type": "n8n-nodes-base.executeWorkflowTrigger",
+            "typeVersion": 1,
+            "position": [
+                250,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "fileSelector": "={{ $json.image_path }}"
+            },
+            "name": "Read Photo",
+            "type": "n8n-nodes-base.readBinaryFile",
+            "typeVersion": 1,
+            "position": [
+                450,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "resource": "image",
+                "operation": "analyze",
+                "modelId": {
+                    "__rl": true,
+                    "value": "models/gemini-1.5-flash",
+                    "mode": "list",
+                    "cachedResultName": "models/gemini-1.5-flash"
+                },
+                "text": "Extrae TODO el texto de esta pizarra con formato estructurado. \nEs un calendario mensual. \n1. Identifica el MES y AÑO (si no lo ves claro, usa el 'suggestion' provisto o deduce del contexto, estamos en {{ new Date().getFullYear() }}).\n2. Para cada celda que tenga texto:\n   - Extrae la fecha exacta (YYYY-MM-DD).\n   - Extrae el texto fielmente.\n   - Intenta identificar si hay una hora explícita.\n\nDevuelve un JSON así:\n{\n  \"month_detected\": \"YYYY-MM\",\n  \"entries\": [\n    {\n      \"date\": \"2026-01-22\",\n      \"text\": \"Cena con Javi\",\n      \"time_guess\": \"21:00\" (o null)\n    }\n  ]\n}",
+                "inputType": "binary",
+                "binaryPropertyName": "data",
+                "options": {}
+            },
+            "name": "OCR Extraction",
+            "type": "@n8n/n8n-nodes-langchain.googleGemini",
+            "typeVersion": 1.1,
+            "position": [
+                650,
+                300
+            ],
+            "credentials": {
+                "googlePalmApi": {
+                    "id": "JJHsBmH2qC9U0KQA",
+                    "name": "Google Gemini(PaLM) Api account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "fileName": "=/data/whiteboard_raw/{{ $json.month_detected }}/{{ new Date().toISOString().split('T')[0] }}_{{ $node[\"Execute Workflow Trigger\"].json.message_id }}.json",
+                "content": "={{ JSON.stringify($json) }}"
+            },
+            "name": "Save RAW",
+            "type": "n8n-nodes-base.writeToFile",
+            "typeVersion": 1,
+            "position": [
+                850,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "functionCode": "// Load Previous Snapshot logic (mock for now)\n// Real implementation needs to read file from disk\n// and perform diff.\n\nconst fs = require('fs');\nconst path = require('path');\n\nconst currentSnapshot = items[0].json;\nconst month = currentSnapshot.month_detected;\nconst snapshotDir = `/data/whiteboard_snapshots/${month}`;\n\n// Logic to find latest before today... skipping for MVP sim\n// Assuming full diff logic here\n\nconst diffs = {\n  added: [],\n  modified: [],\n  removed: [] // removed requires careful logic to not delete cleared days instantly without confirm. For MVP maybe just ADD/MOD\n};\n\n// Dummy diff logic for demo\nif (currentSnapshot.entries) {\n  currentSnapshot.entries.forEach(entry => {\n    diffs.added.push(entry);\n  });\n}\n\nreturn [{ json: { diffs, currentSnapshot } }];"
+            },
+            "name": "Calculate Diff",
+            "type": "n8n-nodes-base.function",
+            "typeVersion": 1,
+            "position": [
+                1050,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "fileName": "=/data/whiteboard_snapshots/{{ $json.currentSnapshot.month_detected }}/{{ new Date().toISOString().split('T')[0] }}.json",
+                "content": "={{ JSON.stringify($json.currentSnapshot) }}"
+            },
+            "name": "Save Snapshot",
+            "type": "n8n-nodes-base.writeToFile",
+            "typeVersion": 1,
+            "position": [
+                1250,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "number": [
+                        {
+                            "value1": "={{ $json.diffs.added.length + $json.diffs.modified.length }}",
+                            "operation": "larger",
+                            "value2": 0
+                        }
+                    ]
+                }
+            },
+            "name": "Has Changes?",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 1,
+            "position": [
+                1450,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "functionCode": "// Create Session File\nconst uuid = Math.random().toString(36).substring(7);\nconst session = {\n  id: uuid,\n  created_at: new Date().toISOString(),\n  chat_id: $node[\"Execute Workflow Trigger\"].json.chat_id,\n  pending: items[0].json.diffs.added.concat(items[0].json.diffs.modified),\n  accepted: [],\n  ignored: []\n};\n\nreturn [{ json: { session, uuid } }];"
+            },
+            "name": "Create Session Object",
+            "type": "n8n-nodes-base.function",
+            "typeVersion": 1,
+            "position": [
+                1650,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "fileName": "=/data/review_sessions/sess_{{ $json.uuid }}.json",
+                "content": "={{ JSON.stringify($json.session) }}"
+            },
+            "name": "Save Session",
+            "type": "n8n-nodes-base.writeToFile",
+            "typeVersion": 1,
+            "position": [
+                1850,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "workflowId": "nido.pizarra.review",
+                "mode": "each"
+            },
+            "name": "Start Review",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1,
+            "position": [
+                2050,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "chatId": "={{ $node[\"Execute Workflow Trigger\"].json.chat_id }}",
+                "text": "✅ Pizarra procesada. No se detectaron cambios nuevos.",
+                "additionalFields": {}
+            },
+            "name": "Notify No Changes",
+            "type": "n8n-nodes-base.telegram",
+            "typeVersion": 1,
+            "position": [
+                1650,
+                400
+            ],
+            "credentials": {
+                "telegramApi": {
+                    "id": "JLG33gMQcdi4JvQq",
+                    "name": "Telegram account"
+                }
+            }
+        }
+    ],
+    "connections": {
+        "Execute Workflow Trigger": {
+            "main": [
+                [
+                    {
+                        "node": "Read Photo",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Read Photo": {
+            "main": [
+                [
+                    {
+                        "node": "OCR Extraction",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "OCR Extraction": {
+            "main": [
+                [
+                    {
+                        "node": "Save RAW",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Save RAW": {
+            "main": [
+                [
+                    {
+                        "node": "Calculate Diff",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Calculate Diff": {
+            "main": [
+                [
+                    {
+                        "node": "Save Snapshot",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Save Snapshot": {
+            "main": [
+                [
+                    {
+                        "node": "Has Changes?",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Has Changes?": {
+            "main": [
+                [
+                    {
+                        "node": "Create Session Object",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Notify No Changes",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Create Session Object": {
+            "main": [
+                [
+                    {
+                        "node": "Save Session",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Save Session": {
+            "main": [
+                [
+                    {
+                        "node": "Start Review",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}

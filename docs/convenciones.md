@@ -20,3 +20,11 @@ Toda interacción con el usuario (Telegram, WhatsApp, Email, Voz) debe mantener 
 
 Ejemplo:
 > 🐶 El Nido te recuerda que falta comprar pienso.
+
+## Idioma
+
+Todo el sistema interactúa en **Español de España (es-ES)**.
+- Mensajes de Telegram.
+- Registros en Calendarios.
+- Notificaciones de Home Assistant.
+- Documentación (salvo términos técnicos estándar).

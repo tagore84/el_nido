@@ -1,0 +1,235 @@
+{
+    "name": "nido.pizarra.review",
+    "nodes": [
+        {
+            "parameters": {
+                "updates": [
+                    "callback_query"
+                ],
+                "additionalFields": {}
+            },
+            "name": "Telegram Callback",
+            "type": "n8n-nodes-base.telegramTrigger",
+            "typeVersion": 1,
+            "position": [
+                250,
+                300
+            ],
+            "webhookId": "nido-pizarra-review",
+            "credentials": {
+                "telegramApi": {
+                    "id": "JLG33gMQcdi4JvQq",
+                    "name": "Telegram account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "functionCode": "const data = items[0].json.callback_query.data;\n// Format: action|session_id|item_index\nconst parts = data.split('|');\nreturn [{ json: { action: parts[0], session_id: parts[1], item_index: parseInt(parts[2]) } }];"
+            },
+            "name": "Parse Callback",
+            "type": "n8n-nodes-base.function",
+            "typeVersion": 1,
+            "position": [
+                450,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "functionCode": "const fs = require('fs');\nconst sessionId = items[0].json.session_id;\nconst path = `/data/review_sessions/sess_${sessionId}.json`;\nconst session = JSON.parse(fs.readFileSync(path, 'utf8'));\nreturn [{ json: { session, path } }];"
+            },
+            "name": "Load Session",
+            "type": "n8n-nodes-base.function",
+            "typeVersion": 1,
+            "position": [
+                650,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "functionCode": "// Apply Action Logic\nconst session = items[0].json.session;\nconst action = $node[\"Parse Callback\"].json.action;\nconst index = $node[\"Parse Callback\"].json.item_index;\n\nconst item = session.pending[index];\n\nif (action === 'accept') {\n  session.accepted.push(item);\n  // Here we would also append to nido_events YAML\n} else if (action === 'ignore') {\n  session.ignored.push(item);\n}\n\n// Remove from pending (or mark as processed)\n// For simplicity, we just move pointer or filter. \n// Better: pending is a queue.\n\nsession.pending.splice(index, 1); // simple queue consumption\n\nreturn [{ json: { session, processedItem: item, action } }];"
+            },
+            "name": "Process Action",
+            "type": "n8n-nodes-base.function",
+            "typeVersion": 1,
+            "position": [
+                850,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "fileName": "={{ $node[\"Load Session\"].json.path }}",
+                "content": "={{ JSON.stringify($json.session) }}"
+            },
+            "name": "Update Session File",
+            "type": "n8n-nodes-base.writeToFile",
+            "typeVersion": 1,
+            "position": [
+                1050,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "number": [
+                        {
+                            "value1": "={{ $json.session.pending.length }}",
+                            "operation": "larger",
+                            "value2": 0
+                        }
+                    ]
+                }
+            },
+            "name": "More Pending?",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 1,
+            "position": [
+                1250,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "chatId": "={{ $json.session.chat_id }}",
+                "messageId": "={{ $node[\"Telegram Callback\"].json.callback_query.message.message_id }}",
+                "text": "=Siguiente evento: {{ $json.session.pending[0].text }} ({{ $json.session.pending[0].date }})",
+                "replyMarkup": "inlineKeyboard",
+                "inlineKeyboard": {
+                    "rows": [
+                        {
+                            "row": {
+                                "buttons": [
+                                    {
+                                        "text": "✅ Confirmar",
+                                        "additionalFields": {
+                                            "callback_data": "=accept|{{ $json.session.id }}|0"
+                                        }
+                                    },
+                                    {
+                                        "text": "❌ Ignorar",
+                                        "additionalFields": {
+                                            "callback_data": "=ignore|{{ $json.session.id }}|0"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            "name": "Show Next Item",
+            "type": "n8n-nodes-base.telegram",
+            "typeVersion": 1,
+            "position": [
+                1450,
+                200
+            ],
+            "credentials": {
+                "telegramApi": {
+                    "id": "JLG33gMQcdi4JvQq",
+                    "name": "Telegram account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "chatId": "={{ $json.session.chat_id }}",
+                "messageId": "={{ $node[\"Telegram Callback\"].json.callback_query.message.message_id }}",
+                "text": "=✅ Revisión completada.\nAceptados: {{ $json.session.accepted.length }}\nIgnorados: {{ $json.session.ignored.length }}",
+                "additionalFields": {}
+            },
+            "name": "Finish Review",
+            "type": "n8n-nodes-base.telegram",
+            "typeVersion": 1,
+            "position": [
+                1450,
+                400
+            ],
+            "credentials": {
+                "telegramApi": {
+                    "id": "JLG33gMQcdi4JvQq",
+                    "name": "Telegram account"
+                }
+            }
+        }
+    ],
+    "connections": {
+        "Telegram Callback": {
+            "main": [
+                [
+                    {
+                        "node": "Parse Callback",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Parse Callback": {
+            "main": [
+                [
+                    {
+                        "node": "Load Session",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Load Session": {
+            "main": [
+                [
+                    {
+                        "node": "Process Action",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Process Action": {
+            "main": [
+                [
+                    {
+                        "node": "Update Session File",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Update Session File": {
+            "main": [
+                [
+                    {
+                        "node": "More Pending?",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "More Pending?": {
+            "main": [
+                [
+                    {
+                        "node": "Show Next Item",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Finish Review",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}

@@ -20,5 +20,7 @@ services:
     volumes:
       - ./n8n_data:/home/node/.n8n
       - ./files:/files
+      - ../../data:/data
+      - ../../storage:/storage
     # Network configuration to be adjusted based on Synology setup
     # network_mode: bridge

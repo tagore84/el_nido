@@ -1,0 +1,8 @@
+{
+    "router.classify_photo": {
+        "current": "router/classify_photo_v1.txt"
+    },
+    "whiteboard.extract_calendar": {
+        "current": "whiteboard/extract_calendar_v1.txt"
+    }
+}
