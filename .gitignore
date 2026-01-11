@@ -6,6 +6,7 @@
 .env
 *.env
 !.env.example
+infra/**/secrets
 
 # Docker
 docker-compose.override.yml
@@ -23,3 +24,9 @@ __pycache__/
 
 # Temporary data
 data/tmp/
+
+# Synology n8n persistence (ignore content, keep folder)
+infra/synology/n8n_data/*
+!infra/synology/n8n_data/.gitkeep
+infra/synology/files/*
+!infra/synology/files/.gitkeep

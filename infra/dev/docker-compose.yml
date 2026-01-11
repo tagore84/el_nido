@@ -18,8 +18,8 @@ services:
       - WEBHOOK_URL=http://localhost:5678/
     volumes:
       - n8n_data:/home/node/.n8n
-      # Mount workflows directory for easy access/export (optional, depends on workflow)
-      # - ../../workflows:/data/workflows
+      # Mount workflows directory for easy access/export
+      - ../../workflows:/data/workflows
 
 volumes:
   n8n_data:
