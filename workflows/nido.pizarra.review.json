@@ -62,7 +62,10 @@
         {
             "parameters": {
                 "fileName": "={{ $node[\"Load Session\"].json.path }}",
-                "content": "={{ JSON.stringify($json.session) }}"
+                "content": "={{ JSON.stringify($json.session) }}",
+                "options": {
+                    "createDirs": true
+                }
             },
             "name": "Update Session File",
             "type": "n8n-nodes-base.writeToFile",

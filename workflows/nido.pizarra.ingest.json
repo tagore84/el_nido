@@ -55,7 +55,10 @@
         {
             "parameters": {
                 "fileName": "=/data/whiteboard_raw/{{ $json.month_detected }}/{{ new Date().toISOString().split('T')[0] }}_{{ $node[\"Execute Workflow Trigger\"].json.message_id }}.json",
-                "content": "={{ JSON.stringify($json) }}"
+                "content": "={{ JSON.stringify($json) }}",
+                "options": {
+                    "createDirs": true
+                }
             },
             "name": "Save RAW",
             "type": "n8n-nodes-base.writeToFile",
@@ -80,7 +83,10 @@
         {
             "parameters": {
                 "fileName": "=/data/whiteboard_snapshots/{{ $json.currentSnapshot.month_detected }}/{{ new Date().toISOString().split('T')[0] }}.json",
-                "content": "={{ JSON.stringify($json.currentSnapshot) }}"
+                "content": "={{ JSON.stringify($json.currentSnapshot) }}",
+                "options": {
+                    "createDirs": true
+                }
             },
             "name": "Save Snapshot",
             "type": "n8n-nodes-base.writeToFile",
@@ -125,7 +131,10 @@
         {
             "parameters": {
                 "fileName": "=/data/review_sessions/sess_{{ $json.uuid }}.json",
-                "content": "={{ JSON.stringify($json.session) }}"
+                "content": "={{ JSON.stringify($json.session) }}",
+                "options": {
+                    "createDirs": true
+                }
             },
             "name": "Save Session",
             "type": "n8n-nodes-base.writeToFile",
