@@ -47,7 +47,7 @@
             ],
             "credentials": {
                 "googlePalmApi": {
-                    "id": "JJHsBmH2qC9U0KQA",
+                    "id": "hpGPuJShZnhu8nAt",
                     "name": "Google Gemini(PaLM) Api account"
                 }
             }
@@ -172,7 +172,7 @@
             ],
             "credentials": {
                 "telegramApi": {
-                    "id": "JLG33gMQcdi4JvQq",
+                    "id": "CGujbqjPKMVb77ta",
                     "name": "Telegram account"
                 }
             }
