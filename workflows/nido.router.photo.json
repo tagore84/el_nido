@@ -22,7 +22,7 @@
             "webhookId": "nido-router-photo",
             "credentials": {
                 "telegramApi": {
-                    "id": "CGujbqjPKMVb77ta",
+                    "id": "JLG33gMQcdi4JvQq",
                     "name": "Telegram account"
                 }
             }
@@ -42,7 +42,7 @@
             ],
             "credentials": {
                 "telegramApi": {
-                    "id": "CGujbqjPKMVb77ta",
+                    "id": "JLG33gMQcdi4JvQq",
                     "name": "Telegram account"
                 }
             }
@@ -86,7 +86,7 @@
             ],
             "credentials": {
                 "googlePalmApi": {
-                    "id": "hpGPuJShZnhu8nAt",
+                    "id": "JJHsBmH2qC9U0KQA",
                     "name": "Google Gemini(PaLM) Api account"
                 }
             }
@@ -167,7 +167,7 @@
             ],
             "credentials": {
                 "telegramApi": {
-                    "id": "CGujbqjPKMVb77ta",
+                    "id": "JLG33gMQcdi4JvQq",
                     "name": "Telegram account"
                 }
             }

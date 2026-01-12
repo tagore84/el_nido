@@ -18,7 +18,7 @@
             "webhookId": "nido-pizarra-review",
             "credentials": {
                 "telegramApi": {
-                    "id": "CGujbqjPKMVb77ta",
+                    "id": "JLG33gMQcdi4JvQq",
                     "name": "Telegram account"
                 }
             }
@@ -133,7 +133,7 @@
             ],
             "credentials": {
                 "telegramApi": {
-                    "id": "CGujbqjPKMVb77ta",
+                    "id": "JLG33gMQcdi4JvQq",
                     "name": "Telegram account"
                 }
             }
@@ -154,7 +154,7 @@
             ],
             "credentials": {
                 "telegramApi": {
-                    "id": "CGujbqjPKMVb77ta",
+                    "id": "JLG33gMQcdi4JvQq",
                     "name": "Telegram account"
                 }
             }

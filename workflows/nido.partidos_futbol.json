@@ -61,7 +61,7 @@
       ],
       "credentials": {
         "googleCalendarOAuth2Api": {
-          "id": "1i74ID4MyAKARknD",
+          "id": "FrzV2bMzBnHfLNY2",
           "name": "Google Calendar account"
         }
       }
@@ -122,7 +122,7 @@
       ],
       "credentials": {
         "telegramApi": {
-          "id": "CGujbqjPKMVb77ta",
+          "id": "JLG33gMQcdi4JvQq",
           "name": "Telegram account"
         }
       }
@@ -144,7 +144,7 @@
       "webhookId": "cb-football-response",
       "credentials": {
         "telegramApi": {
-          "id": "CGujbqjPKMVb77ta",
+          "id": "JLG33gMQcdi4JvQq",
           "name": "Telegram account"
         }
       }
@@ -204,7 +204,7 @@
       ],
       "credentials": {
         "googleCalendarOAuth2Api": {
-          "id": "WjOZL29QMKesISFQ",
+          "id": "bB5cLTUIh2iApkRb",
           "name": "Google Calendar account"
         }
       }
@@ -224,7 +224,7 @@
       ],
       "credentials": {
         "telegramApi": {
-          "id": "CGujbqjPKMVb77ta",
+          "id": "JLG33gMQcdi4JvQq",
           "name": "Telegram account"
         }
       }
@@ -265,7 +265,7 @@
       ],
       "credentials": {
         "telegramApi": {
-          "id": "CGujbqjPKMVb77ta",
+          "id": "JLG33gMQcdi4JvQq",
           "name": "Telegram account"
         }
       }
