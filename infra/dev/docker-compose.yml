@@ -16,10 +16,13 @@ services:
       - N8N_PROTOCOL=http
       - NODE_ENV=development
       - WEBHOOK_URL=http://localhost:5678/
+      - LLM_MODE=${LLM_MODE:-live}
+      - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
     volumes:
       - n8n_data:/home/node/.n8n
       # Mount workflows directory for easy access/export
       - ../../workflows:/data/workflows
+      - ../../prompts:/prompts:ro
 
 volumes:
   n8n_data:

@@ -1,0 +1,16 @@
+(Synology ssh)
+    backup credentials: 
+        save: docker exec -u root n8n-prod n8n export:credentials --all --decrypted --output /files/credentials_backup.json
+
+(Antigravity)
+    git commit
+    git push
+
+(Synology ssh)
+    git pull
+
+    docker-compose down
+    docker-compose up -d
+
+    backup credentials: 
+        restore: docker exec -u root n8n-prod n8n import:credentials --input /files/credentials_backup.json]

@@ -16,13 +16,19 @@ services:
       - N8N_PROTOCOL=https
       - NODE_ENV=production
       - WEBHOOK_URL=${WEBHOOK_URL}
+      - LLM_MODE=${LLM_MODE:-live}
+      - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
+      - NODE_FUNCTION_ALLOW_BUILTIN=crypto,fs,path
       - GENERIC_TIMEZONE=Europe/Madrid
-      - "N8N_RESTRICT_FILE_ACCESS_TO=/data;/storage;/root/.n8n-files"
+      - "N8N_RESTRICT_FILE_ACCESS_TO=/data;/prompts;/storage;/root/.n8n-files"
+      - NODES_EXCLUDE="[]"
+      - N8N_NODES_INCLUDE=n8n-nodes-base.executeCommand
     user: root
     volumes:
       - ./n8n_data:/root/.n8n
       - ./files:/files
       - ../../data:/data
       - ../../storage:/storage
+      - ../../prompts:/prompts:ro
     # Network configuration to be adjusted based on Synology setup
     # network_mode: bridge

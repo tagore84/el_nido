@@ -61,14 +61,16 @@
         },
         {
             "parameters": {
+                "operation": "write",
                 "fileName": "={{ $node[\"Load Session\"].json.path }}",
-                "content": "={{ JSON.stringify($json.session) }}",
+                "fileContent": "={{ JSON.stringify($json.session) }}",
+                "sourceData": "string",
                 "options": {
                     "createDirs": true
                 }
             },
             "name": "Update Session File",
-            "type": "n8n-nodes-base.writeToFile",
+            "type": "n8n-nodes-base.readWriteFile",
             "typeVersion": 1,
             "position": [
                 1050,
@@ -158,6 +160,26 @@
                     "name": "Telegram account"
                 }
             }
+        },
+        {
+            "parameters": {
+                "chatId": "={{ $json.session.chat_id }}",
+                "text": "=🐛 Debug Review Output:\n{{ JSON.stringify($json).slice(0, 3000) }}",
+                "additionalFields": {}
+            },
+            "name": "Debug Output",
+            "type": "n8n-nodes-base.telegram",
+            "typeVersion": 1,
+            "position": [
+                1650,
+                300
+            ],
+            "credentials": {
+                "telegramApi": {
+                    "id": "JLG33gMQcdi4JvQq",
+                    "name": "Telegram account"
+                }
+            }
         }
     ],
     "connections": {
@@ -228,6 +250,28 @@
                 [
                     {
                         "node": "Finish Review",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Show Next Item": {
+            "main": [
+                [
+                    {
+                        "node": "Debug Output",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Finish Review": {
+            "main": [
+                [
+                    {
+                        "node": "Debug Output",
                         "type": "main",
                         "index": 0
                     }

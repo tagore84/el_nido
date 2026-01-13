@@ -1,0 +1,44 @@
+{
+    "type": "object",
+    "required": [
+        "month_detected",
+        "entries"
+    ],
+    "properties": {
+        "month_detected": {
+            "type": "string",
+            "description": "Mes detectado en formato YYYY-MM",
+            "pattern": "^\\d{4}-\\d{2}$"
+        },
+        "entries": {
+            "type": "array",
+            "description": "Lista de entradas del calendario",
+            "items": {
+                "type": "object",
+                "required": [
+                    "date",
+                    "text"
+                ],
+                "properties": {
+                    "date": {
+                        "type": "string",
+                        "description": "Fecha en formato YYYY-MM-DD",
+                        "format": "date"
+                    },
+                    "text": {
+                        "type": "string",
+                        "description": "Texto extraído de la celda"
+                    },
+                    "time_guess": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Hora detectada en formato HH:MM, o null si no hay hora",
+                        "pattern": "^\\d{2}:\\d{2}$"
+                    }
+                }
+            }
+        }
+    }
+}
