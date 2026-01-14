@@ -1,8 +1,11 @@
 {
-    "router.classify_photo": {
-        "current": "router/classify_photo_v1.txt"
+    "router.text": {
+        "path": "router_text_classification"
     },
-    "whiteboard.extract_calendar": {
-        "current": "whiteboard/extract_calendar_v1.txt"
+    "router.photo": {
+        "path": "router_photo_classification"
+    },
+    "whiteboard.ocr": {
+        "path": "whiteboard_ocr"
     }
 }

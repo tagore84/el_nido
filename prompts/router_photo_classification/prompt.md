@@ -9,9 +9,4 @@ Your task is to analyze the provided image and classify it into one of the follo
 5. **board_game**: A photo of a board game.
 6. **other**: Any unrelated image (people, pets, landscapes, objects).
 
-Output must be valid JSON:
-{
-  "classification": "string", // one of the categories above
-  "confidence": "number", // 0.0 to 1.0
-  "reasoning": "string" // brief explanation
-}
+Output must be valid JSON strictly adhering to the schema provided in the context.

@@ -1,6 +1,16 @@
 {
-    "name": "nido.router.photo",
+    "name": "nido.router.telegram.photo",
     "nodes": [
+        {
+            "parameters": {},
+            "name": "Execute Workflow Trigger",
+            "type": "n8n-nodes-base.executeWorkflowTrigger",
+            "typeVersion": 1,
+            "position": [
+                250,
+                100
+            ]
+        },
         {
             "parameters": {
                 "updates": [
@@ -57,7 +67,7 @@
                         },
                         {
                             "name": "filename",
-                            "value": "={{ $node[\"Telegram Trigger\"].json.message.message_id }}.jpg"
+                            "value": "={{ $('Telegram Trigger').item.json.message ? $('Telegram Trigger').item.json.message.message_id : $('Execute Workflow Trigger').item.json.message.message_id }}.jpg"
                         }
                     ]
                 },
@@ -114,7 +124,7 @@
         },
         {
             "parameters": {
-                "jsCode": "const prompt_id = 'router_classification';\nconst options = { model: 'models/gemini-3-flash-preview' };\n\nreturn $input.all().map(item => {\n  const json = item.json;\n  // Construct local path from folder and filename\n  // Assuming folder and filename are present from upstream 'Set Path' -> 'Merge'\n  const input_path = `${json.folder}/${json.filename}`;\n  \n  return {\n    json: {\n      prompt_id,\n      options,\n      input: {\n          input_type: 'IMAGE',\n          input_path\n      }\n    }\n  };\n});"
+                "jsCode": "const prompt_id = 'router_photo_classification';\nconst options = { model: 'models/gemini-3-flash-preview' };\n\nreturn $input.all().map(item => {\n  const json = item.json;\n  // Construct local path from folder and filename\n  // Assuming folder and filename are present from upstream 'Set Path' -> 'Merge'\n  const input_path = `${json.folder}/${json.filename}`;\n  \n  return {\n    json: {\n      prompt_id,\n      options,\n      input: {\n          input_type: 'IMAGE',\n          input_path\n      }\n    }\n  };\n});"
             },
             "name": "Prepare LLM Input",
             "type": "n8n-nodes-base.code",
@@ -139,7 +149,7 @@
         },
         {
             "parameters": {
-                "jsCode": "// The LLM adapter already returns parsed JSON with fields:\n// classification, confidence, reasoning, _meta\nconst json = $input.item.json;\n\n// Map to the expected format for downstream nodes\nreturn {\n  json: {\n    image_type: json.classification,\n    confidence: json.confidence,\n    reasoning: json.reasoning,\n    _meta: json._meta\n  }\n};",
+                "jsCode": "// The LLM adapter already returns parsed JSON with fields:\n// classification, confidence, reasoning, _meta\nconst json = $input.item.json;\n\n// Map to the expected format for downstream nodes\n// Preserve input_path from _meta for downstream workflows\nreturn {\n  json: {\n    image_type: json.classification,\n    confidence: json.confidence,\n    reasoning: json.reasoning,\n    image_path: json._meta?.input_path || null,\n    _meta: json._meta\n  }\n};",
                 "mode": "runOnceForEachItem"
             },
             "name": "Parse JSON",
@@ -176,15 +186,15 @@
                     "string": [
                         {
                             "name": "image_path",
-                            "value": "=/storage/inbox_photos/{{ new Date().getFullYear() }}/{{ (new Date().getMonth() + 1).toString().padStart(2, '0') }}/{{ new Date().getDate().toString().padStart(2, '0') }}/{{ $node[\"Telegram Trigger\"].json.message.message_id }}.jpg"
+                            "value": "=/storage/inbox_photos/{{ new Date().getFullYear() }}/{{ (new Date().getMonth() + 1).toString().padStart(2, '0') }}/{{ new Date().getDate().toString().padStart(2, '0') }}/{{ $('Telegram Trigger').item.json.message ? $('Telegram Trigger').item.json.message.message_id : $('Execute Workflow Trigger').item.json.message.message_id }}.jpg"
                         },
                         {
                             "name": "chat_id",
-                            "value": "={{ $node[\"Telegram Trigger\"].json.message.chat.id }}"
+                            "value": "={{ $('Telegram Trigger').item.json.message ? $('Telegram Trigger').item.json.message.chat.id : $('Execute Workflow Trigger').item.json.message.chat.id }}"
                         },
                         {
                             "name": "message_id",
-                            "value": "={{ $node[\"Telegram Trigger\"].json.message.message_id }}"
+                            "value": "={{ $('Telegram Trigger').item.json.message ? $('Telegram Trigger').item.json.message.message_id : $('Execute Workflow Trigger').item.json.message.message_id }}"
                         }
                     ]
                 },
@@ -208,12 +218,12 @@
             "typeVersion": 1,
             "position": [
                 1450,
-                200
+                211
             ]
         },
         {
             "parameters": {
-                "chatId": "={{ $node[\"Telegram Trigger\"].json[\"message\"][\"chat\"][\"id\"] }}",
+                "chatId": "={{ $('Telegram Trigger').item.json.message ? $('Telegram Trigger').item.json.message.chat.id : $('Execute Workflow Trigger').item.json.message.chat.id }}",
                 "text": "\ud83d\udcf7 Imagen recibida, pero no detecto que sea el calendario de la pizarra.\nClasificaci\u00f3n: {{ $json.image_type }} ({{ $json.confidence * 100 }}%)",
                 "additionalFields": {}
             },
@@ -233,7 +243,7 @@
         },
         {
             "parameters": {
-                "chatId": "={{ $node[\"Telegram Trigger\"].json.message.chat.id }}",
+                "chatId": "={{ $('Telegram Trigger').item.json.message ? $('Telegram Trigger').item.json.message.chat.id : $('Execute Workflow Trigger').item.json.message.chat.id }}",
                 "text": "=\ud83d\udc1b Debug Router Output:\n{{ JSON.stringify($json).slice(0, 3000) }}",
                 "additionalFields": {}
             },
@@ -254,6 +264,17 @@
     ],
     "connections": {
         "Telegram Trigger": {
+            "main": [
+                [
+                    {
+                        "node": "Get Photo",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Execute Workflow Trigger": {
             "main": [
                 [
                     {

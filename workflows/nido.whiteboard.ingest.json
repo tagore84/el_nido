@@ -1,5 +1,5 @@
 {
-    "name": "nido.pizarra.ingest",
+    "name": "nido.whiteboard.ingest",
     "nodes": [
         {
             "parameters": {},
@@ -38,7 +38,7 @@
         },
         {
             "parameters": {
-                "jsCode": "// Format response from LLM Adapter\n// The adapter returns: { month_detected, entries, _meta }\nconst json = $input.item.json;\n\n// Create binary for downstream file saves\nconst binaryData = Buffer.from(JSON.stringify(json, null, 2)).toString('base64');\n\nreturn {\n  json: {\n    month_detected: json.month_detected,\n    entries: json.entries || [],\n    _meta: json._meta\n  },\n  binary: {\n    data: {\n      data: binaryData,\n      mimeType: 'application/json'\n    }\n  }\n};"
+                "jsCode": "// Format response from LLM Adapter\n// The adapter returns: { month_detected, entries, _meta }\nconst json = $input.item.json;\n\n// Normalize keys (fallback for Spanish keys if LLM ignores schema)\nlet month_detected = json.month_detected;\nif (!month_detected) {\n    const meses = {\n        'ENERO': '01', 'FEBRERO': '02', 'MARZO': '03', 'ABRIL': '04', 'MAYO': '05', 'JUNIO': '06',\n        'JULIO': '07', 'AGOSTO': '08', 'SEPTIEMBRE': '09', 'OCTUBRE': '10', 'NOVIEMBRE': '11', 'DICIEMBRE': '12'\n    };\n    const mesNorm = (json.mes || '').toString().toUpperCase().trim();\n    const mesNum = meses[mesNorm] || (json.mes || '').toString().padStart(2,'0'); // Try mapping or pad number\n    const anio = json.anio || new Date().getFullYear();\n    month_detected = `${anio}-${mesNum}`;\n}\n\nconst entries = json.entries || json.eventos || [];\n\n// Create binary for downstream file saves\nconst outputJson = {\n    month_detected,\n    entries,\n    _meta: json._meta\n};\n\nconst binaryData = Buffer.from(JSON.stringify(outputJson, null, 2)).toString('base64');\n\nreturn {\n  json: outputJson,\n  binary: {\n    data: {\n      data: binaryData,\n      mimeType: 'application/json'\n    }\n  }\n};"
             },
             "name": "Format Response",
             "type": "n8n-nodes-base.code",
@@ -91,7 +91,7 @@
         },
         {
             "parameters": {
-                "functionCode": "// Load Previous Snapshot logic (mock for now)\nconst currentSnapshot = items[0].json;\nconst diffs = {\n  added: [],\n  modified: [],\n  removed: []\n};\nif (currentSnapshot.entries) {\n  currentSnapshot.entries.forEach(entry => {\n    diffs.added.push(entry);\n  });\n}\n\n// Create binary for next save\nconst binaryData = Buffer.from(JSON.stringify(currentSnapshot, null, 2)).toString('base64');\n\nreturn [{\n  json: { diffs, currentSnapshot },\n  binary: {\n    data: {\n      data: binaryData,\n      mimeType: 'application/json'\n    }\n  }\n}];"
+                "functionCode": "// Load Previous Snapshot logic (mock for now)\nconst currentSnapshot = items[0].json;\nconst diffs = {\n  added: [],\n  modified: [],\n  removed: []\n};\n\nif (currentSnapshot.entries && Array.isArray(currentSnapshot.entries)) {\n  currentSnapshot.entries.forEach(entry => {\n    diffs.added.push(entry);\n  });\n}\n\n// Create binary for next save\nconst binaryData = Buffer.from(JSON.stringify(currentSnapshot, null, 2)).toString('base64');\n\nreturn [{\n  json: {\n    diffs,\n    currentSnapshot,\n    _debug: {\n        inputKeys: Object.keys(currentSnapshot),\n        entriesType: typeof currentSnapshot.entries,\n        entriesLength: currentSnapshot.entries ? currentSnapshot.entries.length : 'N/A'\n    }\n  },\n  binary: {\n    data: {\n      data: binaryData,\n      mimeType: 'application/json'\n    }\n  }\n}];"
             },
             "name": "Calculate Diff",
             "type": "n8n-nodes-base.function",

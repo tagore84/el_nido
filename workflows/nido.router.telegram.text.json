@@ -1,0 +1,240 @@
+{
+  "name": "nido.router.telegram.text",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "e512ded9-886c-44a0-9320-9b33bb0a3b60"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        208
+      ],
+      "webhookId": "nido-router-text",
+      "id": "fa48b324-19f4-4580-83b7-ee9a86495583",
+      "credentials": {
+        "telegramApi": {
+          "id": "JLG33gMQcdi4JvQq",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const prompt_id = 'router_text_classification';\nconst options = { model: 'models/gemini-3-flash-preview' };\n\nreturn $input.all().map(item => {\n  const json = item.json;\n  const message_text = json.message.text || '';\n  \n  return {\n    json: {\n      prompt_id,\n      options,\n      input: {\n          input_type: 'TEXT',\n          input_text: message_text\n      }\n    }\n  };\n});"
+      },
+      "name": "Prepare LLM Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        208
+      ],
+      "id": "5264d94b-aee9-48aa-9ed8-ea6ab05a6797"
+    },
+    {
+      "parameters": {
+        "workflowId": "RNCzRY2bi-VzDmnZiq27S",
+        "mode": "each",
+        "options": {}
+      },
+      "name": "Classify Text",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        400,
+        208
+      ],
+      "id": "e3a82cf0-423e-422d-9158-4020ba23cf3a"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const json = $input.item.json;\n\nreturn {\n  json: {\n    text: json.text,\n    category: json.category,\n    source: json._meta.source\n    \n  }\n};"
+      },
+      "name": "Parse JSON",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        608,
+        208
+      ],
+      "id": "cb93ef88-1217-4b96-a6f7-0356aaaf0999"
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.category }}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "task"
+            },
+            {
+              "value2": "calendar",
+              "output": 1
+            },
+            {
+              "value2": "chat",
+              "output": 2
+            },
+            {
+              "value2": "other",
+              "output": 3
+            }
+          ]
+        },
+        "fallbackOutput": 3
+      },
+      "name": "Switch Category",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        800,
+        208
+      ],
+      "id": "7275436a-8474-4297-a8b1-4ec418c93b70"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "=🤖 *Clasificación de Texto*\n\n**Categoría**: {{ $json.category }}\n**Confianza**: {{ $json.confidence * 100 }}%\n**Razón**: {{ $json.reasoning }}\n\nEntidades: `{{ JSON.stringify($json.entities) }}`",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "name": "Reply Debug",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        1184,
+        224
+      ],
+      "id": "2c7d7ae9-80e3-4536-8756-e53a56731ea7",
+      "webhookId": "9fde48fc-878e-4f42-987a-5da9d309c586",
+      "credentials": {
+        "telegramApi": {
+          "id": "JLG33gMQcdi4JvQq",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Prepare LLM Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Prepare LLM Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare LLM Input": {
+      "main": [
+        [
+          {
+            "node": "Classify Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify Text": {
+      "main": [
+        [
+          {
+            "node": "Parse JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse JSON": {
+      "main": [
+        [
+          {
+            "node": "Switch Category",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch Category": {
+      "main": [
+        [
+          {
+            "node": "Reply Debug",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reply Debug",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reply Debug",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reply Debug",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "addf589b-58b8-446f-8c2a-4380e613c305",
+  "meta": {
+    "instanceId": "e1f8529dafc1c7b24188afd104b1a8e8824324405683593c80fc8bc56ba17881"
+  },
+  "id": "9XBuTBG2fHkmq2PH52Esi",
+  "tags": []
+}

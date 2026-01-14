@@ -1,0 +1,111 @@
+{
+    "name": "nido.router.telegram",
+    "nodes": [
+        {
+            "parameters": {
+                "updates": [
+                    "message"
+                ],
+                "additionalFields": {}
+            },
+            "name": "Telegram Trigger",
+            "type": "n8n-nodes-base.telegramTrigger",
+            "typeVersion": 1,
+            "position": [
+                250,
+                300
+            ],
+            "webhookId": "nido-router-telegram",
+            "credentials": {
+                "telegramApi": {
+                    "id": "JLG33gMQcdi4JvQq",
+                    "name": "Telegram account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "dataType": "string",
+                "value1": "={{ $json.message.photo ? 'photo' : ($json.message.text ? 'text' : 'other') }}",
+                "rules": {
+                    "rules": [
+                        {
+                            "value2": "photo"
+                        },
+                        {
+                            "value2": "text",
+                            "output": 1
+                        }
+                    ]
+                }
+            },
+            "name": "Switch Type",
+            "type": "n8n-nodes-base.switch",
+            "typeVersion": 1,
+            "position": [
+                450,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "workflowId": "Bu9cLDOLTJolDCBACvIVo",
+                "mode": "each",
+                "options": {}
+            },
+            "name": "Route to Photo",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1,
+            "position": [
+                650,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "workflowId": "9XBuTBG2fHkmq2PH52Esi",
+                "mode": "each",
+                "options": {}
+            },
+            "name": "Route to Text",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1,
+            "position": [
+                650,
+                400
+            ]
+        }
+    ],
+    "connections": {
+        "Telegram Trigger": {
+            "main": [
+                [
+                    {
+                        "node": "Switch Type",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Switch Type": {
+            "main": [
+                [
+                    {
+                        "node": "Route to Photo",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Route to Text",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "active": false
+}

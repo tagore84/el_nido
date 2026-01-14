@@ -18,7 +18,7 @@ Estos casos de uso ya tienen workflows funcionales y están en producción o pru
 - **Flujo:** Recepción de imagen -> Clasificación con LLM (Gemini) -> Enrutado al workflow de destino adecuado
 - **Componentes:**
     - `nido.router.photo.json`: Workflow principal de enrutado.
-    - `prompts/router_classification`: Prompts para decidir el destino de la imagen.
+    - `prompts/router_photo_classification`: Prompts para decidir el destino de la imagen.
 
 ### 3. Digitalización de Pizarra (`nido.pizarra`)
 **Objetivo:** Capturar, procesar y revisar el contenido de la pizarra física del hogar.

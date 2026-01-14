@@ -22,4 +22,4 @@ Es un calendario mensual físico (pizarra blanca/magnética).
 
 ## Output
 
-Devuelve un JSON con el formato especificado en el schema.
+Devuelve un JSON ESTRICTAMENTE siguiendo el esquema proporcionado.
