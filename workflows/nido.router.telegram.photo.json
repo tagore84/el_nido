@@ -1,422 +1,385 @@
 {
-    "name": "nido.router.telegram.photo",
-    "nodes": [
-        {
-            "parameters": {},
-            "name": "Execute Workflow Trigger",
-            "type": "n8n-nodes-base.executeWorkflowTrigger",
-            "typeVersion": 1,
-            "position": [
-                250,
-                100
-            ]
-        },
-        {
-            "parameters": {
-                "updates": [
-                    "message"
-                ],
-                "additionalFields": {
-                    "updateType": [
-                        "photo"
-                    ]
-                }
-            },
-            "name": "Telegram Trigger",
-            "type": "n8n-nodes-base.telegramTrigger",
-            "typeVersion": 1,
-            "position": [
-                250,
-                300
-            ],
-            "webhookId": "nido-router-photo",
-            "credentials": {
-                "telegramApi": {
-                    "id": "JLG33gMQcdi4JvQq",
-                    "name": "Telegram account"
-                }
-            }
-        },
-        {
-            "parameters": {
-                "resource": "file",
-                "operation": "get",
-                "fileId": "={{ $json.message.photo[$json.message.photo.length - 1].file_id }}"
-            },
-            "name": "Get Photo",
-            "type": "n8n-nodes-base.telegram",
-            "typeVersion": 1,
-            "position": [
-                450,
-                300
-            ],
-            "credentials": {
-                "telegramApi": {
-                    "id": "JLG33gMQcdi4JvQq",
-                    "name": "Telegram account"
-                }
-            }
-        },
-        {
-            "parameters": {
-                "values": {
-                    "string": [
-                        {
-                            "name": "folder",
-                            "value": "=/storage/inbox_photos/{{ new Date().getFullYear() }}/{{ (new Date().getMonth() + 1).toString().padStart(2, '0') }}/{{ new Date().getDate().toString().padStart(2, '0') }}"
-                        },
-                        {
-                            "name": "filename",
-                            "value": "={{ $('Telegram Trigger').item.json.message ? $('Telegram Trigger').item.json.message.message_id : $('Execute Workflow Trigger').item.json.message.message_id }}.jpg"
-                        }
-                    ]
-                },
-                "options": {}
-            },
-            "name": "Set Path",
-            "type": "n8n-nodes-base.set",
-            "typeVersion": 1,
-            "position": [
-                650,
-                300
-            ]
-        },
-        {
-            "parameters": {
-                "command": "=mkdir -p {{ $json.folder }}"
-            },
-            "name": "Create Folder",
-            "type": "n8n-nodes-base.executeCommand",
-            "typeVersion": 1,
-            "position": [
-                850,
-                200
-            ]
-        },
-        {
-            "parameters": {
-                "mode": "mergeByIndex",
-                "join": "outer",
-                "binary": "resolved"
-            },
-            "name": "Merge",
-            "type": "n8n-nodes-base.merge",
-            "typeVersion": 1,
-            "position": [
-                1050,
-                300
-            ]
-        },
-        {
-            "parameters": {
-                "fileName": "={{ $node[\"Set Path\"].json.folder }}/{{ $node[\"Set Path\"].json.filename }}",
-                "options": {
-                    "createDirs": true
-                }
-            },
-            "name": "Save to Disk",
-            "type": "n8n-nodes-base.writeBinaryFile",
-            "typeVersion": 1,
-            "position": [
-                1250,
-                300
-            ]
-        },
-        {
-            "parameters": {
-                "jsCode": "const prompt_id = 'router_photo_classification';\nconst options = { model: 'models/gemini-3-flash-preview' };\n\nreturn $input.all().map(item => {\n  const json = item.json;\n  // Construct local path from folder and filename\n  // Assuming folder and filename are present from upstream 'Set Path' -> 'Merge'\n  const input_path = `${json.folder}/${json.filename}`;\n  \n  return {\n    json: {\n      prompt_id,\n      options,\n      input: {\n          input_type: 'IMAGE',\n          input_path\n      }\n    }\n  };\n});"
-            },
-            "name": "Prepare LLM Input",
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [
-                1350,
-                300
-            ]
-        },
-        {
-            "parameters": {
-                "workflowId": "RNCzRY2bi-VzDmnZiq27S",
-                "mode": "each"
-            },
-            "name": "Classify Image",
-            "type": "n8n-nodes-base.executeWorkflow",
-            "typeVersion": 1,
-            "position": [
-                1450,
-                300
-            ]
-        },
-        {
-            "parameters": {
-                "jsCode": "// The LLM adapter already returns parsed JSON with fields:\n// classification, confidence, reasoning, _meta\nconst json = $input.item.json;\n\n// Map to the expected format for downstream nodes\n// Preserve input_path from _meta for downstream workflows\nreturn {\n  json: {\n    image_type: json.classification,\n    confidence: json.confidence,\n    reasoning: json.reasoning,\n    image_path: json._meta?.input_path || null,\n    _meta: json._meta\n  }\n};",
-                "mode": "runOnceForEachItem"
-            },
-            "name": "Parse JSON",
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [
-                1650,
-                300
-            ]
-        },
-        {
-            "parameters": {
-                "dataType": "string",
-                "value1": "={{ $json.image_type }}",
-                "rules": {
-                    "rules": [
-                        {
-                            "value2": "whiteboard_calendar"
-                        }
-                    ]
-                }
-            },
-            "name": "Switch Type",
-            "type": "n8n-nodes-base.switch",
-            "typeVersion": 1,
-            "position": [
-                1650,
-                300
-            ]
-        },
-        {
-            "parameters": {
-                "values": {
-                    "string": [
-                        {
-                            "name": "image_path",
-                            "value": "=/storage/inbox_photos/{{ new Date().getFullYear() }}/{{ (new Date().getMonth() + 1).toString().padStart(2, '0') }}/{{ new Date().getDate().toString().padStart(2, '0') }}/{{ $('Telegram Trigger').item.json.message ? $('Telegram Trigger').item.json.message.message_id : $('Execute Workflow Trigger').item.json.message.message_id }}.jpg"
-                        },
-                        {
-                            "name": "chat_id",
-                            "value": "={{ $('Telegram Trigger').item.json.message ? $('Telegram Trigger').item.json.message.chat.id : $('Execute Workflow Trigger').item.json.message.chat.id }}"
-                        },
-                        {
-                            "name": "message_id",
-                            "value": "={{ $('Telegram Trigger').item.json.message ? $('Telegram Trigger').item.json.message.message_id : $('Execute Workflow Trigger').item.json.message.message_id }}"
-                        }
-                    ]
-                },
-                "options": {}
-            },
-            "name": "Set Input Data",
-            "type": "n8n-nodes-base.set",
-            "typeVersion": 1,
-            "position": [
-                1650,
-                200
-            ]
-        },
-        {
-            "parameters": {
-                "workflowId": "VIMGqlIjb_uxuJ3YRqjdc",
-                "mode": "each"
-            },
-            "name": "Route to Ingest",
-            "type": "n8n-nodes-base.executeWorkflow",
-            "typeVersion": 1,
-            "position": [
-                1450,
-                211
-            ]
-        },
-        {
-            "parameters": {
-                "chatId": "={{ $('Telegram Trigger').item.json.message ? $('Telegram Trigger').item.json.message.chat.id : $('Execute Workflow Trigger').item.json.message.chat.id }}",
-                "text": "\ud83d\udcf7 Imagen recibida, pero no detecto que sea el calendario de la pizarra.\nClasificaci\u00f3n: {{ $json.image_type }} ({{ $json.confidence * 100 }}%)",
-                "additionalFields": {}
-            },
-            "name": "Reply Other",
-            "type": "n8n-nodes-base.telegram",
-            "typeVersion": 1,
-            "position": [
-                1450,
-                400
-            ],
-            "credentials": {
-                "telegramApi": {
-                    "id": "JLG33gMQcdi4JvQq",
-                    "name": "Telegram account"
-                }
-            }
-        },
-        {
-            "parameters": {
-                "chatId": "={{ $('Telegram Trigger').item.json.message ? $('Telegram Trigger').item.json.message.chat.id : $('Execute Workflow Trigger').item.json.message.chat.id }}",
-                "text": "=\ud83d\udc1b Debug Router Output:\n{{ JSON.stringify($json).slice(0, 3000) }}",
-                "additionalFields": {}
-            },
-            "name": "Debug Output",
-            "type": "n8n-nodes-base.telegram",
-            "typeVersion": 1,
-            "position": [
-                1650,
-                200
-            ],
-            "credentials": {
-                "telegramApi": {
-                    "id": "JLG33gMQcdi4JvQq",
-                    "name": "Telegram account"
-                }
-            }
+  "name": "nido.router.telegram.photo",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        96
+      ],
+      "id": "50120953-2759-4d06-a062-86e70f9cec3f"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.photo[$json.message.photo.length - 1].file_id }}",
+        "additionalFields": {}
+      },
+      "name": "Get Photo",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        224,
+        96
+      ],
+      "id": "47d76c8c-fa11-4273-8dac-32c510807d6c",
+      "webhookId": "bdacbc84-4c07-4fdd-873f-3e173ddf144d",
+      "credentials": {
+        "telegramApi": {
+          "id": "JLG33gMQcdi4JvQq",
+          "name": "Telegram account"
         }
-    ],
-    "connections": {
-        "Telegram Trigger": {
-            "main": [
-                [
-                    {
-                        "node": "Get Photo",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
+      }
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "folder",
+              "value": "=/storage/inbox_photos/{{ new Date().getFullYear() }}/{{ (new Date().getMonth() + 1).toString().padStart(2, '0') }}/{{ new Date().getDate().toString().padStart(2, '0') }}"
+            },
+            {
+              "name": "filename",
+              "value": "={{ $json.result.file_path.split('/').pop() }}"
+            }
+          ]
         },
-        "Execute Workflow Trigger": {
-            "main": [
-                [
-                    {
-                        "node": "Get Photo",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Get Photo": {
-            "main": [
-                [
-                    {
-                        "node": "Set Path",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Set Path": {
-            "main": [
-                [
-                    {
-                        "node": "Create Folder",
-                        "type": "main",
-                        "index": 0
-                    },
-                    {
-                        "node": "Merge",
-                        "type": "main",
-                        "index": 1
-                    }
-                ]
-            ]
-        },
-        "Create Folder": {
-            "main": [
-                [
-                    {
-                        "node": "Merge",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Merge": {
-            "main": [
-                [
-                    {
-                        "node": "Save to Disk",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Save to Disk": {
-            "main": [
-                [
-                    {
-                        "node": "Prepare LLM Input",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Prepare LLM Input": {
-            "main": [
-                [
-                    {
-                        "node": "Classify Image",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Classify Image": {
-            "main": [
-                [
-                    {
-                        "node": "Parse JSON",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Parse JSON": {
-            "main": [
-                [
-                    {
-                        "node": "Switch Type",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Switch Type": {
-            "main": [
-                [
-                    {
-                        "node": "Set Input Data",
-                        "type": "main",
-                        "index": 0
-                    }
-                ],
-                [
-                    {
-                        "node": "Reply Other",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Set Input Data": {
-            "main": [
-                [
-                    {
-                        "node": "Route to Ingest",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Route to Ingest": {
-            "main": [
-                [
-                    {
-                        "node": "Debug Output",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
+        "options": {}
+      },
+      "name": "Set Path",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        448,
+        96
+      ],
+      "id": "ff8e424f-4407-410e-a6d4-2a8241661402"
+    },
+    {
+      "parameters": {
+        "command": "=mkdir -p {{ $json.folder }}"
+      },
+      "name": "Create Folder",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        688,
+        -48
+      ],
+      "id": "685ea088-21dc-4eb6-932c-3abb30c5be83"
+    },
+    {
+      "parameters": {
+        "mode": "mergeByIndex",
+        "join": "outer"
+      },
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 1,
+      "position": [
+        880,
+        160
+      ],
+      "id": "0b94aa0d-b755-42c6-b3ec-0914c648ec6c"
+    },
+    {
+      "parameters": {
+        "fileName": "={{ $node[\"Set Path\"].json.folder }}/{{ $node[\"Set Path\"].json.filename }}",
+        "options": {}
+      },
+      "name": "Save to Disk",
+      "type": "n8n-nodes-base.writeBinaryFile",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        96
+      ],
+      "id": "9df468ff-7551-48ba-ab6c-914ad8c40cf8"
+    },
+    {
+      "parameters": {
+        "jsCode": "const prompt_id = 'router_photo_classification';\nconst options = { model: 'models/gemini-3-flash-preview' };\n\nreturn $input.all().map(item => {\n  const json = item.json;\n  // Construct local path from folder and filename\n  // Assuming folder and filename are present from upstream 'Set Path' -> 'Merge'\n  const input_path = `${json.folder}/${json.filename}`;\n  \n  return {\n    json: {\n      prompt_id,\n      options,\n      input: {\n          input_type: 'IMAGE',\n          input_path\n      }\n    }\n  };\n});"
+      },
+      "name": "Prepare LLM Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        96
+      ],
+      "id": "15faa30f-188f-4a2e-939a-154bfa3a115a"
+    },
+    {
+      "parameters": {
+        "workflowId": "RNCzRY2bi-VzDmnZiq27S",
+        "mode": "each",
+        "options": {}
+      },
+      "name": "Classify Image",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        1568,
+        96
+      ],
+      "id": "a424c466-bd9e-4eec-a104-50db32716f7b"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// The LLM adapter already returns parsed JSON with fields:\n// classification, confidence, reasoning, _meta\nconst json = $input.item.json;\n\n// Map to the expected format for downstream nodes\n// Preserve input_path from _meta for downstream workflows\nreturn {\n  json: {\n    image_type: json.image_type,\n    confidence: json.confidence,\n    reason: json.reason,\n    image_path: json._meta?.input_path || null,\n    source: json._meta.source,\n    _meta: json._meta\n  }\n};"
+      },
+      "name": "Parse JSON",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        96
+      ],
+      "id": "c6e551f1-e937-4fc3-845b-30189cd7bd8f"
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.image_type }}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "whiteboard_calendar"
+            }
+          ]
         }
+      },
+      "name": "Switch Type",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        2016,
+        64
+      ],
+      "id": "fcb9d4ce-b8a7-473a-a26a-19184f1dbc9c"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "image_path",
+              "value": "={{ $json.image_path }}"
+            },
+            {
+              "name": "chat_id",
+              "value": "={{ $('Execute Workflow Trigger').item.json.message.chat.id }}"
+            },
+            {
+              "name": "message_id",
+              "value": "={{ $('Execute Workflow Trigger').item.json.message.message_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Set Input Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        2240,
+        0
+      ],
+      "id": "13786e12-d470-44e9-85a4-95eead7aea93"
+    },
+    {
+      "parameters": {
+        "workflowId": "VIMGqlIjb_uxuJ3YRqjdc",
+        "mode": "each",
+        "options": {}
+      },
+      "name": "Route to Ingest",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        2464,
+        0
+      ],
+      "id": "96743cd2-4a74-4d1d-9296-9eccb816a624"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message ? $('Telegram Trigger').item.json.message.chat.id : $('Execute Workflow Trigger').item.json.message.chat.id }}",
+        "text": "📷 Imagen recibida, pero no detecto que sea el calendario de la pizarra.\nClasificación: {{ $json.image_type }} ({{ $json.confidence * 100 }}%)",
+        "additionalFields": {}
+      },
+      "name": "Reply Other",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        2384,
+        192
+      ],
+      "id": "98e65a0b-45e5-48a3-80c4-a46ccdb0e357",
+      "webhookId": "477e2a94-001e-44e9-a595-e713e7ed3771",
+      "credentials": {
+        "telegramApi": {
+          "id": "JLG33gMQcdi4JvQq",
+          "name": "Telegram account"
+        }
+      }
     }
+  ],
+  "pinData": {},
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Photo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Photo": {
+      "main": [
+        [
+          {
+            "node": "Set Path",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Path": {
+      "main": [
+        [
+          {
+            "node": "Create Folder",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Create Folder": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Save to Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to Disk": {
+      "main": [
+        [
+          {
+            "node": "Prepare LLM Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare LLM Input": {
+      "main": [
+        [
+          {
+            "node": "Classify Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify Image": {
+      "main": [
+        [
+          {
+            "node": "Parse JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse JSON": {
+      "main": [
+        [
+          {
+            "node": "Switch Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch Type": {
+      "main": [
+        [
+          {
+            "node": "Set Input Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reply Other",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Input Data": {
+      "main": [
+        [
+          {
+            "node": "Route to Ingest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route to Ingest": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "65a5cbaf-6d7f-4d79-b4c5-786d960ade3a",
+  "meta": {
+    "instanceId": "e1f8529dafc1c7b24188afd104b1a8e8824324405683593c80fc8bc56ba17881"
+  },
+  "id": "ObAxXSSjiG0Q-w4iDQi5T",
+  "tags": []
 }

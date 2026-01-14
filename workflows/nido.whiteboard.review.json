@@ -1,374 +1,354 @@
 {
-    "name": "nido.whiteboard.review",
-    "nodes": [
-        {
-            "parameters": {},
-            "name": "External Trigger",
-            "type": "n8n-nodes-base.executeWorkflowTrigger",
-            "typeVersion": 1,
-            "position": [
-                250,
-                100
-            ]
-        },
-        {
-            "parameters": {
-                "chatId": "={{ $json.session.chat_id }}",
-                "text": "=Siguiente evento: {{ $json.session.pending[0].text }} ({{ $json.session.pending[0].date }})",
-                "replyMarkup": "inlineKeyboard",
-                "inlineKeyboard": {
-                    "rows": [
-                        {
-                            "row": {
-                                "buttons": [
-                                    {
-                                        "text": "✅ Confirmar",
-                                        "additionalFields": {
-                                            "callback_data": "=accept|{{ $json.session.id }}|0"
-                                        }
-                                    },
-                                    {
-                                        "text": "❌ Ignorar",
-                                        "additionalFields": {
-                                            "callback_data": "=ignore|{{ $json.session.id }}|0"
-                                        }
-                                    }
-                                ]
-                            }
-                        }
-                    ]
-                }
-            },
-            "name": "Send First Item",
-            "type": "n8n-nodes-base.telegram",
-            "typeVersion": 1,
-            "position": [
-                450,
-                100
-            ],
-            "credentials": {
-                "telegramApi": {
-                    "id": "JLG33gMQcdi4JvQq",
-                    "name": "Telegram account"
-                }
-            }
-        },
-        {
-            "parameters": {
-                "updates": [
-                    "callback_query"
-                ],
-                "additionalFields": {}
-            },
-            "name": "Telegram Callback",
-            "type": "n8n-nodes-base.telegramTrigger",
-            "typeVersion": 1,
-            "position": [
-                250,
-                300
-            ],
-            "webhookId": "nido-pizarra-review",
-            "credentials": {
-                "telegramApi": {
-                    "id": "JLG33gMQcdi4JvQq",
-                    "name": "Telegram account"
-                }
-            }
-        },
-        {
-            "parameters": {
-                "callbackQueryId": "={{ $json.callback_query.id }}",
-                "chatId": 5785514136,
-                "text": "OK",
-                "additionalFields": {}
-            },
-            "name": "Answer Callback",
-            "type": "n8n-nodes-base.telegram",
-            "typeVersion": 1,
-            "position": [
-                350,
-                300
-            ],
-            "credentials": {
-                "telegramApi": {
-                    "id": "JLG33gMQcdi4JvQq",
-                    "name": "Telegram account"
-                }
-            }
-        },
-        {
-            "parameters": {
-                "functionCode": "const callbackData = $node[\"Telegram Callback\"].json.callback_query;\nconst data = callbackData ? callbackData.data : null;\n\nif (!data) return [];\n\n// Format: action|session_id|item_index\nconst parts = data.split('|');\nreturn [{ json: { action: parts[0], session_id: parts[1], item_index: parseInt(parts[2]) } }];"
-            },
-            "name": "Parse Callback",
-            "type": "n8n-nodes-base.function",
-            "typeVersion": 1,
-            "position": [
-                450,
-                300
-            ]
-        },
-        {
-            "parameters": {
-                "functionCode": "const fs = require('fs');\nconst sessionId = items[0].json.session_id;\nconst path = `/data/review_sessions/sess_${sessionId}.json`;\nconst session = JSON.parse(fs.readFileSync(path, 'utf8'));\nreturn [{ json: { session, path } }];"
-            },
-            "name": "Load Session",
-            "type": "n8n-nodes-base.function",
-            "typeVersion": 1,
-            "position": [
-                650,
-                300
-            ]
-        },
-        {
-            "parameters": {
-                "functionCode": "// Apply Action Logic\nconst session = items[0].json.session;\nconst action = $node[\"Parse Callback\"].json.action;\nconst index = $node[\"Parse Callback\"].json.item_index;\n\nconst item = session.pending[index];\n\nif (action === 'accept') {\n  session.accepted.push(item);\n} else if (action === 'ignore') {\n  session.ignored.push(item);\n}\n\nsession.pending.splice(index, 1);\n\nconst binaryData = Buffer.from(JSON.stringify(session, null, 2)).toString('base64');\n\nreturn [{\n  json: { session, processedItem: item, action },\n  binary: {\n    data: {\n      data: binaryData,\n      mimeType: 'application/json'\n    }\n  }\n}];"
-            },
-            "name": "Process Action",
-            "type": "n8n-nodes-base.function",
-            "typeVersion": 1,
-            "position": [
-                850,
-                300
-            ]
-        },
-        {
-            "parameters": {
-                "fileName": "={{ $node[\"Load Session\"].json.path }}",
-                "options": {
-                    "createDirs": true
-                }
-            },
-            "name": "Update Session File",
-            "type": "n8n-nodes-base.writeBinaryFile",
-            "typeVersion": 1,
-            "position": [
-                1050,
-                300
-            ]
-        },
-        {
-            "parameters": {
-                "conditions": {
-                    "number": [
-                        {
-                            "value1": "={{ $json.session.pending.length }}",
-                            "operation": "larger",
-                            "value2": 0
-                        }
-                    ]
-                }
-            },
-            "name": "More Pending?",
-            "type": "n8n-nodes-base.if",
-            "typeVersion": 1,
-            "position": [
-                1250,
-                300
-            ]
-        },
-        {
-            "parameters": {
-                "chatId": "={{ $json.session.chat_id }}",
-                "messageId": "={{ $node[\"Telegram Callback\"].json.callback_query.message.message_id }}",
-                "text": "=Siguiente evento: {{ $json.session.pending[0].text }} ({{ $json.session.pending[0].date }})",
-                "replyMarkup": "inlineKeyboard",
-                "inlineKeyboard": {
-                    "rows": [
-                        {
-                            "row": {
-                                "buttons": [
-                                    {
-                                        "text": "✅ Confirmar",
-                                        "additionalFields": {
-                                            "callback_data": "=accept|{{ $json.session.id }}|0"
-                                        }
-                                    },
-                                    {
-                                        "text": "❌ Ignorar",
-                                        "additionalFields": {
-                                            "callback_data": "=ignore|{{ $json.session.id }}|0"
-                                        }
-                                    }
-                                ]
-                            }
-                        }
-                    ]
-                }
-            },
-            "name": "Show Next Item",
-            "type": "n8n-nodes-base.telegram",
-            "typeVersion": 1,
-            "position": [
-                1450,
-                200
-            ],
-            "credentials": {
-                "telegramApi": {
-                    "id": "JLG33gMQcdi4JvQq",
-                    "name": "Telegram account"
-                }
-            }
-        },
-        {
-            "parameters": {
-                "chatId": "={{ $json.session.chat_id }}",
-                "messageId": "={{ $node[\"Telegram Callback\"].json.callback_query.message.message_id }}",
-                "text": "=✅ Revisión completada.\nAceptados: {{ $json.session.accepted.length }}\nIgnorados: {{ $json.session.ignored.length }}",
-                "additionalFields": {}
-            },
-            "name": "Finish Review",
-            "type": "n8n-nodes-base.telegram",
-            "typeVersion": 1,
-            "position": [
-                1450,
-                400
-            ],
-            "credentials": {
-                "telegramApi": {
-                    "id": "JLG33gMQcdi4JvQq",
-                    "name": "Telegram account"
-                }
-            }
-        },
-        {
-            "parameters": {
-                "chatId": "={{ $json.session.chat_id }}",
-                "text": "=🐛 Debug Review Output:\n{{ JSON.stringify($json).slice(0, 3000) }}",
-                "additionalFields": {}
-            },
-            "name": "Debug Output",
-            "type": "n8n-nodes-base.telegram",
-            "typeVersion": 1,
-            "position": [
-                1650,
-                300
-            ],
-            "credentials": {
-                "telegramApi": {
-                    "id": "JLG33gMQcdi4JvQq",
-                    "name": "Telegram account"
-                }
-            }
+  "name": "nido.whiteboard.review",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "External Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        17904,
+        736
+      ],
+      "id": "acac7517-aa82-4753-b4fd-f1ba73a89fa2"
+    },
+    {
+      "parameters": {
+        "chatId": 5785514136,
+        "text": "OK",
+        "additionalFields": {}
+      },
+      "name": "Answer Callback",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        18128,
+        736
+      ],
+      "id": "d6dbfdb3-4a1f-4866-b031-d3879852688d",
+      "webhookId": "9a9df720-dbe0-41e6-8c27-a9c8b59c6fdc",
+      "credentials": {
+        "telegramApi": {
+          "id": "JLG33gMQcdi4JvQq",
+          "name": "Telegram account"
         }
-    ],
-    "connections": {
-        "External Trigger": {
-            "main": [
-                [
-                    {
-                        "node": "Send First Item",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Telegram Callback": {
-            "main": [
-                [
-                    {
-                        "node": "Answer Callback",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Answer Callback": {
-            "main": [
-                [
-                    {
-                        "node": "Parse Callback",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Parse Callback": {
-            "main": [
-                [
-                    {
-                        "node": "Load Session",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Load Session": {
-            "main": [
-                [
-                    {
-                        "node": "Process Action",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Process Action": {
-            "main": [
-                [
-                    {
-                        "node": "Update Session File",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Update Session File": {
-            "main": [
-                [
-                    {
-                        "node": "More Pending?",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "More Pending?": {
-            "main": [
-                [
-                    {
-                        "node": "Show Next Item",
-                        "type": "main",
-                        "index": 0
-                    }
-                ],
-                [
-                    {
-                        "node": "Finish Review",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Show Next Item": {
-            "main": [
-                [
-                    {
-                        "node": "Debug Output",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Finish Review": {
-            "main": [
-                [
-                    {
-                        "node": "Debug Output",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "let callbackData;\n\n// Try to get data from current item (if direct input)\nif (items[0].json.callback_query) {\n  callbackData = items[0].json.callback_query;\n} \n// Check External Trigger (standard routed execution)\nelse if ($node[\"External Trigger\"] && $node[\"External Trigger\"].json.callback_query) {\n  callbackData = $node[\"External Trigger\"].json.callback_query;\n}\n\nconst data = callbackData ? callbackData.data : null;\n\nif (!data) return [];\n\n// Format: action|session_id|item_index\nconst parts = data.split('|');\nreturn [{ json: { action: parts[0], session_id: parts[1], item_index: parseInt(parts[2]) } }];"
+      },
+      "name": "Parse Callback",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        18352,
+        736
+      ],
+      "id": "ff66e0af-91e3-441d-941d-b8382677ac05"
+    },
+    {
+      "parameters": {
+        "functionCode": "const fs = require('fs');\nconst sessionId = items[0].json.session_id;\nconst path = `/data/review_sessions/sess_${sessionId}.json`;\nconst session = JSON.parse(fs.readFileSync(path, 'utf8'));\nreturn [{ json: { session, path } }];"
+      },
+      "name": "Load Session",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        18576,
+        736
+      ],
+      "id": "87600770-c1bc-42a5-9f2b-a7d758ce7289"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Apply Action Logic\nconst session = items[0].json.session;\nconst action = $node[\"Parse Callback\"].json.action;\nconst index = $node[\"Parse Callback\"].json.item_index;\n\nconst item = session.pending[index];\n\nif (action === 'accept') {\n  session.accepted.push(item);\n} else if (action === 'ignore') {\n  session.ignored.push(item);\n}\n\nsession.pending.splice(index, 1);\n\nconst binaryData = Buffer.from(JSON.stringify(session, null, 2)).toString('base64');\n\nreturn [{\n  json: { session, processedItem: item, action },\n  binary: {\n    data: {\n      data: binaryData,\n      mimeType: 'application/json'\n    }\n  }\n}];"
+      },
+      "name": "Process Action",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        18800,
+        736
+      ],
+      "id": "330f9d91-5998-4eec-82bf-57d94e14c9dd"
+    },
+    {
+      "parameters": {
+        "fileName": "={{ $node[\"Load Session\"].json.path }}",
+        "options": {}
+      },
+      "name": "Update Session File",
+      "type": "n8n-nodes-base.writeBinaryFile",
+      "typeVersion": 1,
+      "position": [
+        19024,
+        736
+      ],
+      "id": "713d51c6-0432-4c75-8522-467f6699ff43"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $node[\"Process Action\"].json.session.pending.length }}",
+              "operation": "larger"
+            }
+          ]
         }
+      },
+      "name": "More Pending?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        19696,
+        736
+      ],
+      "id": "c45e8528-fb4b-484c-aa11-c3c862d28645"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $node[\"Process Action\"].json.session.chat_id }}",
+        "text": "=Siguiente evento: {{ $node[\"Process Action\"].json.session.pending[0].texto }} ({{ $node[\"Process Action\"].json.session.pending[0].date }})",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✅ Guardar",
+                    "additionalFields": {
+                      "callback_data": "=accept|{{ $json.session.id }}|0"
+                    }
+                  },
+                  {
+                    "text": "❌ Ignorar",
+                    "additionalFields": {
+                      "callback_data": "=ignore|{{ $json.session.id }}|0"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {}
+      },
+      "name": "Show Next Item",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        19920,
+        640
+      ],
+      "id": "d592142c-7ac9-4b9f-ae3c-05d14ad64b62",
+      "webhookId": "2fcc9fab-92f1-422b-bc17-f8971e624a96",
+      "credentials": {
+        "telegramApi": {
+          "id": "JLG33gMQcdi4JvQq",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.session.chat_id }}",
+        "text": "=✅ Revisión completada.\nAceptados: {{ $json.session.accepted.length }}\nIgnorados: {{ $json.session.ignored.length }}",
+        "additionalFields": {}
+      },
+      "name": "Finish Review",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        19920,
+        832
+      ],
+      "id": "81f019bd-2041-4d75-822f-7243bae83937",
+      "webhookId": "1db973f2-f757-4373-b085-805b7cf5b0ce",
+      "credentials": {
+        "telegramApi": {
+          "id": "JLG33gMQcdi4JvQq",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $node[\"Process Action\"].json.action }}",
+              "value2": "accept"
+            }
+          ]
+        }
+      },
+      "name": "Is Action Save?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        19248,
+        736
+      ],
+      "id": "004adcf1-a727-4690-9812-7ce03c8aaa2d"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": "albertolau@pozoesteban.es"
+        },
+        "start": "={{ new Date($node[\"Process Action\"].json.processedItem.date).toISOString().split('T')[0] }}",
+        "end": "={{ new Date($node[\"Process Action\"].json.processedItem.date).toISOString().split('T')[0] }}",
+        "additionalFields": {
+          "allday": "yes",
+          "summary": "={{ $node[\"Process Action\"].json.processedItem.texto }}"
+        }
+      },
+      "name": "Add to Calendar",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [
+        19472,
+        664
+      ],
+      "id": "8e2685ea-ba20-4652-864b-c1d8060ab2b8",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "bB5cLTUIh2iApkRb",
+          "name": "Google Calendar account 2"
+        }
+      }
     }
+  ],
+  "pinData": {},
+  "connections": {
+    "External Trigger": {
+      "main": [
+        [
+          {
+            "node": "Answer Callback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer Callback": {
+      "main": [
+        [
+          {
+            "node": "Parse Callback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Callback": {
+      "main": [
+        [
+          {
+            "node": "Load Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Session": {
+      "main": [
+        [
+          {
+            "node": "Process Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Action": {
+      "main": [
+        [
+          {
+            "node": "Update Session File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Session File": {
+      "main": [
+        [
+          {
+            "node": "Is Action Save?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Action Save?": {
+      "main": [
+        [
+          {
+            "node": "Add to Calendar",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "More Pending?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add to Calendar": {
+      "main": [
+        [
+          {
+            "node": "More Pending?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "More Pending?": {
+      "main": [
+        [
+          {
+            "node": "Show Next Item",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Finish Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "81362207-26d9-4507-aefe-875b80f12541",
+  "meta": {
+    "instanceId": "e1f8529dafc1c7b24188afd104b1a8e8824324405683593c80fc8bc56ba17881"
+  },
+  "id": "18JO8AMXiXDnR9-tU-POb",
+  "tags": []
 }

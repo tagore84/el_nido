@@ -4,7 +4,8 @@
         {
             "parameters": {
                 "updates": [
-                    "message"
+                    "message",
+                    "callback_query"
                 ],
                 "additionalFields": {}
             },
@@ -26,7 +27,7 @@
         {
             "parameters": {
                 "dataType": "string",
-                "value1": "={{ $json.message.photo ? 'photo' : ($json.message.text ? 'text' : 'other') }}",
+                "value1": "={{ $json.callback_query ? 'callback' : ($json.message ? ($json.message.photo ? 'photo' : ($json.message.text ? 'text' : 'other')) : 'other') }}",
                 "rules": {
                     "rules": [
                         {
@@ -35,6 +36,10 @@
                         {
                             "value2": "text",
                             "output": 1
+                        },
+                        {
+                            "value2": "callback",
+                            "output": 2
                         }
                     ]
                 }
@@ -49,7 +54,7 @@
         },
         {
             "parameters": {
-                "workflowId": "Bu9cLDOLTJolDCBACvIVo",
+                "workflowId": "ObAxXSSjiG0Q-w4iDQi5T",
                 "mode": "each",
                 "options": {}
             },
@@ -73,6 +78,20 @@
             "position": [
                 650,
                 400
+            ]
+        },
+        {
+            "parameters": {
+                "workflowId": "18JO8AMXiXDnR9-tU-POb",
+                "mode": "each",
+                "options": {}
+            },
+            "name": "Route to Review",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1,
+            "position": [
+                650,
+                600
             ]
         }
     ],
@@ -103,9 +122,16 @@
                         "type": "main",
                         "index": 0
                     }
+                ],
+                [
+                    {
+                        "node": "Route to Review",
+                        "type": "main",
+                        "index": 0
+                    }
                 ]
             ]
         }
     },
-    "active": false
+    "active": true
 }

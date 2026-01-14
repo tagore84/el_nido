@@ -7,9 +7,10 @@
             "type": "n8n-nodes-base.executeWorkflowTrigger",
             "typeVersion": 1,
             "position": [
-                250,
-                300
-            ]
+                -18000,
+                80
+            ],
+            "id": "874e2380-1c74-458f-8731-ac0536159925"
         },
         {
             "parameters": {
@@ -19,34 +20,38 @@
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                450,
-                300
-            ]
+                -17808,
+                80
+            ],
+            "id": "ff1be204-34fe-473e-bf9b-0b2e72088195"
         },
         {
             "parameters": {
                 "workflowId": "RNCzRY2bi-VzDmnZiq27S",
-                "mode": "each"
+                "mode": "each",
+                "options": {}
             },
             "name": "Call LLM Adapter",
             "type": "n8n-nodes-base.executeWorkflow",
             "typeVersion": 1,
             "position": [
-                650,
-                300
-            ]
+                -17600,
+                80
+            ],
+            "id": "7910a23d-6eac-4496-856d-5fb9321d7b37"
         },
         {
             "parameters": {
-                "jsCode": "// Format response from LLM Adapter\n// The adapter returns: { month_detected, entries, _meta }\nconst json = $input.item.json;\n\n// Normalize keys (fallback for Spanish keys if LLM ignores schema)\nlet month_detected = json.month_detected;\nif (!month_detected) {\n    const meses = {\n        'ENERO': '01', 'FEBRERO': '02', 'MARZO': '03', 'ABRIL': '04', 'MAYO': '05', 'JUNIO': '06',\n        'JULIO': '07', 'AGOSTO': '08', 'SEPTIEMBRE': '09', 'OCTUBRE': '10', 'NOVIEMBRE': '11', 'DICIEMBRE': '12'\n    };\n    const mesNorm = (json.mes || '').toString().toUpperCase().trim();\n    const mesNum = meses[mesNorm] || (json.mes || '').toString().padStart(2,'0'); // Try mapping or pad number\n    const anio = json.anio || new Date().getFullYear();\n    month_detected = `${anio}-${mesNum}`;\n}\n\nconst entries = json.entries || json.eventos || [];\n\n// Create binary for downstream file saves\nconst outputJson = {\n    month_detected,\n    entries,\n    _meta: json._meta\n};\n\nconst binaryData = Buffer.from(JSON.stringify(outputJson, null, 2)).toString('base64');\n\nreturn {\n  json: outputJson,\n  binary: {\n    data: {\n      data: binaryData,\n      mimeType: 'application/json'\n    }\n  }\n};"
+                "jsCode": "// Format response from LLM Adapter\n// The adapter returns: { month_detected, entries, _meta }\nconst json = $input.item.json;\n\n// Normalize keys (fallback for Spanish keys if LLM ignores schema)\nlet month_detected = json.month_detected;\nif (!month_detected) {\n    const meses = {\n        'ENERO': '01', 'FEBRERO': '02', 'MARZO': '03', 'ABRIL': '04', 'MAYO': '05', 'JUNIO': '06',\n        'JULIO': '07', 'AGOSTO': '08', 'SEPTIEMBRE': '09', 'OCTUBRE': '10', 'NOVIEMBRE': '11', 'DICIEMBRE': '12'\n    };\n    const mesNorm = (json.mes || '').toString().toUpperCase().trim();\n    const mesNum = meses[mesNorm] || (json.mes || '').toString().padStart(2,'0'); // Try mapping or pad number\n    const anio = json.anio || new Date().getFullYear();\n    month_detected = `${anio}-${mesNum}`;\n}\n\nlet entries = json.entries || json.eventos || [];\n\n// Normalize entries to ensure consistent keys (Spanish favored by review workflow)\nentries = entries.map(e => ({\n    ...e,\n    texto: e.texto || e.text,\n    fecha: e.fecha || e.date,\n    text: e.text || e.texto,\n    date: e.date || e.fecha\n}));\n\n// Create binary for downstream file saves\nconst outputJson = {\n    month_detected,\n    entries,\n    _meta: json._meta\n};\n\nconst binaryData = Buffer.from(JSON.stringify(outputJson, null, 2)).toString('base64');\n\nreturn {\n  json: outputJson,\n  binary: {\n    data: {\n      data: binaryData,\n      mimeType: 'application/json'\n    }\n  }\n};"
             },
             "name": "Format Response",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                850,
-                300
-            ]
+                -17408,
+                80
+            ],
+            "id": "81a3007e-27f1-4649-a575-f31e1b1c42a3"
         },
         {
             "parameters": {
@@ -56,38 +61,38 @@
             "type": "n8n-nodes-base.executeCommand",
             "typeVersion": 1,
             "position": [
-                1050,
-                300
-            ]
+                -17200,
+                80
+            ],
+            "id": "ee340d44-2330-4a1e-a841-ff73d01f4540"
         },
         {
             "parameters": {
                 "mode": "mergeByIndex",
-                "join": "outer",
-                "binary": "resolved"
+                "join": "outer"
             },
             "name": "Merge RAW",
             "type": "n8n-nodes-base.merge",
             "typeVersion": 1,
             "position": [
-                1250,
-                300
-            ]
+                -17008,
+                80
+            ],
+            "id": "915bb648-0517-47b9-824c-297efbcd54d2"
         },
         {
             "parameters": {
                 "fileName": "=/data/whiteboard_raw/{{ $json.month_detected }}/{{ new Date().toISOString().split('T')[0] }}_{{ $node[\"Execute Workflow Trigger\"].json.message_id }}.json",
-                "options": {
-                    "createDirs": true
-                }
+                "options": {}
             },
             "name": "Save RAW",
             "type": "n8n-nodes-base.writeBinaryFile",
             "typeVersion": 1,
             "position": [
-                1450,
-                300
-            ]
+                -16800,
+                80
+            ],
+            "id": "d775f1e8-33e4-4a5a-a74a-c3c15b3be2d3"
         },
         {
             "parameters": {
@@ -97,9 +102,10 @@
             "type": "n8n-nodes-base.function",
             "typeVersion": 1,
             "position": [
-                1650,
-                300
-            ]
+                -16608,
+                80
+            ],
+            "id": "2ab53c32-186f-4b2d-af54-eebcd974a5d7"
         },
         {
             "parameters": {
@@ -109,38 +115,38 @@
             "type": "n8n-nodes-base.executeCommand",
             "typeVersion": 1,
             "position": [
-                1850,
-                300
-            ]
+                -16400,
+                80
+            ],
+            "id": "8527d27a-ed54-495c-b940-a4ce405daab8"
         },
         {
             "parameters": {
                 "mode": "mergeByIndex",
-                "join": "outer",
-                "binary": "resolved"
+                "join": "outer"
             },
             "name": "Merge Snapshot",
             "type": "n8n-nodes-base.merge",
             "typeVersion": 1,
             "position": [
-                2050,
-                300
-            ]
+                -16208,
+                80
+            ],
+            "id": "50486778-fbaa-425f-a9cd-40ac33e5bbe3"
         },
         {
             "parameters": {
                 "fileName": "=/data/whiteboard_snapshots/{{ $json.currentSnapshot.month_detected }}/{{ new Date().toISOString().split('T')[0] }}.json",
-                "options": {
-                    "createDirs": true
-                }
+                "options": {}
             },
             "name": "Save Snapshot",
             "type": "n8n-nodes-base.writeBinaryFile",
             "typeVersion": 1,
             "position": [
-                2250,
-                300
-            ]
+                -16000,
+                80
+            ],
+            "id": "ed3a2adc-01b7-48ad-94af-d0e9c60ab659"
         },
         {
             "parameters": {
@@ -148,8 +154,7 @@
                     "number": [
                         {
                             "value1": "={{ $json.diffs.added.length + $json.diffs.modified.length }}",
-                            "operation": "larger",
-                            "value2": 0
+                            "operation": "larger"
                         }
                     ]
                 }
@@ -158,9 +163,10 @@
             "type": "n8n-nodes-base.if",
             "typeVersion": 1,
             "position": [
-                2450,
-                300
-            ]
+                -15808,
+                80
+            ],
+            "id": "fa4c0a28-4b97-415a-a25e-97fdcac2d5e1"
         },
         {
             "parameters": {
@@ -170,9 +176,10 @@
             "type": "n8n-nodes-base.function",
             "typeVersion": 1,
             "position": [
-                2650,
-                200
-            ]
+                -15600,
+                -32
+            ],
+            "id": "68f6e229-c672-4c4b-aadb-315dce520116"
         },
         {
             "parameters": {
@@ -182,51 +189,38 @@
             "type": "n8n-nodes-base.executeCommand",
             "typeVersion": 1,
             "position": [
-                2850,
-                200
-            ]
+                -15408,
+                -32
+            ],
+            "id": "b43a3536-f245-4acd-a783-0684dc863c01"
         },
         {
             "parameters": {
                 "mode": "mergeByIndex",
-                "join": "outer",
-                "binary": "resolved"
+                "join": "outer"
             },
             "name": "Merge Session",
             "type": "n8n-nodes-base.merge",
             "typeVersion": 1,
             "position": [
-                3050,
-                200
-            ]
+                -15200,
+                -32
+            ],
+            "id": "2340b120-6535-4d29-91cc-b2893599e50f"
         },
         {
             "parameters": {
                 "fileName": "=/data/review_sessions/sess_{{ $json.uuid }}.json",
-                "options": {
-                    "createDirs": true
-                }
+                "options": {}
             },
             "name": "Save Session",
             "type": "n8n-nodes-base.writeBinaryFile",
             "typeVersion": 1,
             "position": [
-                3250,
-                200
-            ]
-        },
-        {
-            "parameters": {
-                "workflowId": "18JO8AMXiXDnR9-tU-POb",
-                "mode": "each"
-            },
-            "name": "Start Review",
-            "type": "n8n-nodes-base.executeWorkflow",
-            "typeVersion": 1,
-            "position": [
-                3450,
-                200
-            ]
+                -15008,
+                -32
+            ],
+            "id": "04a827fa-1305-4f8a-b07d-53677f0ac79d"
         },
         {
             "parameters": {
@@ -238,9 +232,11 @@
             "type": "n8n-nodes-base.telegram",
             "typeVersion": 1,
             "position": [
-                2650,
-                400
+                -15600,
+                176
             ],
+            "id": "90a1966e-a855-4ecf-89d3-3a204a5c53b0",
+            "webhookId": "d303f614-16ab-44a6-a982-6f49ddb806bf",
             "credentials": {
                 "telegramApi": {
                     "id": "JLG33gMQcdi4JvQq",
@@ -250,17 +246,42 @@
         },
         {
             "parameters": {
-                "chatId": "={{ $node[\"Execute Workflow Trigger\"].json.chat_id }}",
-                "text": "=🐛 Debug Ingest Output:\n{{ JSON.stringify($json).slice(0, 3000) }}",
+                "chatId": "={{ $json.session.chat_id }}",
+                "text": "=Siguiente evento: {{ $json.session.pending[0].text }} ({{ $json.session.pending[0].date }})",
+                "replyMarkup": "inlineKeyboard",
+                "inlineKeyboard": {
+                    "rows": [
+                        {
+                            "row": {
+                                "buttons": [
+                                    {
+                                        "text": "✅ Guardar",
+                                        "additionalFields": {
+                                            "callback_data": "=accept|{{ $json.session.id }}|0"
+                                        }
+                                    },
+                                    {
+                                        "text": "❌ Ignorar",
+                                        "additionalFields": {
+                                            "callback_data": "=ignore|{{ $json.session.id }}|0"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
                 "additionalFields": {}
             },
-            "name": "Debug Output",
+            "name": "Send First Item",
             "type": "n8n-nodes-base.telegram",
             "typeVersion": 1,
             "position": [
-                3650,
-                200
+                -14800,
+                -32
             ],
+            "id": "bad63537-846c-4f73-99d0-d3716fa88259",
+            "webhookId": "98edfce2-ecfa-49dd-8c7e-446b241634c7",
             "credentials": {
                 "telegramApi": {
                     "id": "JLG33gMQcdi4JvQq",
@@ -269,6 +290,7 @@
             }
         }
     ],
+    "pinData": {},
     "connections": {
         "Execute Workflow Trigger": {
             "main": [
@@ -461,23 +483,23 @@
             "main": [
                 [
                     {
-                        "node": "Start Review",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Start Review": {
-            "main": [
-                [
-                    {
-                        "node": "Debug Output",
+                        "node": "Send First Item",
                         "type": "main",
                         "index": 0
                     }
                 ]
             ]
         }
-    }
+    },
+    "active": true,
+    "settings": {
+        "executionOrder": "v1",
+        "availableInMCP": false
+    },
+    "versionId": "57b695c0-9726-4242-8128-42eb03e51954",
+    "meta": {
+        "instanceId": "e1f8529dafc1c7b24188afd104b1a8e8824324405683593c80fc8bc56ba17881"
+    },
+    "id": "VIMGqlIjb_uxuJ3YRqjdc",
+    "tags": []
 }

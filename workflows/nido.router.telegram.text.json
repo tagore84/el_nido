@@ -7,33 +7,10 @@
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1,
       "position": [
-        0,
-        0
+        1152,
+        96
       ],
-      "id": "e512ded9-886c-44a0-9320-9b33bb0a3b60"
-    },
-    {
-      "parameters": {
-        "updates": [
-          "message"
-        ],
-        "additionalFields": {}
-      },
-      "name": "Telegram Trigger",
-      "type": "n8n-nodes-base.telegramTrigger",
-      "typeVersion": 1,
-      "position": [
-        0,
-        208
-      ],
-      "webhookId": "nido-router-text",
-      "id": "fa48b324-19f4-4580-83b7-ee9a86495583",
-      "credentials": {
-        "telegramApi": {
-          "id": "JLG33gMQcdi4JvQq",
-          "name": "Telegram account"
-        }
-      }
+      "id": "e908a96c-782c-4eb0-88ec-3d49937ede16"
     },
     {
       "parameters": {
@@ -43,10 +20,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        208,
-        208
+        1360,
+        96
       ],
-      "id": "5264d94b-aee9-48aa-9ed8-ea6ab05a6797"
+      "id": "29ca6f38-a5e0-4ee0-8262-811af627bdd6"
     },
     {
       "parameters": {
@@ -58,24 +35,24 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1,
       "position": [
-        400,
-        208
+        1552,
+        96
       ],
-      "id": "e3a82cf0-423e-422d-9158-4020ba23cf3a"
+      "id": "ec7ca623-5fed-4eba-962b-7f1215ca8648"
     },
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const json = $input.item.json;\n\nreturn {\n  json: {\n    text: json.text,\n    category: json.category,\n    source: json._meta.source\n    \n  }\n};"
+        "jsCode": "const json = $input.item.json;\n\nreturn {\n  json: {\n    text: json._meta.input_text,\n    category: json.category,\n    source: json._meta.source,\n    confidence: json.confidence,\n    reasoning: json.reasoning,\n    chat_id: $('Execute Workflow Trigger').item.json.message.chat.id\n  }\n};"
       },
       "name": "Parse JSON",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        608,
-        208
+        1760,
+        96
       ],
-      "id": "cb93ef88-1217-4b96-a6f7-0356aaaf0999"
+      "id": "e62a32f6-4beb-42b5-b033-a772e6b1326e"
     },
     {
       "parameters": {
@@ -106,15 +83,15 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 1,
       "position": [
-        800,
-        208
+        1952,
+        64
       ],
-      "id": "7275436a-8474-4297-a8b1-4ec418c93b70"
+      "id": "1b18df52-a6ee-4080-a4c3-58802baeaf18"
     },
     {
       "parameters": {
-        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
-        "text": "=🤖 *Clasificación de Texto*\n\n**Categoría**: {{ $json.category }}\n**Confianza**: {{ $json.confidence * 100 }}%\n**Razón**: {{ $json.reasoning }}\n\nEntidades: `{{ JSON.stringify($json.entities) }}`",
+        "chatId": "={{ $json.chat_id }}",
+        "text": "=🤖 *Clasificación de Texto*\n\n**Categoría**: {{ $json.category }}\n**Confianza**: {{ $json.confidence * 100 }}%\n**Razón**: {{ $json.reasoning }}",
         "additionalFields": {
           "parse_mode": "Markdown"
         }
@@ -123,10 +100,10 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1,
       "position": [
-        1184,
-        224
+        2336,
+        96
       ],
-      "id": "2c7d7ae9-80e3-4536-8756-e53a56731ea7",
+      "id": "bd33ca8d-5fad-4be8-9c65-c38712d3d949",
       "webhookId": "9fde48fc-878e-4f42-987a-5da9d309c586",
       "credentials": {
         "telegramApi": {
@@ -138,17 +115,6 @@
   ],
   "pinData": {},
   "connections": {
-    "Telegram Trigger": {
-      "main": [
-        [
-          {
-            "node": "Prepare LLM Input",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Execute Workflow Trigger": {
       "main": [
         [
@@ -231,7 +197,7 @@
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "addf589b-58b8-446f-8c2a-4380e613c305",
+  "versionId": "54cecc2b-6323-4ea5-b938-04f1c855b960",
   "meta": {
     "instanceId": "e1f8529dafc1c7b24188afd104b1a8e8824324405683593c80fc8bc56ba17881"
   },
