@@ -56,6 +56,18 @@ El archivo `.env` contém secretos y **no se sube a Git**. Debes crearlo manualm
    ```
 3. Asegúrate de que tenga los valores correctos (especialmente `N8N_ENCRYPTION_KEY` y `WEBHOOK_URL`).
 
+### 2.1 Archivos de Mapeo (Configuración Dinámica)
+Para evitar "hardcodear" IDs en los workflows y facilitar el cambio entre entornos, utilizamos archivos JSON de mapeo en la carpeta de infraestructura (`infra/synology` o `infra/dev`).
+
+Debes crear (o copiar) estos archivos:
+
+1.  **`credentials_map.json`**: Mapea nombres lógicos a IDs de credenciales de n8n.
+    *   Ejemplo: `"GOOGLE_CALENDAR_ALBERTO": "FrzV2bMzBnHfLNY2"`
+2.  **`workflows_map.json`**: Mapea nombres de workflows a sus IDs internos de n8n.
+    *   Ejemplo: `"nido.lib.llm_adapter": "RNCzRY2bi-VzDmnZiq27S"`
+3.  **`telegram_chats_map.json`**: Mapea nombres de contactos/grupos a sus Chat IDs de Telegram.
+    *   Ejemplo: `"Nido-Alberto-Laura": "-5223730192"`
+
 ### 3. Arrancar n8n
 Desde la carpeta `infra/synology`:
 

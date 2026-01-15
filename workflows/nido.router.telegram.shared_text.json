@@ -1,0 +1,49 @@
+{
+    "name": "nido.router.telegram.shared_text",
+    "id": "placeholder-shared-text",
+    "nodes": [
+        {
+            "parameters": {},
+            "name": "Execute Workflow Trigger",
+            "type": "n8n-nodes-base.executeWorkflowTrigger",
+            "typeVersion": 1,
+            "position": [
+                250,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "chatId": "={{ $input.item.json.message.chat.id }}",
+                "text": "=🤖 Recibido mensaje compartido:\n{{ $input.item.json.message.text }}",
+                "additionalFields": {}
+            },
+            "name": "Echo Shared",
+            "type": "n8n-nodes-base.telegram",
+            "typeVersion": 1,
+            "position": [
+                450,
+                300
+            ],
+            "credentials": {
+                "telegramApi": {
+                    "id": "JLG33gMQcdi4JvQq",
+                    "name": "Telegram account"
+                }
+            }
+        }
+    ],
+    "connections": {
+        "Execute Workflow Trigger": {
+            "main": [
+                [
+                    {
+                        "node": "Echo Shared",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}

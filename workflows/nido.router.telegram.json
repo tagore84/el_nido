@@ -26,29 +26,46 @@
         },
         {
             "parameters": {
+                "functionCode": "// Chat Map (Hardcoded)\nconst chatMap = {\n    \"Nido-Alberto\": \"5785514136\",\n    \"Nido-Alberto-Laura\": \"-5223730192\",\n    \"Nido-Alberto-Laura-Testing\": \"-5234536185\",\n    \"Nido-Laura\": \"PLACEHOLDER\"\n};\n\n// Get Chat ID from input\nconst body = items[0].json;\nlet chatId = null;\nlet type = 'other';\n\nif (body.callback_query) {\n    chatId = body.callback_query.message.chat.id;\n    type = 'callback';\n} else if (body.message) {\n    chatId = body.message.chat.id;\n    if (body.message.photo) type = 'photo';\n    else if (body.message.text) type = 'text';\n}\n\n// Resolve Name\nlet chatName = 'Unknown';\n// Iterate map to find key by value (ID)\nfor (const [name, id] of Object.entries(chatMap)) {\n    if (String(id) === String(chatId)) {\n        chatName = name;\n        break;\n    }\n}\n\nreturn [{\n    json: {\n        ...body,\n        _routing: {\n            chatId,\n            chatName,\n            type\n        }\n    }\n}];"
+            },
+            "name": "Identify Chat",
+            "type": "n8n-nodes-base.function",
+            "typeVersion": 1,
+            "position": [
+                450,
+                300
+            ]
+        },
+        {
+            "parameters": {
                 "dataType": "string",
-                "value1": "={{ $json.callback_query ? 'callback' : ($json.message ? ($json.message.photo ? 'photo' : ($json.message.text ? 'text' : 'other')) : 'other') }}",
+                "value1": "={{ $json._routing.chatName }}::{{ $json._routing.type }}",
                 "rules": {
                     "rules": [
                         {
-                            "value2": "photo"
+                            "value2": "Nido-Alberto::photo",
+                            "output": 0
                         },
                         {
-                            "value2": "text",
+                            "value2": "Nido-Alberto::text",
                             "output": 1
                         },
                         {
-                            "value2": "callback",
+                            "value2": "Nido-Alberto::callback",
                             "output": 2
+                        },
+                        {
+                            "value2": "Nido-Alberto-Laura-Testing::text",
+                            "output": 3
                         }
                     ]
                 }
             },
-            "name": "Switch Type",
+            "name": "Route Traffic",
             "type": "n8n-nodes-base.switch",
             "typeVersion": 1,
             "position": [
-                450,
+                650,
                 300
             ]
         },
@@ -62,7 +79,7 @@
             "type": "n8n-nodes-base.executeWorkflow",
             "typeVersion": 1,
             "position": [
-                650,
+                850,
                 200
             ]
         },
@@ -76,7 +93,7 @@
             "type": "n8n-nodes-base.executeWorkflow",
             "typeVersion": 1,
             "position": [
-                650,
+                850,
                 400
             ]
         },
@@ -90,8 +107,22 @@
             "type": "n8n-nodes-base.executeWorkflow",
             "typeVersion": 1,
             "position": [
-                650,
+                850,
                 600
+            ]
+        },
+        {
+            "parameters": {
+                "workflowId": "placeholder-shared-text",
+                "mode": "each",
+                "options": {}
+            },
+            "name": "Route to Shared Text",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1,
+            "position": [
+                850,
+                800
             ]
         }
     ],
@@ -100,14 +131,25 @@
             "main": [
                 [
                     {
-                        "node": "Switch Type",
+                        "node": "Identify Chat",
                         "type": "main",
                         "index": 0
                     }
                 ]
             ]
         },
-        "Switch Type": {
+        "Identify Chat": {
+            "main": [
+                [
+                    {
+                        "node": "Route Traffic",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Route Traffic": {
             "main": [
                 [
                     {
@@ -126,6 +168,13 @@
                 [
                     {
                         "node": "Route to Review",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Route to Shared Text",
                         "type": "main",
                         "index": 0
                     }
