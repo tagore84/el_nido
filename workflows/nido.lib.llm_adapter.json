@@ -1,771 +1,771 @@
 {
-    "name": "nido.lib.llm_adapter",
-    "nodes": [
-        {
-            "parameters": {},
-            "name": "Execute Workflow Trigger",
-            "type": "n8n-nodes-base.executeWorkflowTrigger",
-            "typeVersion": 1,
-            "position": [
-                25568,
-                3240
-            ],
-            "id": "a91583f2-8161-4ff3-8076-51719d58f083"
-        },
-        {
-            "parameters": {
-                "mode": "runOnceForEachItem",
-                "jsCode": "// Defaults and Environment Config\nconst json = $input.item.json;\nconst params = $input.params || {};\n\nconst prompt_id = json.prompt_id || params.prompt_id;\nconst input = json.input || params.input || {};\nconst options = json.options || params.options || { model: 'models/gemini-3-flash-preview' };\nconst force_refresh = json.force_refresh || params.force_refresh || false;\n\nlet env_mode = 'live';\ntry {\n  env_mode = $env.LLM_MODE || 'live';\n} catch (e) {\n  // Access denied to env vars, defaulting to live\n}\n\n// Validation\nif (!prompt_id) {\n  throw new Error(`Missing parameter: prompt_id`);\n}\nif (!input.input_type || !['TEXT', 'IMAGE', 'AUDIO'].includes(input.input_type)) {\n    throw new Error('Missing or invalid parameter: input.input_type (must be TEXT, IMAGE, or AUDIO)');\n}\nif (input.input_type === 'TEXT' && !input.input_text) {\n     throw new Error('Missing parameter: input.input_text for TEXT input');\n}\nif ((input.input_type === 'IMAGE' || input.input_type === 'AUDIO') && !input.input_path) {\n     throw new Error(`Missing parameter: input.input_path for ${input.input_type} input`);\n}\n\nreturn {\n  json: {\n    prompt_id,\n    input,\n    options,\n    force_refresh,\n    env_mode\n  }\n};"
+  "name": "nido.lib.llm_adapter",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        -2464,
+        480
+      ],
+      "id": "bd5fce17-3bc8-4c41-99bf-b12c1f6a943e"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Defaults and Environment Config\nconst json = $input.item.json;\nconst params = $input.params || {};\n\nconst prompt_id = json.prompt_id || params.prompt_id;\nconst input = json.input || params.input || {};\nconst options = json.options || params.options || { model: 'models/gemini-3-flash-preview' };\nconst force_refresh = json.force_refresh || params.force_refresh || false;\n\nlet env_mode = 'live';\ntry {\n  env_mode = $env.LLM_MODE || 'live';\n} catch (e) {\n  // Access denied to env vars, defaulting to live\n}\n\n// Validation\nif (!prompt_id) {\n  throw new Error(`Missing parameter: prompt_id`);\n}\nif (!input.input_type || !['TEXT', 'IMAGE', 'AUDIO'].includes(input.input_type)) {\n    throw new Error('Missing or invalid parameter: input.input_type (must be TEXT, IMAGE, or AUDIO)');\n}\nif (input.input_type === 'TEXT' && !input.input_text) {\n     throw new Error('Missing parameter: input.input_text for TEXT input');\n}\nif ((input.input_type === 'IMAGE' || input.input_type === 'AUDIO') && !input.input_path) {\n     throw new Error(`Missing parameter: input.input_path for ${input.input_type} input`);\n}\n\nreturn {\n  json: {\n    prompt_id,\n    input,\n    options,\n    force_refresh,\n    env_mode\n  }\n};"
+      },
+      "name": "Init Config",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2240,
+        192
+      ],
+      "id": "d7c41171-044f-4a5b-b14e-f754da2d6ac9"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.cache_hit }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "name": "Cache Hit?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -1120,
+        352
+      ],
+      "id": "ad185c85-28df-4c9a-a0b1-6605c2ecacbc"
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.env_mode }}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "live"
             },
-            "name": "Init Config",
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [
-                25792,
-                2952
-            ],
-            "id": "61e07f81-fbb3-4fc3-9242-68da8c411b3a"
+            {
+              "value2": "mock",
+              "output": 1
+            }
+          ]
         },
-        {
-            "parameters": {
-                "functionCode": "const fs = require('fs');\nconst path = `/data/llm_cache/${items[0].json.prompt_id}/${items[0].json.cache_key}.json`;\n\nconst mode = items[0].json.env_mode;\nconst force = items[0].json.force_refresh;\n\nif (mode !== 'live' || !force) {\n  if (fs.existsSync(path)) {\n      try {\n          const cached = JSON.parse(fs.readFileSync(path, 'utf8'));\n          return [{ json: { ...items[0].json, output: cached, cache_hit: true, cache_path: path } }];\n      } catch (e) {\n          // Corrupted cache file, treat as miss\n      }\n  }\n}\n\nreturn [{ json: { ...items[0].json, output: null, cache_hit: false, cache_path: path } }];"
-            },
-            "name": "Check Cache",
-            "type": "n8n-nodes-base.function",
-            "typeVersion": 1,
-            "position": [
-                26688,
-                3120
-            ],
-            "id": "b7c3942a-77a6-42c1-a700-df33f7f6e443"
-        },
-        {
-            "parameters": {
-                "conditions": {
-                    "boolean": [
-                        {
-                            "value1": "={{ $json.cache_hit }}",
-                            "value2": true
-                        }
-                    ]
-                }
-            },
-            "name": "Cache Hit?",
-            "type": "n8n-nodes-base.if",
-            "typeVersion": 1,
-            "position": [
-                26912,
-                3120
-            ],
-            "id": "3e392ebf-45dc-42b4-b2c5-d7899cb4cab7"
-        },
-        {
-            "parameters": {
-                "dataType": "string",
-                "value1": "={{ $json.env_mode }}",
-                "rules": {
-                    "rules": [
-                        {
-                            "value2": "live"
-                        },
-                        {
-                            "value2": "mock",
-                            "output": 1
-                        }
-                    ]
-                },
-                "fallbackOutput": 2
-            },
-            "name": "Handle Miss",
-            "type": "n8n-nodes-base.switch",
-            "typeVersion": 1,
-            "position": [
-                27136,
-                3000
-            ],
-            "id": "3e9c8a4d-62ec-475d-806a-a547d2330d7c"
-        },
-        {
-            "parameters": {
-                "errorMessage": "Error al acceder a la cache"
-            },
-            "name": "Error: Cache Missing",
-            "type": "n8n-nodes-base.stopAndError",
-            "typeVersion": 1,
-            "position": [
-                27360,
-                3152
-            ],
-            "id": "3f6d81cc-7c81-42f0-9fce-e73b2cc09e5c"
-        },
-        {
-            "parameters": {
-                "jsCode": "return { json: { output: 'MOCK_DATA_PLACEHOLDER', source: 'mock' } }; // TODO: Implement robust mock generation from schema"
-            },
-            "name": "Generate Mock",
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [
-                28608,
-                3456
-            ],
-            "id": "80172e26-3ed0-4a10-a94c-4d409813c826"
-        },
-        {
-            "parameters": {
-                "operation": "write",
-                "fileName": "={{ $json.cache_path }}",
+        "fallbackOutput": 2
+      },
+      "name": "Handle Miss",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        -896,
+        608
+      ],
+      "id": "4656a578-98fe-4e4e-8e8c-1cc9fd357aa6"
+    },
+    {
+      "parameters": {
+        "errorMessage": "Error al acceder a la cache"
+      },
+      "name": "Error: Cache Missing",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        -672,
+        752
+      ],
+      "id": "9d81e104-7ac1-44fc-98b8-37f04e7bb9fb"
+    },
+    {
+      "parameters": {
+        "jsCode": "return { json: { output: 'MOCK_DATA_PLACEHOLDER', source: 'mock' } }; // TODO: Implement robust mock generation from schema"
+      },
+      "name": "Generate Mock",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        64,
+        112
+      ],
+      "id": "1604ae41-7bc8-441a-bd31-cbe6f06eca91"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "={{ $json.cache_path }}",
+        "options": {
+          "append": false
+        }
+      },
+      "name": "Save Cache",
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        576,
+        560
+      ],
+      "id": "e02790d1-1746-45cb-8f82-d899b6f39f2b"
+    },
+    {
+      "parameters": {
+        "jsCode": "const result = $input.first().json;\nlet output = result.output || result; // Handle structure from different paths\nlet source = result.source || 'cache'; // Default to cache if not specified\n\n// Get input config for _meta\nconst initConfig = $('Init Config').first().json;\n\n// If coming from Gemini directly (no output wrapper)\n// Check for content.parts structure (Gemini response format)\nif (result.content && result.content.parts && result.content.parts[0]) {\n    const rawText = result.content.parts[0].text || '';\n    source = result.source || 'live'; // If coming from Gemini response, it's live\n    // Parse gemini text\n    try {\n        const cleanText = rawText.replace(/```json\\n?|\\n?```/g, '').trim();\n        output = JSON.parse(cleanText);\n    } catch (e) {\n        output = { raw_text: rawText, error: 'JSON Parse Error' };\n    }\n} else if (!output.output && result.text) {\n    // Old format fallback\n    try {\n        const cleanText = result.text.replace(/```json\\n?|\\n?```/g, '').trim();\n        output = JSON.parse(cleanText);\n    } catch (e) {\n        output = { raw_text: result.text, error: 'JSON Parse Error' };\n    }\n}\n\nreturn {\n  json: {\n    ...output,\n    _meta: {\n      prompt_id: initConfig.prompt_id,\n      input_type: initConfig.input.input_type,\n      input_path: initConfig.input.input_path || null,\n      input_text: initConfig.input.input_text || null,\n      source: source\n    }\n  }\n};"
+      },
+      "name": "Format Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        272
+      ],
+      "id": "fb1f2d57-d743-4483-9fb4-573cddf97451"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconsole.log('--- ADAPTER FINAL OUTPUT ---');\nconsole.log(JSON.stringify(items));\nif (items.length === 0) {\n    console.log('WARNING: Adapter returning 0 items!');\n}\nreturn items;"
+      },
+      "name": "Debug Final Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1056,
+        560
+      ],
+      "id": "bc0af6f0-a504-457a-9fcd-20289905f3dc"
+    },
+    {
+      "parameters": {
+        "jsCode": "if ($input.first().json.input.input_type !== 'TEXT') {\n  return [\n    {\n      json: {\n        hash: '',\n      },\n    },\n  ];\n}\n\nconst crypto = require('crypto');\n\n// Access upstream data securely\n// We access the Merge Files output, or directly from the source nodes if accessible in scope, \n// but assuming Merge Files passes them through. \n// Better yet, since Merge Files output is tricky ($input.all() vs items), let's use $items('Node Name')\nconst input_text = $('Execute Workflow Trigger').first().json.input.input_text;\n\n// Calculate Hashes\nconst input_text_hash = crypto.createHash('sha256').update(input_text).digest('hex');\n\nreturn {\n  json: {\n    hash: input_text_hash\n  }\n};"
+      },
+      "name": "Hash Input Text",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2016,
+        640
+      ],
+      "id": "e6c9e68b-004e-409e-950c-2212431e3da7"
+    },
+    {
+      "parameters": {
+        "jsCode": "if ($input.first().json.input.input_type === 'TEXT') {\n  return [\n    {\n      json: {\n        hash: '',\n      },\n    },\n  ];\n}\n\nconst crypto = require('crypto');\nconst fs = require('fs');\n\n// Access upstream data securely\n// We access the Merge Files output, or directly from the source nodes if accessible in scope, \n// but assuming Merge Files passes them through. \n// Better yet, since Merge Files output is tricky ($input.all() vs items), let's use $items('Node Name')\nvar input_hash_data = '';\ntry {\n  const input_data = fs.readFileSync($input.first().json.input.input_path);\n  input_hash_data = crypto.createHash('sha256').update(input_data).digest('hex');\n} catch (e) {\n    throw new Error(`Failed to read input file at ${$input.first().json.input.input_path}: ${e.message}`);\n}\n\nreturn {\n  json: {\n    hash: input_hash_data\n  }\n};"
+      },
+      "name": "Hash Input File",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2016,
+        448
+      ],
+      "id": "c6470eaf-5013-4d86-97fc-0d1adf55fab2"
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -1792,
+        320
+      ],
+      "id": "78832e1d-3d93-4f73-86b4-a4fed697cb97",
+      "name": "Merge Input Hash"
+    },
+    {
+      "parameters": {
+        "jsCode": "const crypto = require('crypto');\nconst fs = require('fs');\n\nconst prompt_id = $input.first().json.prompt_id;\nlet basePath = `/prompts/${prompt_id}`;\ntry {\n    if (fs.existsSync('/prompts/registry.json')) {\n        const registry = JSON.parse(fs.readFileSync('/prompts/registry.json', 'utf8'));\n        if (registry[prompt_id] && registry[prompt_id].path) {\n             basePath = `/prompts/${registry[prompt_id].path}`;\n        }\n    }\n} catch (e) {}\n\nconst path = `${basePath}/prompt.md`;\nvar input_hash_data = '';\ntry {\n  const input_data = fs.readFileSync(path);\n  input_hash_data = crypto.createHash('sha256').update(input_data).digest('hex');\n} catch (e) {\n    throw new Error(`Failed to read input file at ${path}: ${e.message}`);\n}\n\nreturn {\n  json: {\n    hash: input_hash_data\n  }\n};"
+      },
+      "name": "Hash Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2016,
+        64
+      ],
+      "id": "1cb78fb9-c1a5-43b1-acaa-ccf79a8e79d3"
+    },
+    {
+      "parameters": {
+        "jsCode": "const combinedHash = $input.all()\n  .map(item => item.json.hash)\n  .join('');\n\n// Restore context from Init Config\nconst context = $('Init Config').first().json;\n\nreturn [\n  {\n    json: {\n      ...context,\n      hash: combinedHash,\n      cache_key: combinedHash\n    },\n  },\n];"
+      },
+      "name": "Hash Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1568,
+        352
+      ],
+      "id": "d7aa188d-de1b-4ab8-a175-b9daffb39f67"
+    },
+    {
+      "parameters": {
+        "jsCode": "const crypto = require('crypto');\nconst fs = require('fs');\n\nconst prompt_id = $input.first().json.prompt_id;\nlet basePath = `/prompts/${prompt_id}`;\ntry {\n    if (fs.existsSync('/prompts/registry.json')) {\n        const registry = JSON.parse(fs.readFileSync('/prompts/registry.json', 'utf8'));\n        if (registry[prompt_id] && registry[prompt_id].path) {\n             basePath = `/prompts/${registry[prompt_id].path}`;\n        }\n    }\n} catch (e) {}\n\nconst path = `${basePath}/schema.json`;\nvar input_hash_data = '';\ntry {\n  const input_data = fs.readFileSync(path);\n  input_hash_data = crypto.createHash('sha256').update(input_data).digest('hex');\n} catch (e) {\n    throw new Error(`Failed to read input file at ${path}: ${e.message}`);\n}\n\nreturn {\n  json: {\n    hash: input_hash_data\n  }\n};"
+      },
+      "name": "Hash Schema",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2016,
+        256
+      ],
+      "id": "82312899-a6b8-497e-98f8-ed2912f7235e"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
                 "options": {
-                    "append": false
-                }
-            },
-            "name": "Save Cache",
-            "type": "n8n-nodes-base.readWriteFile",
-            "typeVersion": 1,
-            "position": [
-                28608,
-                2952
-            ],
-            "id": "1f2aff67-ddc2-4390-8bae-098627e254c7"
-        },
-        {
-            "parameters": {
-                "jsCode": "const result = $input.first().json;\nlet output = result.output || result; // Handle structure from different paths\nlet source = result.source || 'cache'; // Default to cache if not specified\n\n// Get input config for _meta\nconst initConfig = $('Init Config').first().json;\n\n// If coming from Gemini directly (no output wrapper)\n// Check for content.parts structure (Gemini response format)\nif (result.content && result.content.parts && result.content.parts[0]) {\n    const rawText = result.content.parts[0].text || '';\n    source = result.source || 'live'; // If coming from Gemini response, it's live\n    // Parse gemini text\n    try {\n        const cleanText = rawText.replace(/```json\\n?|\\n?```/g, '').trim();\n        output = JSON.parse(cleanText);\n    } catch (e) {\n        output = { raw_text: rawText, error: 'JSON Parse Error' };\n    }\n} else if (!output.output && result.text) {\n    // Old format fallback\n    try {\n        const cleanText = result.text.replace(/```json\\n?|\\n?```/g, '').trim();\n        output = JSON.parse(cleanText);\n    } catch (e) {\n        output = { raw_text: result.text, error: 'JSON Parse Error' };\n    }\n}\n\nreturn {\n  json: {\n    ...output,\n    _meta: {\n      prompt_id: initConfig.prompt_id,\n      input_type: initConfig.input.input_type,\n      input_path: initConfig.input.input_path || null,\n      input_text: initConfig.input.input_text || null,\n      source: source\n    }\n  }\n};"
-            },
-            "name": "Format Output",
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [
-                28832,
-                3384
-            ],
-            "id": "d82669b0-3de2-414e-ac38-5f5bef8c5861"
-        },
-        {
-            "parameters": {
-                "jsCode": "const items = $input.all();\nconsole.log('--- ADAPTER FINAL OUTPUT ---');\nconsole.log(JSON.stringify(items));\nif (items.length === 0) {\n    console.log('WARNING: Adapter returning 0 items!');\n}\nreturn items;"
-            },
-            "name": "Debug Final Output",
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [
-                29056,
-                3384
-            ],
-            "id": "38d040fa-90fa-43ca-abb0-586ae4cb5419"
-        },
-        {
-            "parameters": {
-                "jsCode": "if ($input.first().json.input.input_type !== 'TEXT') {\n  return [\n    {\n      json: {\n        hash: '',\n      },\n    },\n  ];\n}\n\nconst crypto = require('crypto');\n\n// Access upstream data securely\n// We access the Merge Files output, or directly from the source nodes if accessible in scope, \n// but assuming Merge Files passes them through. \n// Better yet, since Merge Files output is tricky ($input.all() vs items), let's use $items('Node Name')\nconst input_text = $('Execute Workflow Trigger').first().json.input.input_text;\n\n// Calculate Hashes\nconst input_text_hash = crypto.createHash('sha256').update(input_text).digest('hex');\n\nreturn {\n  json: {\n    hash: input_text_hash\n  }\n};"
-            },
-            "name": "Hash Input Text",
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [
-                26016,
-                3408
-            ],
-            "id": "9700cf77-c84a-40bb-82f3-2be5c105a08e"
-        },
-        {
-            "parameters": {
-                "jsCode": "if ($input.first().json.input.input_type === 'TEXT') {\n  return [\n    {\n      json: {\n        hash: '',\n      },\n    },\n  ];\n}\n\nconst crypto = require('crypto');\nconst fs = require('fs');\n\n// Access upstream data securely\n// We access the Merge Files output, or directly from the source nodes if accessible in scope, \n// but assuming Merge Files passes them through. \n// Better yet, since Merge Files output is tricky ($input.all() vs items), let's use $items('Node Name')\nvar input_hash_data = '';\ntry {\n  const input_data = fs.readFileSync($input.first().json.input.input_path);\n  input_hash_data = crypto.createHash('sha256').update(input_data).digest('hex');\n} catch (e) {\n    throw new Error(`Failed to read input file at ${$input.first().json.input.input_path}: ${e.message}`);\n}\n\nreturn {\n  json: {\n    hash: input_hash_data\n  }\n};"
-            },
-            "name": "Hash Input File",
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [
-                26016,
-                3216
-            ],
-            "id": "d5e451f2-988d-4746-a7cb-3f7a7ac9c7db"
-        },
-        {
-            "parameters": {
-                "numberInputs": 4
-            },
-            "type": "n8n-nodes-base.merge",
-            "typeVersion": 3.2,
-            "position": [
-                26240,
-                3088
-            ],
-            "id": "75e905b1-d12c-4c1d-bb87-3c346ac9abfd",
-            "name": "Merge Input Hash"
-        },
-        {
-            "parameters": {
-                "jsCode": "const crypto = require('crypto');\nconst fs = require('fs');\n\nconst prompt_id = $input.first().json.prompt_id;\nlet basePath = `/prompts/${prompt_id}`;\ntry {\n    if (fs.existsSync('/prompts/registry.json')) {\n        const registry = JSON.parse(fs.readFileSync('/prompts/registry.json', 'utf8'));\n        if (registry[prompt_id] && registry[prompt_id].path) {\n             basePath = `/prompts/${registry[prompt_id].path}`;\n        }\n    }\n} catch (e) {}\n\nconst path = `${basePath}/prompt.md`;\nvar input_hash_data = '';\ntry {\n  const input_data = fs.readFileSync(path);\n  input_hash_data = crypto.createHash('sha256').update(input_data).digest('hex');\n} catch (e) {\n    throw new Error(`Failed to read input file at ${path}: ${e.message}`);\n}\n\nreturn {\n  json: {\n    hash: input_hash_data\n  }\n};"
-            },
-            "name": "Hash Prompt",
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [
-                26016,
-                2832
-            ],
-            "id": "efb3f784-f2c1-4831-b197-acb4ba51b87f"
-        },
-        {
-            "parameters": {
-                "jsCode": "const combinedHash = $input.all()\n  .map(item => item.json.hash)\n  .join('');\n\n// Restore context from Init Config\nconst context = $('Init Config').first().json;\n\nreturn [\n  {\n    json: {\n      ...context,\n      hash: combinedHash,\n      cache_key: combinedHash\n    },\n  },\n];"
-            },
-            "name": "Hash Input",
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [
-                26464,
-                3120
-            ],
-            "id": "2ca6baf9-5240-41f0-a4f8-cd147e32a67a"
-        },
-        {
-            "parameters": {
-                "jsCode": "const crypto = require('crypto');\nconst fs = require('fs');\n\nconst prompt_id = $input.first().json.prompt_id;\nlet basePath = `/prompts/${prompt_id}`;\ntry {\n    if (fs.existsSync('/prompts/registry.json')) {\n        const registry = JSON.parse(fs.readFileSync('/prompts/registry.json', 'utf8'));\n        if (registry[prompt_id] && registry[prompt_id].path) {\n             basePath = `/prompts/${registry[prompt_id].path}`;\n        }\n    }\n} catch (e) {}\n\nconst path = `${basePath}/schema.json`;\nvar input_hash_data = '';\ntry {\n  const input_data = fs.readFileSync(path);\n  input_hash_data = crypto.createHash('sha256').update(input_data).digest('hex');\n} catch (e) {\n    throw new Error(`Failed to read input file at ${path}: ${e.message}`);\n}\n\nreturn {\n  json: {\n    hash: input_hash_data\n  }\n};"
-            },
-            "name": "Hash Schema",
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [
-                26016,
-                3024
-            ],
-            "id": "89280a5d-7c35-49ff-9d08-6a4f2bf78c85"
-        },
-        {
-            "parameters": {
-                "rules": {
-                    "values": [
-                        {
-                            "conditions": {
-                                "options": {
-                                    "caseSensitive": true,
-                                    "leftValue": "",
-                                    "typeValidation": "strict",
-                                    "version": 3
-                                },
-                                "conditions": [
-                                    {
-                                        "leftValue": "={{ $json.input.input_type }}",
-                                        "rightValue": "TEXT",
-                                        "operator": {
-                                            "type": "string",
-                                            "operation": "equals"
-                                        },
-                                        "id": "ca02d6e8-5b20-4147-a56e-e1281ec42a87"
-                                    }
-                                ],
-                                "combinator": "and"
-                            },
-                            "renameOutput": true,
-                            "outputKey": "text"
-                        },
-                        {
-                            "conditions": {
-                                "options": {
-                                    "caseSensitive": true,
-                                    "leftValue": "",
-                                    "typeValidation": "strict",
-                                    "version": 3
-                                },
-                                "conditions": [
-                                    {
-                                        "id": "75a89306-db00-4409-b350-1d3bc1703b69",
-                                        "leftValue": "={{ $json.input.input_type }}",
-                                        "rightValue": "IMAGE",
-                                        "operator": {
-                                            "type": "string",
-                                            "operation": "equals"
-                                        }
-                                    }
-                                ],
-                                "combinator": "and"
-                            },
-                            "renameOutput": true,
-                            "outputKey": "image"
-                        },
-                        {
-                            "conditions": {
-                                "options": {
-                                    "caseSensitive": true,
-                                    "leftValue": "",
-                                    "typeValidation": "strict",
-                                    "version": 3
-                                },
-                                "conditions": [
-                                    {
-                                        "id": "5a575b14-eaf7-4e6e-8f55-ff8f8b417ceb",
-                                        "leftValue": "={{ $json.input.input_type }}",
-                                        "rightValue": "AUDIO",
-                                        "operator": {
-                                            "type": "string",
-                                            "operation": "equals"
-                                        }
-                                    }
-                                ],
-                                "combinator": "and"
-                            },
-                            "renameOutput": true,
-                            "outputKey": "audio"
-                        }
-                    ]
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
                 },
-                "options": {}
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.input.input_type }}",
+                    "rightValue": "TEXT",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "ca02d6e8-5b20-4147-a56e-e1281ec42a87"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "text"
             },
-            "type": "n8n-nodes-base.switch",
-            "typeVersion": 3.4,
-            "position": [
-                27584,
-                2936
-            ],
-            "id": "c7179e82-99cb-4ef1-b8a6-e684bd985a73",
-            "name": "Modality"
-        },
-        {
-            "parameters": {
-                "modelId": {
-                    "__rl": true,
-                    "value": "={{ $json.options.model }}",
-                    "mode": "id"
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
                 },
-                "messages": {
-                    "values": [
-                        {
-                            "content": "=Prompt:\n{{ $json.prompt_content }}\n\nSchema:\n{{ $json.schema_content }}"
-                        },
-                        {
-                            "content": "=Input:\n{{ $json.input.input_text }}"
-                        }
-                    ]
-                },
-                "builtInTools": {},
-                "options": {}
+                "conditions": [
+                  {
+                    "id": "75a89306-db00-4409-b350-1d3bc1703b69",
+                    "leftValue": "={{ $json.input.input_type }}",
+                    "rightValue": "IMAGE",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "image"
             },
-            "name": "Call Google Gemini Text",
-            "type": "@n8n/n8n-nodes-langchain.googleGemini",
-            "typeVersion": 1.1,
-            "position": [
-                28032,
-                2768
-            ],
-            "id": "77b2899a-b982-43bf-9f0b-e07ffab9d714",
-            "credentials": {
-                "googlePalmApi": {
-                    "id": "JJHsBmH2qC9U0KQA",
-                    "name": "Google Gemini(PaLM) Api account"
-                }
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "5a575b14-eaf7-4e6e-8f55-ff8f8b417ceb",
+                    "leftValue": "={{ $json.input.input_type }}",
+                    "rightValue": "AUDIO",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio"
             }
+          ]
         },
-        {
-            "parameters": {
-                "resource": "image",
-                "operation": "analyze",
-                "modelId": {
-                    "__rl": true,
-                    "value": "={{ $('Modality').item.json.options.model }}",
-                    "mode": "id"
-                },
-                "text": "={{ $('Modality').item.json.prompt_content }}\n\nSchema:\n{{ $('Modality').item.json.schema_content }}",
-                "inputType": "binary",
-                "options": {}
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -448,
+        544
+      ],
+      "id": "f0ae5ee3-9409-4a0c-b128-95ede3c5b35a",
+      "name": "Modality"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "={{ $json.options.model }}",
+          "mode": "id"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Prompt:\n{{ $json.prompt_content }}\n\nSchema:\n{{ $json.schema_content }}"
             },
-            "name": "Call Google Gemini Image",
-            "type": "@n8n/n8n-nodes-langchain.googleGemini",
-            "typeVersion": 1.1,
-            "position": [
-                28096,
-                2960
-            ],
-            "id": "e2a6f0cb-c1a7-4249-a143-5981383160c1",
-            "credentials": {
-                "googlePalmApi": {
-                    "id": "JJHsBmH2qC9U0KQA",
-                    "name": "Google Gemini(PaLM) Api account"
-                }
+            {
+              "content": "=Input:\n{{ $json.input.input_text }}"
             }
+          ]
         },
-        {
-            "parameters": {
-                "fileSelector": "={{ $json.input.input_path }}",
-                "options": {}
-            },
-            "type": "n8n-nodes-base.readWriteFile",
-            "typeVersion": 1.1,
-            "position": [
-                27808,
-                2960
-            ],
-            "id": "e22a231f-bb02-4dab-89d0-b95ef972dd49",
-            "name": "Modality Get Image"
-        },
-        {
-            "parameters": {
-                "fileSelector": "={{ $json.input.input_path }}",
-                "options": {}
-            },
-            "type": "n8n-nodes-base.readWriteFile",
-            "typeVersion": 1.1,
-            "position": [
-                27808,
-                3152
-            ],
-            "id": "134b5ae7-87ef-4d3a-a0fa-475ca340b243",
-            "name": "Modality Get Audio"
-        },
-        {
-            "parameters": {
-                "resource": "audio",
-                "operation": "analyze",
-                "modelId": {
-                    "__rl": true,
-                    "value": "={{ $('Modality').item.json.options.model }}",
-                    "mode": "id"
-                },
-                "text": "={{ $('Modality').item.json.prompt_content }}\n\nSchema:\n{{ $('Modality').item.json.schema_content }}",
-                "inputType": "binary",
-                "binaryPropertyName": "image",
-                "options": {}
-            },
-            "name": "Call Google Gemini Audio",
-            "type": "@n8n/n8n-nodes-langchain.googleGemini",
-            "typeVersion": 1.1,
-            "position": [
-                28096,
-                3152
-            ],
-            "id": "7fcb1285-5359-47af-a1b6-b7df4fdba93f",
-            "credentials": {
-                "googlePalmApi": {
-                    "id": "JJHsBmH2qC9U0KQA",
-                    "name": "Google Gemini(PaLM) Api account"
-                }
-            }
-        },
-        {
-            "parameters": {
-                "jsCode": "\nconst fs = require('fs');\n\n// Get prompt_id from Init Config\nconst prompt_id = $('Init Config').first().json.prompt_id;\n\n// Resolve Path via Registry\nlet basePath = `/prompts/${prompt_id}`;\ntry {\n    if (fs.existsSync('/prompts/registry.json')) {\n        const registry = JSON.parse(fs.readFileSync('/prompts/registry.json', 'utf8'));\n        if (registry[prompt_id] && registry[prompt_id].path) {\n             basePath = `/prompts/${registry[prompt_id].path}`;\n        }\n    }\n} catch (e) {\n    // Ignore registry errors, fallback to default path\n    console.log('Registry lookup failed: ' + e.message);\n}\n\n// Construct paths\nconst promptPath = `${basePath}/prompt.md`;\nconst schemaPath = `${basePath}/schema.json`;\n\n// Read files\nlet prompt_content = '';\nlet schema_content = '';\n\ntry {\n    prompt_content = fs.readFileSync(promptPath, 'utf8');\n} catch (e) {\n    throw new Error(`Failed to read prompt file at ${promptPath}: ${e.message}`);\n}\n\ntry {\n    schema_content = fs.readFileSync(schemaPath, 'utf8');\n} catch (e) {\n    throw new Error(`Failed to read schema file at ${schemaPath}: ${e.message}`);\n}\n\n// Pass through original input and add context\nconst input = $input.first().json;\n\nreturn {\n    json: {\n        ...input,\n        prompt_content,\n        schema_content\n    }\n};\n"
-            },
-            "name": "Load Context",
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [
-                27360,
-                2952
-            ],
-            "id": "702c5713-08f6-4eed-8a80-28cc44a2bd79"
-        },
-        {
-            "parameters": {
-                "jsCode": "\nconst fs = require('fs');\n\n// Convert Gemini JSON response to binary for file storage\nconst response = $input.first().json;\n\n// Extract the text content (which contains JSON wrapped in markdown)\nlet textContent = '';\nif (response.content && response.content.parts && response.content.parts[0]) {\n    textContent = response.content.parts[0].text || '';\n}\n\n// Clean markdown wrapping if present\nconst cleanJson = textContent.replace(/```json\\n?|\\n?```/g, '').trim();\n\n// Get cache path and extract directory using string manipulation (no path module)\nconst cachePath = $('Check Cache').first().json.cache_path;\nconst cacheDir = cachePath.substring(0, cachePath.lastIndexOf('/'));\n\n// Create directory if it doesn't exist\nif (!fs.existsSync(cacheDir)) {\n    fs.mkdirSync(cacheDir, { recursive: true });\n}\n\n// Convert to binary buffer\nconst buffer = Buffer.from(cleanJson, 'utf8');\n\nreturn {\n    json: {\n        ...response,\n        cache_path: cachePath,\n        source: 'live'\n    },\n    binary: {\n        data: {\n            data: buffer.toString('base64'),\n            mimeType: 'application/json',\n            fileName: 'cache.json'\n        }\n    }\n};\n"
-            },
-            "name": "Prepare Cache",
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [
-                28384,
-                2952
-            ],
-            "id": "578a929a-aebc-4819-944b-32fae2e171e2"
+        "builtInTools": {},
+        "options": {}
+      },
+      "name": "Call Google Gemini Text",
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        368
+      ],
+      "id": "3d4bad3a-08b5-4ae9-8b8a-e5724b203797",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "JJHsBmH2qC9U0KQA",
+          "name": "Google Gemini(PaLM) Api account"
         }
-    ],
-    "pinData": {},
-    "connections": {
-        "Execute Workflow Trigger": {
-            "main": [
-                [
-                    {
-                        "node": "Init Config",
-                        "type": "main",
-                        "index": 0
-                    },
-                    {
-                        "node": "Hash Input File",
-                        "type": "main",
-                        "index": 0
-                    },
-                    {
-                        "node": "Hash Input Text",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "={{ $('Modality').item.json.options.model }}",
+          "mode": "id"
         },
-        "Init Config": {
-            "main": [
-                [
-                    {
-                        "node": "Hash Prompt",
-                        "type": "main",
-                        "index": 0
-                    },
-                    {
-                        "node": "Hash Schema",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Check Cache": {
-            "main": [
-                [
-                    {
-                        "node": "Cache Hit?",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Cache Hit?": {
-            "main": [
-                [
-                    {
-                        "node": "Format Output",
-                        "type": "main",
-                        "index": 0
-                    }
-                ],
-                [
-                    {
-                        "node": "Handle Miss",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Format Output": {
-            "main": [
-                [
-                    {
-                        "node": "Debug Final Output",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Generate Mock": {
-            "main": [
-                [
-                    {
-                        "node": "Format Output",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Save Cache": {
-            "main": [
-                [
-                    {
-                        "node": "Format Output",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Hash Input Text": {
-            "main": [
-                [
-                    {
-                        "node": "Merge Input Hash",
-                        "type": "main",
-                        "index": 3
-                    }
-                ]
-            ]
-        },
-        "Hash Input File": {
-            "main": [
-                [
-                    {
-                        "node": "Merge Input Hash",
-                        "type": "main",
-                        "index": 2
-                    }
-                ]
-            ]
-        },
-        "Merge Input Hash": {
-            "main": [
-                [
-                    {
-                        "node": "Hash Input",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Hash Input": {
-            "main": [
-                [
-                    {
-                        "node": "Check Cache",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Modality": {
-            "main": [
-                [
-                    {
-                        "node": "Call Google Gemini Text",
-                        "type": "main",
-                        "index": 0
-                    }
-                ],
-                [
-                    {
-                        "node": "Modality Get Image",
-                        "type": "main",
-                        "index": 0
-                    }
-                ],
-                [
-                    {
-                        "node": "Modality Get Audio",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Call Google Gemini Text": {
-            "main": [
-                [
-                    {
-                        "node": "Prepare Cache",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Modality Get Image": {
-            "main": [
-                [
-                    {
-                        "node": "Call Google Gemini Image",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Modality Get Audio": {
-            "main": [
-                [
-                    {
-                        "node": "Call Google Gemini Audio",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Call Google Gemini Image": {
-            "main": [
-                [
-                    {
-                        "node": "Prepare Cache",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Call Google Gemini Audio": {
-            "main": [
-                [
-                    {
-                        "node": "Prepare Cache",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Handle Miss": {
-            "main": [
-                [
-                    {
-                        "node": "Load Context",
-                        "type": "main",
-                        "index": 0
-                    }
-                ],
-                [],
-                [
-                    {
-                        "node": "Error: Cache Missing",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Load Context": {
-            "main": [
-                [
-                    {
-                        "node": "Modality",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Hash Schema": {
-            "main": [
-                [
-                    {
-                        "node": "Merge Input Hash",
-                        "type": "main",
-                        "index": 1
-                    }
-                ]
-            ]
-        },
-        "Hash Prompt": {
-            "main": [
-                [
-                    {
-                        "node": "Merge Input Hash",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Prepare Cache": {
-            "main": [
-                [
-                    {
-                        "node": "Save Cache",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
+        "text": "={{ $('Modality').item.json.prompt_content }}\n\nSchema:\n{{ $('Modality').item.json.schema_content }}",
+        "inputType": "binary",
+        "options": {}
+      },
+      "name": "Call Google Gemini Image",
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        64,
+        560
+      ],
+      "id": "5b2f68ea-d820-4d94-aaf5-3b1b7c931e71",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "JJHsBmH2qC9U0KQA",
+          "name": "Google Gemini(PaLM) Api account"
         }
+      }
     },
-    "active": true,
-    "settings": {
-        "executionOrder": "v1",
-        "availableInMCP": false
+    {
+      "parameters": {
+        "fileSelector": "={{ $json.input.input_path }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        -224,
+        560
+      ],
+      "id": "ff26f603-35c7-4ad0-8be6-9ce08c775ba3",
+      "name": "Modality Get Image"
     },
-    "versionId": "b826f027-8a31-4b41-a94e-a22c61531eef",
-    "meta": {
-        "instanceId": "e1f8529dafc1c7b24188afd104b1a8e8824324405683593c80fc8bc56ba17881"
+    {
+      "parameters": {
+        "fileSelector": "={{ $json.input.input_path }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        -224,
+        752
+      ],
+      "id": "783adf55-01b3-4c17-9244-cafe076cc7d1",
+      "name": "Modality Get Audio"
     },
-    "id": "RNCzRY2bi-VzDmnZiq27S",
-    "tags": []
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "={{ $('Modality').item.json.options.model }}",
+          "mode": "id"
+        },
+        "text": "={{ $('Modality').item.json.prompt_content }}\n\nSchema:\n{{ $('Modality').item.json.schema_content }}",
+        "inputType": "binary",
+        "binaryPropertyName": "image",
+        "options": {}
+      },
+      "name": "Call Google Gemini Audio",
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        64,
+        752
+      ],
+      "id": "288c3189-bd80-4a1a-a393-617ee33504bf",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "JJHsBmH2qC9U0KQA",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst fs = require('fs');\n\n// Get prompt_id from Init Config\nconst prompt_id = $('Init Config').first().json.prompt_id;\n\n// Resolve Path via Registry\nlet basePath = `/prompts/${prompt_id}`;\ntry {\n    if (fs.existsSync('/prompts/registry.json')) {\n        const registry = JSON.parse(fs.readFileSync('/prompts/registry.json', 'utf8'));\n        if (registry[prompt_id] && registry[prompt_id].path) {\n             basePath = `/prompts/${registry[prompt_id].path}`;\n        }\n    }\n} catch (e) {\n    // Ignore registry errors, fallback to default path\n    console.log('Registry lookup failed: ' + e.message);\n}\n\n// Construct paths\nconst promptPath = `${basePath}/prompt.md`;\nconst schemaPath = `${basePath}/schema.json`;\n\n// Read files\nlet prompt_content = '';\nlet schema_content = '';\n\ntry {\n    prompt_content = fs.readFileSync(promptPath, 'utf8');\n} catch (e) {\n    throw new Error(`Failed to read prompt file at ${promptPath}: ${e.message}`);\n}\n\ntry {\n    schema_content = fs.readFileSync(schemaPath, 'utf8');\n} catch (e) {\n    throw new Error(`Failed to read schema file at ${schemaPath}: ${e.message}`);\n}\n\n// Pass through original input and add context\nconst input = $input.first().json;\n\nreturn {\n    json: {\n        ...input,\n        prompt_content,\n        schema_content\n    }\n};\n"
+      },
+      "name": "Load Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -672,
+        560
+      ],
+      "id": "5c03b096-ce9b-4867-838f-0a1a1975fbcd"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst fs = require('fs');\n\n// Convert Gemini JSON response to binary for file storage\nconst response = $input.first().json;\n\n// Extract the text content (which contains JSON wrapped in markdown)\nlet textContent = '';\nif (response.content && response.content.parts && response.content.parts[0]) {\n    textContent = response.content.parts[0].text || '';\n}\n\n// Clean markdown wrapping if present\nconst cleanJson = textContent.replace(/```json\\n?|\\n?```/g, '').trim();\n\n// Get cache path and extract directory using string manipulation (no path module)\nconst cachePath = $('Check Cache').first().json.cache_path;\nconst cacheDir = cachePath.substring(0, cachePath.lastIndexOf('/'));\n\n// Create directory if it doesn't exist\nif (!fs.existsSync(cacheDir)) {\n    fs.mkdirSync(cacheDir, { recursive: true });\n}\n\n// Convert to binary buffer\nconst buffer = Buffer.from(cleanJson, 'utf8');\n\nreturn {\n    json: {\n        ...response,\n        cache_path: cachePath,\n        source: 'live'\n    },\n    binary: {\n        data: {\n            data: buffer.toString('base64'),\n            mimeType: 'application/json',\n            fileName: 'cache.json'\n        }\n    }\n};\n"
+      },
+      "name": "Prepare Cache",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        352,
+        560
+      ],
+      "id": "3f1fa5fb-11fc-4fa8-8193-63f1d49793e4"
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs = require('fs');\nconst path = `/data/llm_cache/${items[0].json.prompt_id}/${items[0].json.cache_key}.json`;\n\nconst mode = items[0].json.env_mode;\nconst force = items[0].json.force_refresh;\n\nif (mode !== 'live' || !force) {\n  if (fs.existsSync(path)) {\n      try {\n          const cached = JSON.parse(fs.readFileSync(path, 'utf8'));\n          return [{ json: { ...items[0].json, output: cached, cache_hit: true, cache_path: path } }];\n      } catch (e) {\n          // Corrupted cache file, treat as miss\n      }\n  }\n}\n\nreturn [{ json: { ...items[0].json, output: null, cache_hit: false, cache_path: path } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1344,
+        352
+      ],
+      "id": "2477e5b1-65be-43ee-a555-504ddd0b6ace",
+      "name": "Check Cache"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Init Config",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Hash Input File",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Hash Input Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Init Config": {
+      "main": [
+        [
+          {
+            "node": "Hash Prompt",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Hash Schema",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cache Hit?": {
+      "main": [
+        [
+          {
+            "node": "Format Output",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle Miss",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Output": {
+      "main": [
+        [
+          {
+            "node": "Debug Final Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Mock": {
+      "main": [
+        [
+          {
+            "node": "Format Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Cache": {
+      "main": [
+        [
+          {
+            "node": "Format Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hash Input Text": {
+      "main": [
+        [
+          {
+            "node": "Merge Input Hash",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Hash Input File": {
+      "main": [
+        [
+          {
+            "node": "Merge Input Hash",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge Input Hash": {
+      "main": [
+        [
+          {
+            "node": "Hash Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hash Input": {
+      "main": [
+        [
+          {
+            "node": "Check Cache",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Modality": {
+      "main": [
+        [
+          {
+            "node": "Call Google Gemini Text",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Modality Get Image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Modality Get Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Google Gemini Text": {
+      "main": [
+        [
+          {
+            "node": "Prepare Cache",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Modality Get Image": {
+      "main": [
+        [
+          {
+            "node": "Call Google Gemini Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Modality Get Audio": {
+      "main": [
+        [
+          {
+            "node": "Call Google Gemini Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Google Gemini Image": {
+      "main": [
+        [
+          {
+            "node": "Prepare Cache",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Google Gemini Audio": {
+      "main": [
+        [
+          {
+            "node": "Prepare Cache",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handle Miss": {
+      "main": [
+        [
+          {
+            "node": "Load Context",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [
+          {
+            "node": "Error: Cache Missing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Context": {
+      "main": [
+        [
+          {
+            "node": "Modality",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hash Schema": {
+      "main": [
+        [
+          {
+            "node": "Merge Input Hash",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Hash Prompt": {
+      "main": [
+        [
+          {
+            "node": "Merge Input Hash",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Cache": {
+      "main": [
+        [
+          {
+            "node": "Save Cache",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Cache": {
+      "main": [
+        [
+          {
+            "node": "Cache Hit?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "13d56c67-9be2-451a-8cfe-d32932af742e",
+  "meta": {
+    "instanceId": "e1f8529dafc1c7b24188afd104b1a8e8824324405683593c80fc8bc56ba17881"
+  },
+  "id": "cIdjAXxgI1Z-LurEg16oO",
+  "tags": []
 }

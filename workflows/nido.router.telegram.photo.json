@@ -7,10 +7,10 @@
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1,
       "position": [
-        0,
-        96
+        -304,
+        48
       ],
-      "id": "50120953-2759-4d06-a062-86e70f9cec3f"
+      "id": "ea53ff22-566d-4f9a-a2c6-281f353a83b8"
     },
     {
       "parameters": {
@@ -22,10 +22,10 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1,
       "position": [
-        224,
-        96
+        -80,
+        48
       ],
-      "id": "47d76c8c-fa11-4273-8dac-32c510807d6c",
+      "id": "22b4085b-ae42-48dc-a095-0c82cc1cdd8c",
       "webhookId": "bdacbc84-4c07-4fdd-873f-3e173ddf144d",
       "credentials": {
         "telegramApi": {
@@ -54,10 +54,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 1,
       "position": [
-        448,
-        96
+        144,
+        48
       ],
-      "id": "ff8e424f-4407-410e-a6d4-2a8241661402"
+      "id": "86b4b126-cb4a-4d95-82a2-1e68c8e1005d"
     },
     {
       "parameters": {
@@ -67,10 +67,10 @@
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
       "position": [
-        688,
-        -48
+        384,
+        -96
       ],
-      "id": "685ea088-21dc-4eb6-932c-3abb30c5be83"
+      "id": "ff9f134e-b9a4-4f0a-9cf4-86612ca31810"
     },
     {
       "parameters": {
@@ -81,10 +81,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 1,
       "position": [
-        880,
-        160
+        576,
+        112
       ],
-      "id": "0b94aa0d-b755-42c6-b3ec-0914c648ec6c"
+      "id": "75813296-bb59-4adc-8b21-c3bd4d3e8e8c"
     },
     {
       "parameters": {
@@ -95,10 +95,10 @@
       "type": "n8n-nodes-base.writeBinaryFile",
       "typeVersion": 1,
       "position": [
-        1120,
-        96
+        816,
+        48
       ],
-      "id": "9df468ff-7551-48ba-ab6c-914ad8c40cf8"
+      "id": "80822fdd-7942-4368-a44b-ace8c59652cc"
     },
     {
       "parameters": {
@@ -108,14 +108,14 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1344,
-        96
+        1040,
+        48
       ],
-      "id": "15faa30f-188f-4a2e-939a-154bfa3a115a"
+      "id": "38a2f2ed-f01a-4462-a97a-2262e523daf6"
     },
     {
       "parameters": {
-        "workflowId": "RNCzRY2bi-VzDmnZiq27S",
+        "workflowId": "cIdjAXxgI1Z-LurEg16oO",
         "mode": "each",
         "options": {}
       },
@@ -123,111 +123,24 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1,
       "position": [
-        1568,
-        96
+        1264,
+        48
       ],
-      "id": "a424c466-bd9e-4eec-a104-50db32716f7b"
+      "id": "b73b12af-566b-47de-9135-d5e9676d4d9e"
     },
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "// The LLM adapter already returns parsed JSON with fields:\n// classification, confidence, reasoning, _meta\nconst json = $input.item.json;\n\n// Map to the expected format for downstream nodes\n// Preserve input_path from _meta for downstream workflows\nreturn {\n  json: {\n    image_type: json.image_type,\n    confidence: json.confidence,\n    reason: json.reason,\n    image_path: json._meta?.input_path || null,\n    source: json._meta.source,\n    _meta: json._meta\n  }\n};"
+        "jsCode": "// The LLM adapter already returns parsed JSON with fields:\n// classification, confidence, reasoning, _meta\nconst json = $input.item.json;\nconst trigger = $('Execute Workflow Trigger').item.json.message;\n\n// Map to the expected format for downstream nodes\n// Preserve input_path from _meta for downstream workflows\nreturn {\n  json: {\n    image_type: json.image_type,\n    confidence: json.confidence,\n    reason: json.reason,\n    image_path: json._meta?.input_path || null,\n    source: json._meta.source,\n    _meta: json._meta,\n    chat_id: trigger ? trigger.chat.id : null,\n    message_id: trigger ? trigger.message_id : null\n  }\n};\n"
       },
       "name": "Parse JSON",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1792,
-        96
+        1488,
+        48
       ],
-      "id": "c6e551f1-e937-4fc3-845b-30189cd7bd8f"
-    },
-    {
-      "parameters": {
-        "dataType": "string",
-        "value1": "={{ $json.image_type }}",
-        "rules": {
-          "rules": [
-            {
-              "value2": "whiteboard_calendar"
-            }
-          ]
-        }
-      },
-      "name": "Switch Type",
-      "type": "n8n-nodes-base.switch",
-      "typeVersion": 1,
-      "position": [
-        2016,
-        64
-      ],
-      "id": "fcb9d4ce-b8a7-473a-a26a-19184f1dbc9c"
-    },
-    {
-      "parameters": {
-        "values": {
-          "string": [
-            {
-              "name": "image_path",
-              "value": "={{ $json.image_path }}"
-            },
-            {
-              "name": "chat_id",
-              "value": "={{ $('Execute Workflow Trigger').item.json.message.chat.id }}"
-            },
-            {
-              "name": "message_id",
-              "value": "={{ $('Execute Workflow Trigger').item.json.message.message_id }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "name": "Set Input Data",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 1,
-      "position": [
-        2240,
-        0
-      ],
-      "id": "13786e12-d470-44e9-85a4-95eead7aea93"
-    },
-    {
-      "parameters": {
-        "workflowId": "VIMGqlIjb_uxuJ3YRqjdc",
-        "mode": "each",
-        "options": {}
-      },
-      "name": "Route to Ingest",
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1,
-      "position": [
-        2464,
-        0
-      ],
-      "id": "96743cd2-4a74-4d1d-9296-9eccb816a624"
-    },
-    {
-      "parameters": {
-        "chatId": "={{ $('Telegram Trigger').item.json.message ? $('Telegram Trigger').item.json.message.chat.id : $('Execute Workflow Trigger').item.json.message.chat.id }}",
-        "text": "📷 Imagen recibida, pero no detecto que sea el calendario de la pizarra.\nClasificación: {{ $json.image_type }} ({{ $json.confidence * 100 }}%)",
-        "additionalFields": {}
-      },
-      "name": "Reply Other",
-      "type": "n8n-nodes-base.telegram",
-      "typeVersion": 1,
-      "position": [
-        2384,
-        192
-      ],
-      "id": "98e65a0b-45e5-48a3-80c4-a46ccdb0e357",
-      "webhookId": "477e2a94-001e-44e9-a595-e713e7ed3771",
-      "credentials": {
-        "telegramApi": {
-          "id": "JLG33gMQcdi4JvQq",
-          "name": "Telegram account"
-        }
-      }
+      "id": "526ae17f-b72a-45c6-b01b-f42dd9137d03"
     }
   ],
   "pinData": {},
@@ -324,62 +237,17 @@
           }
         ]
       ]
-    },
-    "Parse JSON": {
-      "main": [
-        [
-          {
-            "node": "Switch Type",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Switch Type": {
-      "main": [
-        [
-          {
-            "node": "Set Input Data",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Reply Other",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Set Input Data": {
-      "main": [
-        [
-          {
-            "node": "Route to Ingest",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Route to Ingest": {
-      "main": [
-        []
-      ]
     }
   },
-  "active": true,
+  "active": false,
   "settings": {
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "65a5cbaf-6d7f-4d79-b4c5-786d960ade3a",
+  "versionId": "8d69a667-d0b6-4770-bfd0-5f871eeaf557",
   "meta": {
     "instanceId": "e1f8529dafc1c7b24188afd104b1a8e8824324405683593c80fc8bc56ba17881"
   },
-  "id": "ObAxXSSjiG0Q-w4iDQi5T",
+  "id": "i27XoV9nJmU0TkfZ39Jk0",
   "tags": []
 }

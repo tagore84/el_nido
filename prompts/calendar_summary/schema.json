@@ -1,0 +1,12 @@
+{
+    "type": "object",
+    "properties": {
+        "summary": {
+            "type": "string",
+            "description": "Friendly summary message in Spanish"
+        }
+    },
+    "required": [
+        "summary"
+    ]
+}

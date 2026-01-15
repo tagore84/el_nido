@@ -7,5 +7,11 @@
     },
     "whiteboard.ocr": {
         "path": "whiteboard_ocr"
+    },
+    "calendar.event_parser": {
+        "path": "calendar_event_parser"
+    },
+    "calendar.summary": {
+        "path": "calendar_summary"
     }
 }

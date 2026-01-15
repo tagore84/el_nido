@@ -7,10 +7,10 @@
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1,
       "position": [
-        1152,
-        96
+        256,
+        -144
       ],
-      "id": "e908a96c-782c-4eb0-88ec-3d49937ede16"
+      "id": "4a0a0a59-a968-45ca-aff0-420ec62b6e12"
     },
     {
       "parameters": {
@@ -20,14 +20,14 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1360,
-        96
+        464,
+        -144
       ],
-      "id": "29ca6f38-a5e0-4ee0-8262-811af627bdd6"
+      "id": "96b62038-876b-44f0-bc37-8af089b4753b"
     },
     {
       "parameters": {
-        "workflowId": "RNCzRY2bi-VzDmnZiq27S",
+        "workflowId": "cIdjAXxgI1Z-LurEg16oO",
         "mode": "each",
         "options": {}
       },
@@ -35,10 +35,10 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1,
       "position": [
-        1552,
-        96
+        656,
+        -144
       ],
-      "id": "ec7ca623-5fed-4eba-962b-7f1215ca8648"
+      "id": "e0b359b5-3e7e-4e9f-9f88-49d1d226ad3f"
     },
     {
       "parameters": {
@@ -49,68 +49,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1760,
-        96
+        864,
+        -144
       ],
-      "id": "e62a32f6-4beb-42b5-b033-a772e6b1326e"
-    },
-    {
-      "parameters": {
-        "dataType": "string",
-        "value1": "={{ $json.category }}",
-        "rules": {
-          "rules": [
-            {
-              "value2": "task"
-            },
-            {
-              "value2": "calendar",
-              "output": 1
-            },
-            {
-              "value2": "chat",
-              "output": 2
-            },
-            {
-              "value2": "other",
-              "output": 3
-            }
-          ]
-        },
-        "fallbackOutput": 3
-      },
-      "name": "Switch Category",
-      "type": "n8n-nodes-base.switch",
-      "typeVersion": 1,
-      "position": [
-        1952,
-        64
-      ],
-      "id": "1b18df52-a6ee-4080-a4c3-58802baeaf18"
-    },
-    {
-      "parameters": {
-        "chatId": "={{ $json.chat_id }}",
-        "text": "=🤖 *Clasificación de Texto*\n\n**Categoría**: {{ $json.category }}\n**Confianza**: {{ $json.confidence * 100 }}%\n**Razón**: {{ $json.reasoning }}",
-        "additionalFields": {
-          "parse_mode": "Markdown"
-        }
-      },
-      "name": "Reply Debug",
-      "type": "n8n-nodes-base.telegram",
-      "typeVersion": 1,
-      "position": [
-        2336,
-        96
-      ],
-      "id": "bd33ca8d-5fad-4be8-9c65-c38712d3d949",
-      "webhookId": "9fde48fc-878e-4f42-987a-5da9d309c586",
-      "credentials": {
-        "telegramApi": {
-          "id": "JLG33gMQcdi4JvQq",
-          "name": "Telegram account"
-        }
-      }
+      "id": "7eaa429c-8445-456d-88a6-6be3cac397a0"
     }
   ],
   "pinData": {},
@@ -147,49 +89,6 @@
           }
         ]
       ]
-    },
-    "Parse JSON": {
-      "main": [
-        [
-          {
-            "node": "Switch Category",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Switch Category": {
-      "main": [
-        [
-          {
-            "node": "Reply Debug",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Reply Debug",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Reply Debug",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Reply Debug",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
     }
   },
   "active": false,
@@ -197,10 +96,10 @@
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "54cecc2b-6323-4ea5-b938-04f1c855b960",
+  "versionId": "a709c358-9176-485b-bdce-a841e5ad615d",
   "meta": {
     "instanceId": "e1f8529dafc1c7b24188afd104b1a8e8824324405683593c80fc8bc56ba17881"
   },
-  "id": "9XBuTBG2fHkmq2PH52Esi",
+  "id": "fk7A5h2ySSny8G3L_luha",
   "tags": []
 }

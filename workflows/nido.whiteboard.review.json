@@ -7,71 +7,10 @@
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1,
       "position": [
-        17904,
-        736
+        -4016,
+        -480
       ],
-      "id": "acac7517-aa82-4753-b4fd-f1ba73a89fa2"
-    },
-    {
-      "parameters": {
-        "chatId": 5785514136,
-        "text": "OK",
-        "additionalFields": {}
-      },
-      "name": "Answer Callback",
-      "type": "n8n-nodes-base.telegram",
-      "typeVersion": 1,
-      "position": [
-        18128,
-        736
-      ],
-      "id": "d6dbfdb3-4a1f-4866-b031-d3879852688d",
-      "webhookId": "9a9df720-dbe0-41e6-8c27-a9c8b59c6fdc",
-      "credentials": {
-        "telegramApi": {
-          "id": "JLG33gMQcdi4JvQq",
-          "name": "Telegram account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "functionCode": "let callbackData;\n\n// Try to get data from current item (if direct input)\nif (items[0].json.callback_query) {\n  callbackData = items[0].json.callback_query;\n} \n// Check External Trigger (standard routed execution)\nelse if ($node[\"External Trigger\"] && $node[\"External Trigger\"].json.callback_query) {\n  callbackData = $node[\"External Trigger\"].json.callback_query;\n}\n\nconst data = callbackData ? callbackData.data : null;\n\nif (!data) return [];\n\n// Format: action|session_id|item_index\nconst parts = data.split('|');\nreturn [{ json: { action: parts[0], session_id: parts[1], item_index: parseInt(parts[2]) } }];"
-      },
-      "name": "Parse Callback",
-      "type": "n8n-nodes-base.function",
-      "typeVersion": 1,
-      "position": [
-        18352,
-        736
-      ],
-      "id": "ff66e0af-91e3-441d-941d-b8382677ac05"
-    },
-    {
-      "parameters": {
-        "functionCode": "const fs = require('fs');\nconst sessionId = items[0].json.session_id;\nconst path = `/data/review_sessions/sess_${sessionId}.json`;\nconst session = JSON.parse(fs.readFileSync(path, 'utf8'));\nreturn [{ json: { session, path } }];"
-      },
-      "name": "Load Session",
-      "type": "n8n-nodes-base.function",
-      "typeVersion": 1,
-      "position": [
-        18576,
-        736
-      ],
-      "id": "87600770-c1bc-42a5-9f2b-a7d758ce7289"
-    },
-    {
-      "parameters": {
-        "functionCode": "// Apply Action Logic\nconst session = items[0].json.session;\nconst action = $node[\"Parse Callback\"].json.action;\nconst index = $node[\"Parse Callback\"].json.item_index;\n\nconst item = session.pending[index];\n\nif (action === 'accept') {\n  session.accepted.push(item);\n} else if (action === 'ignore') {\n  session.ignored.push(item);\n}\n\nsession.pending.splice(index, 1);\n\nconst binaryData = Buffer.from(JSON.stringify(session, null, 2)).toString('base64');\n\nreturn [{\n  json: { session, processedItem: item, action },\n  binary: {\n    data: {\n      data: binaryData,\n      mimeType: 'application/json'\n    }\n  }\n}];"
-      },
-      "name": "Process Action",
-      "type": "n8n-nodes-base.function",
-      "typeVersion": 1,
-      "position": [
-        18800,
-        736
-      ],
-      "id": "330f9d91-5998-4eec-82bf-57d94e14c9dd"
+      "id": "28ae760f-8292-46f4-ac90-c08bbd72dbd7"
     },
     {
       "parameters": {
@@ -82,10 +21,10 @@
       "type": "n8n-nodes-base.writeBinaryFile",
       "typeVersion": 1,
       "position": [
-        19024,
-        736
+        -3136,
+        -480
       ],
-      "id": "713d51c6-0432-4c75-8522-467f6699ff43"
+      "id": "a33cafa0-e7e9-4d70-862e-b320da9f1177"
     },
     {
       "parameters": {
@@ -102,10 +41,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        19696,
-        736
+        -2224,
+        -480
       ],
-      "id": "c45e8528-fb4b-484c-aa11-c3c862d28645"
+      "id": "94d0a361-cf11-4682-af53-849cb38cff76"
     },
     {
       "parameters": {
@@ -120,13 +59,13 @@
                   {
                     "text": "✅ Guardar",
                     "additionalFields": {
-                      "callback_data": "=accept|{{ $json.session.id }}|0"
+                      "callback_data": "=accept|{{ $node[\"Process Action\"].json.session.id }}|0"
                     }
                   },
                   {
                     "text": "❌ Ignorar",
                     "additionalFields": {
-                      "callback_data": "=ignore|{{ $json.session.id }}|0"
+                      "callback_data": "=ignore|{{ $node[\"Process Action\"].json.session.id }}|0"
                     }
                   }
                 ]
@@ -140,10 +79,10 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1,
       "position": [
-        19920,
-        640
+        -2000,
+        -576
       ],
-      "id": "d592142c-7ac9-4b9f-ae3c-05d14ad64b62",
+      "id": "0edfb48b-1ce6-4087-a77d-58a1012280a3",
       "webhookId": "2fcc9fab-92f1-422b-bc17-f8971e624a96",
       "credentials": {
         "telegramApi": {
@@ -154,18 +93,18 @@
     },
     {
       "parameters": {
-        "chatId": "={{ $json.session.chat_id }}",
-        "text": "=✅ Revisión completada.\nAceptados: {{ $json.session.accepted.length }}\nIgnorados: {{ $json.session.ignored.length }}",
+        "chatId": "={{ $node[\"Process Action\"].json.session.chat_id }}",
+        "text": "=✅ Revisión completada.\nAceptados: {{ $node[\"Process Action\"].json.session.accepted.length }}\nIgnorados: {{ $node[\"Process Action\"].json.session.ignored.length }}",
         "additionalFields": {}
       },
       "name": "Finish Review",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1,
       "position": [
-        19920,
-        832
+        -2000,
+        -384
       ],
-      "id": "81f019bd-2041-4d75-822f-7243bae83937",
+      "id": "285e3edd-518c-4902-88e1-cfe06ccd448b",
       "webhookId": "1db973f2-f757-4373-b085-805b7cf5b0ce",
       "credentials": {
         "telegramApi": {
@@ -189,10 +128,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        19248,
-        736
+        -2912,
+        -480
       ],
-      "id": "004adcf1-a727-4690-9812-7ce03c8aaa2d"
+      "id": "f7ee1dbe-a77d-4653-807f-038ade91b9f6"
     },
     {
       "parameters": {
@@ -212,14 +151,97 @@
       "type": "n8n-nodes-base.googleCalendar",
       "typeVersion": 1,
       "position": [
-        19472,
-        664
+        -2688,
+        -640
       ],
-      "id": "8e2685ea-ba20-4652-864b-c1d8060ab2b8",
+      "id": "9e5ca42e-c32a-4e29-972e-17628807fe67",
       "credentials": {
         "googleCalendarOAuth2Api": {
           "id": "bB5cLTUIh2iApkRb",
           "name": "Google Calendar account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.item.json;\nlet action, session_id, item_index;\n\n// Priority 1: Pre-parsed data from router (action, session_id, raw_data/payload)\nif (input.action && input.session_id) {\n  action = input.action;\n  session_id = input.session_id;\n  // item_index can be in payload[0] or parsed from raw_data\n  if (input.payload && input.payload.length > 0) {\n    item_index = parseInt(input.payload[0]);\n  } else if (input.raw_data) {\n    const parts = input.raw_data.split('|');\n    item_index = parts.length >= 3 ? parseInt(parts[2]) : 0;\n  } else {\n    item_index = 0;\n  }\n}\n// Priority 3: External Trigger (fallback for sub-workflow)\nelse if ($node[\"External Trigger\"] && $node[\"External Trigger\"].json) {\n  const trigger = $node[\"External Trigger\"].json;\n  if (trigger.action && trigger.session_id) {\n    action = trigger.action;\n    session_id = trigger.session_id;\n    if (trigger.payload && trigger.payload.length > 0) {\n      item_index = parseInt(trigger.payload[0]);\n    } else if (trigger.raw_data) {\n      const parts = trigger.raw_data.split('|');\n      item_index = parts.length >= 3 ? parseInt(parts[2]) : 0;\n    } else {\n      item_index = 0;\n    }\n  } else if (trigger.callback_query && trigger.callback_query.data) {\n    const parts = trigger.callback_query.data.split('|');\n    if (parts.length >= 3) {\n      action = parts[0];\n      session_id = parts[1];\n      item_index = parseInt(parts[2]);\n    }\n  }\n}\n\n// Return empty if we couldn't parse\nif (!action || !session_id) {\n  return [];\n}\n\nreturn [{ json: { action, session_id, item_index } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3808,
+        -480
+      ],
+      "id": "78b62acd-2af3-48f4-918b-4ee22d3ed813",
+      "name": "Parse Callback"
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs = require('fs');\nconst sessionId = items[0].json.session_id;\nconst path = `/data/review_sessions/sess_${sessionId}.json`;\nconst session = JSON.parse(fs.readFileSync(path, 'utf8'));\nreturn [{ json: { session, path } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3584,
+        -480
+      ],
+      "id": "ecb99d55-783f-4890-a30a-b18e7a860a3c",
+      "name": "Load Session"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Apply Action Logic\nconst session = items[0].json.session;\nconst action = $node[\"Parse Callback\"].json.action;\nconst index = $node[\"Parse Callback\"].json.item_index;\n\nconst item = session.pending[index];\n\nif (action === 'accept') {\n  session.accepted.push(item);\n} else if (action === 'ignore') {\n  session.ignored.push(item);\n}\n\nsession.pending.splice(index, 1);\n\nconst binaryData = Buffer.from(JSON.stringify(session, null, 2)).toString('base64');\n\nreturn [{\n  json: { session, processedItem: item, action },\n  binary: {\n    data: {\n      data: binaryData,\n      mimeType: 'application/json'\n    }\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3376,
+        -480
+      ],
+      "id": "d843aa1a-3e14-4c6f-8d58-1c3b0a3046d8",
+      "name": "Process Action"
+    },
+    {
+      "parameters": {
+        "chatId": 5785514136,
+        "text": "Ignorado",
+        "additionalFields": {}
+      },
+      "name": "Answer Ignored",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        -2592,
+        -464
+      ],
+      "id": "6cce7180-a6c4-417f-9e94-cacfee5b327b",
+      "webhookId": "9a9df720-dbe0-41e6-8c27-a9c8b59c6fdc",
+      "credentials": {
+        "telegramApi": {
+          "id": "JLG33gMQcdi4JvQq",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": 5785514136,
+        "text": "Guardado en el Calendario",
+        "additionalFields": {}
+      },
+      "name": "Answer Saved",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        -2464,
+        -640
+      ],
+      "id": "865912e8-3dc5-4cdb-b74a-fbef95ba6290",
+      "webhookId": "9a9df720-dbe0-41e6-8c27-a9c8b59c6fdc",
+      "credentials": {
+        "telegramApi": {
+          "id": "JLG33gMQcdi4JvQq",
+          "name": "Telegram account"
         }
       }
     }
@@ -230,18 +252,65 @@
       "main": [
         [
           {
-            "node": "Answer Callback",
+            "node": "Parse Callback",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Answer Callback": {
+    "Update Session File": {
       "main": [
         [
           {
-            "node": "Parse Callback",
+            "node": "Is Action Save?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Action Save?": {
+      "main": [
+        [
+          {
+            "node": "Add to Calendar",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Answer Ignored",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add to Calendar": {
+      "main": [
+        [
+          {
+            "node": "Answer Saved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "More Pending?": {
+      "main": [
+        [
+          {
+            "node": "Show Next Item",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Finish Review",
             "type": "main",
             "index": 0
           }
@@ -281,36 +350,7 @@
         ]
       ]
     },
-    "Update Session File": {
-      "main": [
-        [
-          {
-            "node": "Is Action Save?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Is Action Save?": {
-      "main": [
-        [
-          {
-            "node": "Add to Calendar",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "More Pending?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Add to Calendar": {
+    "Answer Ignored": {
       "main": [
         [
           {
@@ -321,18 +361,11 @@
         ]
       ]
     },
-    "More Pending?": {
+    "Answer Saved": {
       "main": [
         [
           {
-            "node": "Show Next Item",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Finish Review",
+            "node": "More Pending?",
             "type": "main",
             "index": 0
           }
@@ -340,15 +373,15 @@
       ]
     }
   },
-  "active": true,
+  "active": false,
   "settings": {
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "81362207-26d9-4507-aefe-875b80f12541",
+  "versionId": "083d7157-8f55-4811-888e-00f80f2dff62",
   "meta": {
     "instanceId": "e1f8529dafc1c7b24188afd104b1a8e8824324405683593c80fc8bc56ba17881"
   },
-  "id": "18JO8AMXiXDnR9-tU-POb",
+  "id": "gSnUtg5YnaLgjyYN2sKno",
   "tags": []
 }

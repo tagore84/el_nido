@@ -13,10 +13,11 @@
             "type": "n8n-nodes-base.telegramTrigger",
             "typeVersion": 1,
             "position": [
-                250,
-                300
+                -880,
+                96
             ],
             "webhookId": "nido-router-telegram",
+            "id": "63b24603-1da6-4473-91ec-29d88f1016d7",
             "credentials": {
                 "telegramApi": {
                     "id": "JLG33gMQcdi4JvQq",
@@ -26,155 +27,322 @@
         },
         {
             "parameters": {
-                "functionCode": "// Chat Map (Hardcoded)\nconst chatMap = {\n    \"Nido-Alberto\": \"5785514136\",\n    \"Nido-Alberto-Laura\": \"-5223730192\",\n    \"Nido-Alberto-Laura-Testing\": \"-5234536185\",\n    \"Nido-Laura\": \"PLACEHOLDER\"\n};\n\n// Get Chat ID from input\nconst body = items[0].json;\nlet chatId = null;\nlet type = 'other';\n\nif (body.callback_query) {\n    chatId = body.callback_query.message.chat.id;\n    type = 'callback';\n} else if (body.message) {\n    chatId = body.message.chat.id;\n    if (body.message.photo) type = 'photo';\n    else if (body.message.text) type = 'text';\n}\n\n// Resolve Name\nlet chatName = 'Unknown';\n// Iterate map to find key by value (ID)\nfor (const [name, id] of Object.entries(chatMap)) {\n    if (String(id) === String(chatId)) {\n        chatName = name;\n        break;\n    }\n}\n\nreturn [{\n    json: {\n        ...body,\n        _routing: {\n            chatId,\n            chatName,\n            type\n        }\n    }\n}];"
+                "jsCode": "const msg = $input.item.json;\nlet type = 'other';\n\nif (msg.callback_query) {\n  type = 'callback';\n} else if (msg.message) {\n  if (msg.message.photo) type = 'photo';\n  else if (msg.message.text) type = 'text';\n}\n\nreturn { json: { ...msg, type } };"
             },
-            "name": "Identify Chat",
-            "type": "n8n-nodes-base.function",
-            "typeVersion": 1,
+            "name": "Identify Type",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
             "position": [
-                450,
-                300
-            ]
+                -656,
+                96
+            ],
+            "id": "ee895445-6ba6-4c33-a5d5-0e5e9b680573"
         },
         {
             "parameters": {
                 "dataType": "string",
-                "value1": "={{ $json._routing.chatName }}::{{ $json._routing.type }}",
+                "value1": "={{ $json.type }}",
                 "rules": {
                     "rules": [
                         {
-                            "value2": "Nido-Alberto::photo",
-                            "output": 0
+                            "value2": "text"
                         },
                         {
-                            "value2": "Nido-Alberto::text",
+                            "value2": "photo",
                             "output": 1
                         },
                         {
-                            "value2": "Nido-Alberto::callback",
+                            "value2": "callback",
                             "output": 2
-                        },
-                        {
-                            "value2": "Nido-Alberto-Laura-Testing::text",
-                            "output": 3
                         }
                     ]
-                }
+                },
+                "fallbackOutput": 3
             },
-            "name": "Route Traffic",
+            "name": "Switch Type",
             "type": "n8n-nodes-base.switch",
             "typeVersion": 1,
             "position": [
-                650,
-                300
-            ]
+                -432,
+                96
+            ],
+            "id": "ef3f695c-b08b-459e-adc4-7f963c04e4ea"
         },
         {
             "parameters": {
-                "workflowId": "ObAxXSSjiG0Q-w4iDQi5T",
+                "workflowId": "fk7A5h2ySSny8G3L_luha",
                 "mode": "each",
                 "options": {}
             },
-            "name": "Route to Photo",
+            "name": "Classify Text",
             "type": "n8n-nodes-base.executeWorkflow",
             "typeVersion": 1,
             "position": [
-                850,
-                200
-            ]
+                -176,
+                -32
+            ],
+            "id": "cb7e4de7-efd7-4f1d-a6aa-05d22610583a"
         },
         {
             "parameters": {
-                "workflowId": "9XBuTBG2fHkmq2PH52Esi",
+                "workflowId": "i27XoV9nJmU0TkfZ39Jk0",
                 "mode": "each",
                 "options": {}
             },
-            "name": "Route to Text",
+            "name": "Classify Photo",
             "type": "n8n-nodes-base.executeWorkflow",
             "typeVersion": 1,
             "position": [
-                850,
-                400
-            ]
+                -176,
+                128
+            ],
+            "id": "0e9e3722-a2fd-4f8f-8fbc-1f23ed091355"
         },
         {
             "parameters": {
-                "workflowId": "18JO8AMXiXDnR9-tU-POb",
+                "workflowId": "zJmvUMO9FN7ShjqeKed-S",
                 "mode": "each",
                 "options": {}
             },
-            "name": "Route to Review",
+            "name": "Process Callback",
             "type": "n8n-nodes-base.executeWorkflow",
             "typeVersion": 1,
             "position": [
-                850,
-                600
-            ]
+                -176,
+                288
+            ],
+            "id": "febb1e28-ca19-4937-acb5-b9251deb4ac6"
         },
         {
             "parameters": {
-                "workflowId": "placeholder-shared-text",
+                "jsCode": "const chatMap = {\n    \"Nido-Alberto\": \"5785514136\",\n    \"Nido-Alberto-Laura\": \"-5223730192\",\n    \"Nido-Alberto-Laura-Testing\": \"-5234536185\",\n    \"Nido-Laura\": \"PLACEHOLDER\"\n};\nconst idToName = Object.fromEntries(Object.entries(chatMap).map(([k,v]) => [v, k]));\n\nconst item = $input.item.json;\nconst chatId = item.chat_id;\nconst chatName = idToName[String(chatId)] || 'Unknown';\n\nlet target = 'unknown';\n\n// Rule 1: Foto + Category: whiteboard_calendar + Chat: \"Nido-Alberto\" -> nido.whiteboard.ingest\nif (chatName === 'Nido-Alberto') {\n    if (item.image_type === 'whiteboard_calendar') {\n        target = 'whiteboard_ingest';\n    }\n    // Rule 2: Tipo: Callback + Chat: \"Nido-Alberto\" -> nido.whiteboard.review\n    if (item.type === 'callback') {\n        target = 'whiteboard_review';\n    }\n}\n\n// Rule 3: Chat \"Nido-Alberto-Laura\" rules\nif (chatName === 'Nido-Alberto-Laura') {\n    // Texto + Category: calendar -> nido.telegram.calendar\n    if (item.category === 'calendar') {\n        target = 'telegram_calendar';\n    }\n    // Callback: cal_save or cal_cancel -> nido.telegram.calendar\n    if (item.type === 'callback' && item.action && (item.action.startsWith('cal_'))) {\n        target = 'telegram_calendar';\n    }\n}\n\nreturn { json: { target, ...item, chatName } };"
+            },
+            "name": "Route Logic",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                128,
+                128
+            ],
+            "id": "59bcc6dc-9f14-4b01-8341-01dd6d2a7193"
+        },
+        {
+            "parameters": {
+                "dataType": "string",
+                "value1": "={{ $json.target }}",
+                "rules": {
+                    "rules": [
+                        {
+                            "value2": "whiteboard_ingest"
+                        },
+                        {
+                            "value2": "whiteboard_review",
+                            "output": 1
+                        },
+                        {
+                            "value2": "telegram_calendar",
+                            "output": 2
+                        }
+                    ]
+                },
+                "fallbackOutput": 3
+            },
+            "name": "Switch Target",
+            "type": "n8n-nodes-base.switch",
+            "typeVersion": 1,
+            "position": [
+                352,
+                128
+            ],
+            "id": "72df2893-eb01-403e-b30c-bb97cc071b58"
+        },
+        {
+            "parameters": {
+                "workflowId": "t3IsM1h5-xaYeegf0PpyK",
                 "mode": "each",
                 "options": {}
             },
-            "name": "Route to Shared Text",
+            "name": "Execute Ingest",
             "type": "n8n-nodes-base.executeWorkflow",
             "typeVersion": 1,
             "position": [
-                850,
-                800
-            ]
+                608,
+                -32
+            ],
+            "id": "ec7b08b9-b6ed-4f42-b05d-c61401ac161c"
+        },
+        {
+            "parameters": {
+                "workflowId": "gSnUtg5YnaLgjyYN2sKno",
+                "mode": "each",
+                "options": {}
+            },
+            "name": "Execute Review",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1,
+            "position": [
+                608,
+                128
+            ],
+            "id": "10ae0577-825d-4b9b-95ad-27f42573b2f9"
+        },
+        {
+            "parameters": {
+                "workflowId": "rnr5kvlbBNvVA9wXvJGAE",
+                "mode": "each",
+                "options": {}
+            },
+            "name": "Execute Calendar",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1,
+            "position": [
+                608,
+                288
+            ],
+            "id": "e64fa8e4-fe3d-4467-886f-ab1d1c59be31"
+        },
+        {
+            "parameters": {
+                "chatId": "={{ $json.chat_id }}",
+                "text": "=🤖 No he podido enrutar tu mensaje.\nChat: {{ $json.chatName }}\nTipo: {{ $json.type }}\nCategoría/Img: {{ $json.category || $json.image_type || 'N/A' }}",
+                "additionalFields": {}
+            },
+            "name": "Reply Unknown",
+            "type": "n8n-nodes-base.telegram",
+            "typeVersion": 1,
+            "position": [
+                608,
+                448
+            ],
+            "id": "50a423f0-7af8-4695-b04d-7b06c628f2f3",
+            "webhookId": "reply-unknown-webhook",
+            "credentials": {
+                "telegramApi": {
+                    "id": "JLG33gMQcdi4JvQq",
+                    "name": "Telegram account"
+                }
+            }
         }
     ],
+    "pinData": {},
     "connections": {
         "Telegram Trigger": {
             "main": [
                 [
                     {
-                        "node": "Identify Chat",
+                        "node": "Identify Type",
                         "type": "main",
                         "index": 0
                     }
                 ]
             ]
         },
-        "Identify Chat": {
+        "Identify Type": {
             "main": [
                 [
                     {
-                        "node": "Route Traffic",
+                        "node": "Switch Type",
                         "type": "main",
                         "index": 0
                     }
                 ]
             ]
         },
-        "Route Traffic": {
+        "Switch Type": {
             "main": [
                 [
                     {
-                        "node": "Route to Photo",
+                        "node": "Classify Text",
                         "type": "main",
                         "index": 0
                     }
                 ],
                 [
                     {
-                        "node": "Route to Text",
+                        "node": "Classify Photo",
                         "type": "main",
                         "index": 0
                     }
                 ],
                 [
                     {
-                        "node": "Route to Review",
+                        "node": "Process Callback",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Classify Text": {
+            "main": [
+                [
+                    {
+                        "node": "Route Logic",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Classify Photo": {
+            "main": [
+                [
+                    {
+                        "node": "Route Logic",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Process Callback": {
+            "main": [
+                [
+                    {
+                        "node": "Route Logic",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Route Logic": {
+            "main": [
+                [
+                    {
+                        "node": "Switch Target",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Switch Target": {
+            "main": [
+                [
+                    {
+                        "node": "Execute Ingest",
                         "type": "main",
                         "index": 0
                     }
                 ],
                 [
                     {
-                        "node": "Route to Shared Text",
+                        "node": "Execute Review",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Execute Calendar",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Reply Unknown",
                         "type": "main",
                         "index": 0
                     }
@@ -182,5 +350,15 @@
             ]
         }
     },
-    "active": true
+    "active": false,
+    "settings": {
+        "executionOrder": "v1",
+        "availableInMCP": false
+    },
+    "versionId": "e5d7873e-f426-43c9-b199-4dedd214b886",
+    "meta": {
+        "instanceId": "e1f8529dafc1c7b24188afd104b1a8e8824324405683593c80fc8bc56ba17881"
+    },
+    "id": "Idwsbwewlp1-aUO7NZrsg",
+    "tags": []
 }

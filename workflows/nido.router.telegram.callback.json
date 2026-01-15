@@ -1,0 +1,54 @@
+{
+  "name": "nido.router.telegram.callback",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "42e46162-c9f9-463f-a4a7-b4b56ae2521f"
+    },
+    {
+      "parameters": {
+        "jsCode": "const callback = $input.item.json.callback_query;\nconst data = callback.data || '';\n// standard format: action|session_id|...\nconst parts = data.split('|');\n\nreturn {\n    json: {\n        type: 'callback',\n        action: parts[0] || 'unknown',\n        session_id: parts[1] || null,\n        payload: parts.slice(2),\n        raw_data: data,\n        chat_id: callback.message.chat.id,\n        message_id: callback.message.message_id,\n        user: callback.from\n    }\n};"
+      },
+      "name": "Parse Callback",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "c840458b-3daf-430a-9bc2-c4bc659daca9"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Parse Callback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "d9fe0ae0-f337-4299-820a-3f60b918f01c",
+  "meta": {
+    "instanceId": "e1f8529dafc1c7b24188afd104b1a8e8824324405683593c80fc8bc56ba17881"
+  },
+  "id": "zJmvUMO9FN7ShjqeKed-S",
+  "tags": []
+}
