@@ -14,7 +14,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const prompt_id = 'router_text_classification';\nconst options = {};\n\nreturn $input.all().map(item => {\n  const json = item.json;\n  const message_text = json.message.text || '';\n  \n  return {\n    json: {\n      prompt_id,\n      options,\n      input: {\n          input_type: 'TEXT',\n          input_text: message_text\n      }\n    }\n  };\n});"
+        "jsCode": "const prompt_id = 'router_text_classification';\nconst options = {};\n\nreturn $input.all().map(item => {\n  const json = item.json;\n  const message_text = json.message.text || '';\n  // Extract chat_id for persistent typing feedback\n  const chat_id = json.message.chat ? json.message.chat.id : null;\n  \n  return {\n    json: {\n      prompt_id,\n      options,\n      chat_id,\n      input: {\n          input_type: 'TEXT',\n          input_text: message_text\n      }\n    }\n  };\n});"
       },
       "name": "Prepare LLM Input",
       "type": "n8n-nodes-base.code",

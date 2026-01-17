@@ -15,7 +15,7 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "// Defaults and Environment Config\nconst json = $input.item.json;\nconst params = $input.params || {};\nconst fs = require('fs');\n\nconst prompt_id = json.prompt_id || params.prompt_id;\nconst input = json.input || params.input || {};\nconst options = json.options || params.options || {};\nconst force_refresh = json.force_refresh || params.force_refresh || false;\n\nlet env_mode = 'live';\ntry {\n  env_mode = $env.LLM_MODE || 'live';\n} catch (e) {\n  // Access denied to env vars, defaulting to live\n}\n\n// Load models from config if available\nlet models = options.model;\n\nif (prompt_id) {\n    try {\n        const modelsConfigPath = '/data/infra/models.json';\n        // Try strict path first (docker mapping), fallback to relative if dev env\n        let configPath = modelsConfigPath;\n        if (!fs.existsSync(configPath)) {\n             // Fallback for local dev environment\n             configPath = '/Users/alberto/src/nido/infra/synology/models.json';\n        }\n        \n        if (fs.existsSync(configPath)) {\n            const modelsConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));\n            if (modelsConfig[prompt_id]) {\n                models = modelsConfig[prompt_id];\n            }\n        }\n    } catch (e) {\n        // Config load failed, keep existing models\n        console.log('Failed to load models config: ' + e.message);\n    }\n}\n\n// Fallback default if still no models\nif (!models) {\n    models = ['models/gemini-3-flash-preview'];\n}\n\n// Normalize model to array for fallback support\nif (!Array.isArray(models)) {\n  models = [models];\n}\n\n// Validation\nif (!prompt_id) {\n  throw new Error(`Missing parameter: prompt_id`);\n}\nif (!input.input_type || !['TEXT', 'IMAGE', 'AUDIO'].includes(input.input_type)) {\n    throw new Error('Missing or invalid parameter: input.input_type (must be TEXT, IMAGE, or AUDIO)');\n}\nif (input.input_type === 'TEXT' && !input.input_text) {\n     throw new Error('Missing parameter: input.input_text for TEXT input');\n}\nif ((input.input_type === 'IMAGE' || input.input_type === 'AUDIO') && !input.input_path) {\n     throw new Error(`Missing parameter: input.input_path for ${input.input_type} input`);\n}\n\nreturn {\n  json: {\n    prompt_id,\n    input,\n    llm_options: { ...options, model: models },\n    force_refresh,\n    env_mode,\n    models,\n    model_index: 0\n  }\n};"
+        "jsCode": "// Defaults and Environment Config\nconst json = $input.item.json;\nconst params = $input.params || {};\nconst fs = require('fs');\n\nconst prompt_id = json.prompt_id || params.prompt_id;\nconst input = json.input || params.input || {};\nconst options = json.options || params.options || {};\nconst force_refresh = json.force_refresh || params.force_refresh || false;\n// Extract chat_id from params if available, allowing persistent typing feedback\nconst chat_id = json.chat_id || params.chat_id || null;\n\nlet env_mode = 'live';\ntry {\n  env_mode = $env.LLM_MODE || 'live';\n} catch (e) {\n  // Access denied to env vars, defaulting to live\n}\n\n// Load models from config if available\nlet models = options.model;\n\nif (prompt_id) {\n    try {\n        const modelsConfigPath = '/data/infra/models.json';\n        // Try strict path first (docker mapping), fallback to relative if dev env\n        let configPath = modelsConfigPath;\n        if (!fs.existsSync(configPath)) {\n             // Fallback for local dev environment\n             configPath = '/Users/alberto/src/nido/infra/synology/models.json';\n        }\n        \n        if (fs.existsSync(configPath)) {\n            const modelsConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));\n            if (modelsConfig[prompt_id]) {\n                models = modelsConfig[prompt_id];\n            }\n        }\n    } catch (e) {\n        // Config load failed, keep existing models\n        console.log('Failed to load models config: ' + e.message);\n    }\n}\n\n// Fallback default if still no models\nif (!models) {\n    models = ['models/gemini-3-flash-preview'];\n}\n\n// Normalize model to array for fallback support\nif (!Array.isArray(models)) {\n  models = [models];\n}\n\n// Validation\nif (!prompt_id) {\n  throw new Error(`Missing parameter: prompt_id`);\n}\nif (!input.input_type || !['TEXT', 'IMAGE', 'AUDIO'].includes(input.input_type)) {\n    throw new Error('Missing or invalid parameter: input.input_type (must be TEXT, IMAGE, or AUDIO)');\n}\nif (input.input_type === 'TEXT' && !input.input_text) {\n     throw new Error('Missing parameter: input.input_text for TEXT input');\n}\nif ((input.input_type === 'IMAGE' || input.input_type === 'AUDIO') && !input.input_path) {\n     throw new Error(`Missing parameter: input.input_path for ${input.input_type} input`);\n}\n\nreturn {\n  json: {\n    prompt_id,\n    input,\n    chat_id,\n    llm_options: { ...options, model: models },\n    force_refresh,\n    env_mode,\n    models,\n    model_index: 0\n  }\n};"
       },
       "name": "Init Config",
       "type": "n8n-nodes-base.code",
@@ -25,6 +25,46 @@
         752
       ],
       "id": "16814727-545f-4bcf-a58f-444ae1fa50e3"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ !!$json.chat_id }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "name": "Has Chat ID?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1472,
+        480
+      ],
+      "id": "check-chat-id-node"
+    },
+    {
+      "parameters": {
+        "operation": "sendChatAction",
+        "chatId": "={{ $json.chat_id }}"
+      },
+      "name": "Typing",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1696,
+        464
+      ],
+      "id": "llm-adapter-typing-node",
+      "credentials": {
+        "telegramApi": {
+          "id": "JLG33gMQcdi4JvQq",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -724,6 +764,19 @@
       ],
       "id": "dc38bb5f-85a6-4749-b8e0-407fc7c00013",
       "name": "Merge Model Info Image"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Log usage to a monthly CSV file\nconst fs = require('fs');\nconst inputItem = $input.first().json;\n\n// Determine date for filename\nconst now = new Date();\nconst year = now.getFullYear();\nconst month = String(now.getMonth() + 1).padStart(2, '0');\nconst logDir = '/data/logs';\nconst logFile = `${logDir}/llm_usage_${year}-${month}.csv`;\n\n// Ensure directory exists\nif (!fs.existsSync(logDir)) {\n    fs.mkdirSync(logDir, { recursive: true });\n}\n\n// Headers: timestamp,prompt_id,model,provider,input_type,status,tokens_in,tokens_out,total_tokens\nif (!fs.existsSync(logFile)) {\n    fs.writeFileSync(logFile, 'timestamp,prompt_id,model,provider,input_type,status,tokens_in,tokens_out,total_tokens\\n');\n}\n\n// Extract Data\nconst timestamp = now.toISOString();\nconst prepareData = $('Prepare Model Call').first().json;\nconst prompt_id = prepareData.prompt_id || 'unknown';\nconst model = prepareData.current_model || 'unknown';\nconst provider = prepareData.provider || 'unknown';\nconst input_type = prepareData.input && prepareData.input.input_type ? prepareData.input.input_type : 'unknown';\n\n// Status & Tokens\nlet status = 'SUCCESS';\nlet tokens_in = '';\nlet tokens_out = '';\nlet total_tokens = '';\n\nif (inputItem.retry_needed || inputItem.error || inputItem.errorMessage) {\n    status = 'ERROR';\n}\n\nif (inputItem.usage) {\n    tokens_in = inputItem.usage.prompt_tokens || '';\n    tokens_out = inputItem.usage.completion_tokens || '';\n    total_tokens = inputItem.usage.total_tokens || '';\n}\n\n// CSV Line\nconst line = `${timestamp},${prompt_id},${model},${provider},${input_type},${status},${tokens_in},${tokens_out},${total_tokens}\\n`;\n\ntry {\n    fs.appendFileSync(logFile, line);\n} catch(e) {\n    console.log('Error writing to log: ' + e.message);\n}\n\n// Pass through unmodified for Retry Logic\nreturn $input.all();"
+      },
+      "name": "Log Usage",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4624,
+        608
+      ],
+      "id": "log-usage-node"
     }
   ],
   "connections": {
@@ -758,6 +811,22 @@
           },
           {
             "node": "Hash Schema",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Has Chat ID?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Chat ID?": {
+      "main": [
+        [
+          {
+            "node": "Typing",
             "type": "main",
             "index": 0
           }
@@ -1083,6 +1152,17 @@
       ]
     },
     "Handle LLM Response": {
+      "main": [
+        [
+          {
+            "node": "Log Usage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Usage": {
       "main": [
         [
           {
