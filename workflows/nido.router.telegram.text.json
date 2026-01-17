@@ -14,7 +14,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const prompt_id = 'router_text_classification';\nconst options = { model: 'models/gemini-3-flash-preview' };\n\nreturn $input.all().map(item => {\n  const json = item.json;\n  const message_text = json.message.text || '';\n  \n  return {\n    json: {\n      prompt_id,\n      options,\n      input: {\n          input_type: 'TEXT',\n          input_text: message_text\n      }\n    }\n  };\n});"
+        "jsCode": "const prompt_id = 'router_text_classification';\nconst options = {};\n\nreturn $input.all().map(item => {\n  const json = item.json;\n  const message_text = json.message.text || '';\n  \n  return {\n    json: {\n      prompt_id,\n      options,\n      input: {\n          input_type: 'TEXT',\n          input_text: message_text\n      }\n    }\n  };\n});"
       },
       "name": "Prepare LLM Input",
       "type": "n8n-nodes-base.code",

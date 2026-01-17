@@ -20,41 +20,10 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1,
       "position": [
-        0,
-        0
+        768,
+        448
       ],
-      "id": "ffd7c757-ca59-4959-8b1a-58479152f4db"
-    },
-    {
-      "parameters": {
-        "operation": "getAll",
-        "calendar": {
-          "__rl": true,
-          "mode": "list",
-          "value": "primary"
-        },
-        "returnAll": true,
-        "options": {
-          "timeMin": "={{$node[\"Date Calculation\"].json[\"start\"]}}",
-          "timeMax": "={{$node[\"Date Calculation\"].json[\"end\"]}}",
-          "singleEvents": true,
-          "query": "Fútbol"
-        }
-      },
-      "name": "Get Matches",
-      "type": "n8n-nodes-base.googleCalendar",
-      "typeVersion": 1,
-      "position": [
-        400,
-        0
-      ],
-      "id": "45590234-daeb-4e43-aa21-d6d4eb9da4e3",
-      "credentials": {
-        "googleCalendarOAuth2Api": {
-          "id": "FrzV2bMzBnHfLNY2",
-          "name": "Google Calendar account"
-        }
-      }
+      "id": "9bd80ee9-aaa4-44df-8cec-0c9723c450ff"
     },
     {
       "parameters": {
@@ -71,15 +40,15 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        608,
-        0
+        1584,
+        448
       ],
-      "id": "8643f144-b681-4d51-a024-d8b1a2e65cb4"
+      "id": "5547e246-9246-4d8e-95e2-a0f760c39f02"
     },
     {
       "parameters": {
         "chatId": "5785514136",
-        "text": "=⚽ ¡Partido el {{new Date($node[\"Get Matches\"].json[\"start\"][\"dateTime\"]).toLocaleString(\"es-ES\", {weekday: 'long', day: 'numeric', timeZone: 'Europe/Madrid'})}}!\n\n🕒 Hora: {{new Date($node[\"Get Matches\"].json[\"start\"][\"dateTime\"]).toLocaleTimeString(\"es-ES\", {hour:'2-digit', minute:'2-digit', timeZone: 'Europe/Madrid'})}}\n\n¿Te apuntas?",
+        "text": "=⚽ ¡Partido el {{new Date($json[\"start\"][\"dateTime\"]).toLocaleString(\"es-ES\", {weekday: 'long', day: 'numeric', timeZone: 'Europe/Madrid'})}}!\n\n🕒 Hora: {{new Date($json[\"start\"][\"dateTime\"]).toLocaleTimeString(\"es-ES\", {hour:'2-digit', minute:'2-digit', timeZone: 'Europe/Madrid'})}}\n\n¿Te apuntas?",
         "replyMarkup": "inlineKeyboard",
         "inlineKeyboard": {
           "rows": [
@@ -89,7 +58,7 @@
                   {
                     "text": "Sí, voy",
                     "additionalFields": {
-                      "callback_data": "=yes_football|{{$node[\"Get Matches\"].json[\"start\"][\"dateTime\"]}}|{{$node[\"Get Matches\"].json[\"end\"][\"dateTime\"]}}"
+                      "callback_data": "=yes_football|{{$json[\"start\"][\"dateTime\"]}}|{{$json[\"end\"][\"dateTime\"]}}"
                     }
                   },
                   {
@@ -109,10 +78,10 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1,
       "position": [
-        800,
-        0
+        1776,
+        448
       ],
-      "id": "572069cc-4b01-4891-9e2e-de665ed72dce",
+      "id": "2420661f-428d-4bd2-a659-befd54d5f445",
       "webhookId": "57c134f6-0f09-43bd-b239-b209058d7a18",
       "credentials": {
         "telegramApi": {
@@ -122,27 +91,15 @@
       }
     },
     {
-      "parameters": {
-        "updates": [
-          "callback_query"
-        ],
-        "additionalFields": {}
-      },
-      "name": "Wait for Response",
-      "type": "n8n-nodes-base.telegramTrigger",
+      "parameters": {},
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1,
       "position": [
-        0,
-        304
+        976,
+        752
       ],
-      "webhookId": "cb-football-response",
-      "id": "d7cbe21c-2042-4eec-9a89-a922dc0fdd5b",
-      "credentials": {
-        "telegramApi": {
-          "id": "JLG33gMQcdi4JvQq",
-          "name": "Telegram account"
-        }
-      }
+      "id": "6d067b90-bf68-4a17-94f7-e60ed291e1ba"
     },
     {
       "parameters": {
@@ -159,10 +116,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        400,
-        304
+        1376,
+        752
       ],
-      "id": "330421ee-2dfb-4305-9837-c81251cbf556"
+      "id": "42c872d7-a1c2-40e5-a004-69347e1c9577"
     },
     {
       "parameters": {
@@ -181,10 +138,10 @@
       "type": "n8n-nodes-base.googleCalendar",
       "typeVersion": 1,
       "position": [
-        608,
-        208
+        1584,
+        656
       ],
-      "id": "e30ac8f8-8396-4fd5-bd1a-98e73520885d",
+      "id": "d18e5e29-09ec-429d-9ad3-d7f92e95d45b",
       "credentials": {
         "googleCalendarOAuth2Api": {
           "id": "bB5cLTUIh2iApkRb",
@@ -194,7 +151,7 @@
     },
     {
       "parameters": {
-        "chatId": "8486964833",
+        "chatId": "-5234536185",
         "text": "=✅ Alberto ha confirmado que irá al fútbol el {{new Date($node[\"Parse Response\"].json[\"start\"]).toLocaleString(\"es-ES\", {weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid'})}}.",
         "additionalFields": {}
       },
@@ -202,10 +159,10 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1,
       "position": [
-        800,
-        208
+        1776,
+        656
       ],
-      "id": "e3408ef4-eb28-442d-9ac7-96d9f919eafd",
+      "id": "ea52d0b5-ad01-4d41-b0da-7a0d340f0149",
       "webhookId": "f4adb42f-d96a-454a-882f-71469491f6c7",
       "credentials": {
         "telegramApi": {
@@ -225,10 +182,10 @@
       "type": "n8n-nodes-base.homeAssistant",
       "typeVersion": 1,
       "position": [
-        1008,
-        208
+        1984,
+        656
       ],
-      "id": "716374aa-f318-44cf-8d40-36495a002d46",
+      "id": "6cc3cfe5-be7d-4adc-b747-996afcf33dbe",
       "credentials": {
         "homeAssistantApi": {
           "id": "I3MbDcoMCh6VZ8R1",
@@ -246,10 +203,10 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1,
       "position": [
-        608,
-        400
+        1584,
+        848
       ],
-      "id": "f0f9afdf-b736-4446-af94-ed89cb3e4f84",
+      "id": "542b20c0-971e-43f1-b97c-581d8f16fe3b",
       "webhookId": "101bd5b0-5d46-4dba-9ed8-fe8a29299a1d",
       "credentials": {
         "telegramApi": {
@@ -265,24 +222,88 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        192,
-        0
+        960,
+        448
       ],
-      "id": "1412b445-5ee6-4681-bea8-10409797a141",
+      "id": "22e6b845-37e7-4ba7-a386-ef969acc3be6",
       "name": "Date Calculation"
     },
     {
       "parameters": {
-        "jsCode": "const json = items[0].json;\nif (!json.callback_query || !json.callback_query.data) {\n  return [{ json: { answer: 'no_data' } }];\n}\n\nconst data = json.callback_query.data;\nconst parts = data.split('|');\n\nif (parts[0] === 'yes_football') {\n  return [\n    {\n      json: {\n        answer: 'yes',\n        start: parts[1],\n        end: parts[2]\n      }\n    }\n  ];\n} else {\n  return [\n    {\n      json: {\n        answer: 'no'\n      }\n    }\n  ];\n}"
+        "jsCode": "const json = items[0].json;\nconst data = json.raw_data || (json.callback_query && json.callback_query.data);\n\nif (!data) {\n  return [{ json: { answer: 'no_data' } }];\n}\n\nconst parts = data.split('|');\n\nif (parts[0] === 'yes_football') {\n  return [\n    {\n      json: {\n        answer: 'yes',\n        start: parts[1],\n        end: parts[2]\n      }\n    }\n  ];\n} else {\n  return [\n    {\n      json: {\n        answer: 'no'\n      }\n    }\n  ];\n}"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        192,
-        304
+        1168,
+        752
       ],
-      "id": "0eae70ba-4069-483c-9e30-969c4726dbd1",
+      "id": "ec05061b-7572-46c4-a24a-740ec71e7398",
       "name": "Parse Response"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "dogo1fapjrel5dcproumoksd40@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Futsal Castilla Promises"
+        },
+        "returnAll": true,
+        "options": {
+          "timeMin": "={{$node[\"Date Calculation\"].json[\"start\"]}}",
+          "timeMax": "={{$node[\"Date Calculation\"].json[\"end\"]}}",
+          "singleEvents": true,
+          "query": "CASTILLA PROMISES"
+        }
+      },
+      "name": "Get Matches Liga",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [
+        1168,
+        320
+      ],
+      "id": "e3eb4603-e7b7-41d9-aa4d-05d9804402aa",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "FrzV2bMzBnHfLNY2",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "alberto@pozoesteban.es",
+          "mode": "list",
+          "cachedResultName": "alberto@pozoesteban.es"
+        },
+        "returnAll": true,
+        "options": {
+          "timeMin": "={{$node[\"Date Calculation\"].json[\"start\"]}}",
+          "timeMax": "={{$node[\"Date Calculation\"].json[\"end\"]}}",
+          "singleEvents": true,
+          "query": "Fútbol"
+        }
+      },
+      "name": "Get Matches Amistoso",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [
+        1168,
+        544
+      ],
+      "id": "5c11f1c5-5447-4808-a765-1048f5723dc5",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "FrzV2bMzBnHfLNY2",
+          "name": "Google Calendar account"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -292,17 +313,6 @@
         [
           {
             "node": "Date Calculation",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Get Matches": {
-      "main": [
-        [
-          {
-            "node": "Match Found?",
             "type": "main",
             "index": 0
           }
@@ -320,7 +330,7 @@
         ]
       ]
     },
-    "Wait for Response": {
+    "Execute Workflow Trigger": {
       "main": [
         [
           {
@@ -371,16 +381,16 @@
         ]
       ]
     },
-    "Ack No": {
-      "main": [
-        []
-      ]
-    },
     "Date Calculation": {
       "main": [
         [
           {
-            "node": "Get Matches",
+            "node": "Get Matches Liga",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Matches Amistoso",
             "type": "main",
             "index": 0
           }
@@ -397,14 +407,36 @@
           }
         ]
       ]
+    },
+    "Get Matches Liga": {
+      "main": [
+        [
+          {
+            "node": "Match Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Matches Amistoso": {
+      "main": [
+        [
+          {
+            "node": "Match Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "f8ab3f2f-7cae-4a07-a217-88d77ead87da",
+  "versionId": "00d3d424-9757-413b-bf8d-451b4fee0526",
   "meta": {
     "instanceId": "e1f8529dafc1c7b24188afd104b1a8e8824324405683593c80fc8bc56ba17881"
   },

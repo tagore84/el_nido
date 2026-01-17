@@ -7,24 +7,24 @@
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1,
       "position": [
-        -2464,
-        480
+        1024,
+        1040
       ],
-      "id": "bd5fce17-3bc8-4c41-99bf-b12c1f6a943e"
+      "id": "8e187104-c3ac-4553-aa5c-5d1d565968e3"
     },
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "// Defaults and Environment Config\nconst json = $input.item.json;\nconst params = $input.params || {};\n\nconst prompt_id = json.prompt_id || params.prompt_id;\nconst input = json.input || params.input || {};\nconst options = json.options || params.options || { model: 'models/gemini-3-flash-preview' };\nconst force_refresh = json.force_refresh || params.force_refresh || false;\n\nlet env_mode = 'live';\ntry {\n  env_mode = $env.LLM_MODE || 'live';\n} catch (e) {\n  // Access denied to env vars, defaulting to live\n}\n\n// Validation\nif (!prompt_id) {\n  throw new Error(`Missing parameter: prompt_id`);\n}\nif (!input.input_type || !['TEXT', 'IMAGE', 'AUDIO'].includes(input.input_type)) {\n    throw new Error('Missing or invalid parameter: input.input_type (must be TEXT, IMAGE, or AUDIO)');\n}\nif (input.input_type === 'TEXT' && !input.input_text) {\n     throw new Error('Missing parameter: input.input_text for TEXT input');\n}\nif ((input.input_type === 'IMAGE' || input.input_type === 'AUDIO') && !input.input_path) {\n     throw new Error(`Missing parameter: input.input_path for ${input.input_type} input`);\n}\n\nreturn {\n  json: {\n    prompt_id,\n    input,\n    options,\n    force_refresh,\n    env_mode\n  }\n};"
+        "jsCode": "// Defaults and Environment Config\nconst json = $input.item.json;\nconst params = $input.params || {};\nconst fs = require('fs');\n\nconst prompt_id = json.prompt_id || params.prompt_id;\nconst input = json.input || params.input || {};\nconst options = json.options || params.options || {};\nconst force_refresh = json.force_refresh || params.force_refresh || false;\n\nlet env_mode = 'live';\ntry {\n  env_mode = $env.LLM_MODE || 'live';\n} catch (e) {\n  // Access denied to env vars, defaulting to live\n}\n\n// Load models from config if available\nlet models = options.model;\n\nif (prompt_id) {\n    try {\n        const modelsConfigPath = '/data/infra/models.json';\n        // Try strict path first (docker mapping), fallback to relative if dev env\n        let configPath = modelsConfigPath;\n        if (!fs.existsSync(configPath)) {\n             // Fallback for local dev environment\n             configPath = '/Users/alberto/src/nido/infra/synology/models.json';\n        }\n        \n        if (fs.existsSync(configPath)) {\n            const modelsConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));\n            if (modelsConfig[prompt_id]) {\n                models = modelsConfig[prompt_id];\n            }\n        }\n    } catch (e) {\n        // Config load failed, keep existing models\n        console.log('Failed to load models config: ' + e.message);\n    }\n}\n\n// Fallback default if still no models\nif (!models) {\n    models = ['models/gemini-3-flash-preview'];\n}\n\n// Normalize model to array for fallback support\nif (!Array.isArray(models)) {\n  models = [models];\n}\n\n// Validation\nif (!prompt_id) {\n  throw new Error(`Missing parameter: prompt_id`);\n}\nif (!input.input_type || !['TEXT', 'IMAGE', 'AUDIO'].includes(input.input_type)) {\n    throw new Error('Missing or invalid parameter: input.input_type (must be TEXT, IMAGE, or AUDIO)');\n}\nif (input.input_type === 'TEXT' && !input.input_text) {\n     throw new Error('Missing parameter: input.input_text for TEXT input');\n}\nif ((input.input_type === 'IMAGE' || input.input_type === 'AUDIO') && !input.input_path) {\n     throw new Error(`Missing parameter: input.input_path for ${input.input_type} input`);\n}\n\nreturn {\n  json: {\n    prompt_id,\n    input,\n    llm_options: { ...options, model: models },\n    force_refresh,\n    env_mode,\n    models,\n    model_index: 0\n  }\n};"
       },
       "name": "Init Config",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -2240,
-        192
+        1248,
+        752
       ],
-      "id": "d7c41171-044f-4a5b-b14e-f754da2d6ac9"
+      "id": "16814727-545f-4bcf-a58f-444ae1fa50e3"
     },
     {
       "parameters": {
@@ -41,10 +41,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        -1120,
-        352
+        2368,
+        912
       ],
-      "id": "ad185c85-28df-4c9a-a0b1-6605c2ecacbc"
+      "id": "614d12ee-48c1-4de1-95e8-9f8b554c2420"
     },
     {
       "parameters": {
@@ -67,10 +67,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 1,
       "position": [
-        -896,
-        608
+        2592,
+        784
       ],
-      "id": "4656a578-98fe-4e4e-8e8c-1cc9fd357aa6"
+      "id": "1fea5f86-3d2c-4157-a620-bb9c9d3f0934"
     },
     {
       "parameters": {
@@ -80,10 +80,10 @@
       "type": "n8n-nodes-base.stopAndError",
       "typeVersion": 1,
       "position": [
-        -672,
-        752
+        2816,
+        992
       ],
-      "id": "9d81e104-7ac1-44fc-98b8-37f04e7bb9fb"
+      "id": "01a46155-18ca-431c-bd71-596c41299ceb"
     },
     {
       "parameters": {
@@ -93,10 +93,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        64,
-        112
+        5184,
+        1328
       ],
-      "id": "1604ae41-7bc8-441a-bd31-cbe6f06eca91"
+      "id": "5c424f7a-b05d-4b96-a56d-b063cabff6da"
     },
     {
       "parameters": {
@@ -110,23 +110,23 @@
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1,
       "position": [
-        576,
-        560
+        5184,
+        752
       ],
-      "id": "e02790d1-1746-45cb-8f82-d899b6f39f2b"
+      "id": "2696b822-0f04-4dc2-aa8b-a71e484a2370"
     },
     {
       "parameters": {
-        "jsCode": "const result = $input.first().json;\nlet output = result.output || result; // Handle structure from different paths\nlet source = result.source || 'cache'; // Default to cache if not specified\n\n// Get input config for _meta\nconst initConfig = $('Init Config').first().json;\n\n// If coming from Gemini directly (no output wrapper)\n// Check for content.parts structure (Gemini response format)\nif (result.content && result.content.parts && result.content.parts[0]) {\n    const rawText = result.content.parts[0].text || '';\n    source = result.source || 'live'; // If coming from Gemini response, it's live\n    // Parse gemini text\n    try {\n        const cleanText = rawText.replace(/```json\\n?|\\n?```/g, '').trim();\n        output = JSON.parse(cleanText);\n    } catch (e) {\n        output = { raw_text: rawText, error: 'JSON Parse Error' };\n    }\n} else if (!output.output && result.text) {\n    // Old format fallback\n    try {\n        const cleanText = result.text.replace(/```json\\n?|\\n?```/g, '').trim();\n        output = JSON.parse(cleanText);\n    } catch (e) {\n        output = { raw_text: result.text, error: 'JSON Parse Error' };\n    }\n}\n\nreturn {\n  json: {\n    ...output,\n    _meta: {\n      prompt_id: initConfig.prompt_id,\n      input_type: initConfig.input.input_type,\n      input_path: initConfig.input.input_path || null,\n      input_text: initConfig.input.input_text || null,\n      source: source\n    }\n  }\n};"
+        "jsCode": "const result = $input.first().json;\nlet output = result.output || result; // Handle structure from different paths\nlet source = result.source || 'cache'; // Default to cache if not specified\n\n// Get input config for _meta\nconst initConfig = $('Init Config').first().json;\n\n// Check for OpenAI response format (choices array OR flat message)\nif (result.choices && result.choices[0] && result.choices[0].message) {\n    const rawText = result.choices[0].message.content || '';\n    source = result.source || 'live-openai';\n    try {\n        const cleanText = rawText.replace(/```json\\n?|\\n?```/g, '').trim();\n        output = JSON.parse(cleanText);\n    } catch (e) {\n        output = { raw_text: rawText, error: 'JSON Parse Error' };\n    }\n} else if (result.message && result.message.content) {\n    const rawText = result.message.content || '';\n    source = result.source || 'live-openai';\n    try {\n        const cleanText = rawText.replace(/```json\\n?|\\n?```/g, '').trim();\n        output = JSON.parse(cleanText);\n    } catch (e) {\n        output = { raw_text: rawText, error: 'JSON Parse Error' };\n    }\n}\n// Check for Gemini response format (content.parts)\nelse if (result.content && result.content.parts && result.content.parts[0]) {\n    const rawText = result.content.parts[0].text || '';\n    source = result.source || 'live-gemini';\n    try {\n        const cleanText = rawText.replace(/```json\\n?|\\n?```/g, '').trim();\n        output = JSON.parse(cleanText);\n    } catch (e) {\n        output = { raw_text: rawText, error: 'JSON Parse Error' };\n    }\n} else if (!output.output && result.text) {\n    // Old format fallback\n    try {\n        const cleanText = result.text.replace(/```json\\n?|\\n?```/g, '').trim();\n        output = JSON.parse(cleanText);\n    } catch (e) {\n        output = { raw_text: result.text, error: 'JSON Parse Error' };\n    }\n}\n\nreturn {\n  json: {\n    ...output,\n    _meta: {\n      prompt_id: initConfig.prompt_id,\n      input_type: initConfig.input.input_type,\n      input_path: initConfig.input.input_path || null,\n      input_text: initConfig.input.input_text || null,\n      source: source\n    }\n  }\n};"
       },
       "name": "Format Output",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        800,
-        272
+        5408,
+        1232
       ],
-      "id": "fb1f2d57-d743-4483-9fb4-573cddf97451"
+      "id": "6fb22d19-2c23-4f13-b6b8-849910996fa9"
     },
     {
       "parameters": {
@@ -136,10 +136,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1056,
-        560
+        5632,
+        1232
       ],
-      "id": "bc0af6f0-a504-457a-9fcd-20289905f3dc"
+      "id": "b14b2163-6a2a-4bb8-8958-18c3439a3e2a"
     },
     {
       "parameters": {
@@ -149,10 +149,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -2016,
-        640
+        1472,
+        1232
       ],
-      "id": "e6c9e68b-004e-409e-950c-2212431e3da7"
+      "id": "d62acbbb-278e-40c5-8081-06800d323d19"
     },
     {
       "parameters": {
@@ -162,10 +162,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -2016,
-        448
+        1472,
+        1040
       ],
-      "id": "c6470eaf-5013-4d86-97fc-0d1adf55fab2"
+      "id": "d3001293-1a18-4a23-b969-211fd0b74c3e"
     },
     {
       "parameters": {
@@ -174,10 +174,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        -1792,
-        320
+        1696,
+        880
       ],
-      "id": "78832e1d-3d93-4f73-86b4-a4fed697cb97",
+      "id": "d5ec2e7c-0be8-406b-b3be-b79bed0096f5",
       "name": "Merge Input Hash"
     },
     {
@@ -188,10 +188,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -2016,
-        64
+        1472,
+        656
       ],
-      "id": "1cb78fb9-c1a5-43b1-acaa-ccf79a8e79d3"
+      "id": "943e0ba7-6a3c-485b-9198-444683bf9a88"
     },
     {
       "parameters": {
@@ -201,23 +201,23 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1568,
-        352
+        1920,
+        912
       ],
-      "id": "d7aa188d-de1b-4ab8-a175-b9daffb39f67"
+      "id": "84e983cf-e345-4274-b512-f3ee2c0db129"
     },
     {
       "parameters": {
-        "jsCode": "const crypto = require('crypto');\nconst fs = require('fs');\n\nconst prompt_id = $input.first().json.prompt_id;\nlet basePath = `/prompts/${prompt_id}`;\ntry {\n    if (fs.existsSync('/prompts/registry.json')) {\n        const registry = JSON.parse(fs.readFileSync('/prompts/registry.json', 'utf8'));\n        if (registry[prompt_id] && registry[prompt_id].path) {\n             basePath = `/prompts/${registry[prompt_id].path}`;\n        }\n    }\n} catch (e) {}\n\nconst path = `${basePath}/schema.json`;\nvar input_hash_data = '';\ntry {\n  const input_data = fs.readFileSync(path);\n  input_hash_data = crypto.createHash('sha256').update(input_data).digest('hex');\n} catch (e) {\n    throw new Error(`Failed to read input file at ${path}: ${e.message}`);\n}\n\nreturn {\n  json: {\n    hash: input_hash_data\n  }\n};"
+        "jsCode": "const crypto = require('crypto');\nconst fs = require('fs');\n\nconst prompt_id = $input.first().json.prompt_id;\nlet basePath = `/prompts/${prompt_id}`;\ntry {\n    if (fs.existsSync('/prompts/registry.json')) {\n        const registry = JSON.parse(fs.readFileSync('/prompts/registry.json', 'utf8'));\n        if (registry[prompt_id] && registry[prompt_id].path) {\n             basePath = `/prompts/${registry[prompt_id].path}`;\n        }\n    }\n} catch (e) {}\n\nconst path = `${basePath}/schema.json`;\nvar input_hash_data = '';\ntry {\n  const input_data = fs.readFileSync(path);\n  input_hash_data = crypto.createHash('sha256').update(input_data).digest('hex');\n} catch (e) {\n    throw new Error(`Failed to read input file at ${path}: ${e.message}`);\n}\n\nreturn {\n  json: {\n    hash: input_hash_data\n  }\n};\n"
       },
       "name": "Hash Schema",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -2016,
-        256
+        1472,
+        848
       ],
-      "id": "82312899-a6b8-497e-98f8-ed2912f7235e"
+      "id": "fa32a6fc-47f0-48c4-82e0-41c2c7d068fa"
     },
     {
       "parameters": {
@@ -302,17 +302,17 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.4,
       "position": [
-        -448,
-        544
+        3264,
+        704
       ],
-      "id": "f0ae5ee3-9409-4a0c-b128-95ede3c5b35a",
+      "id": "31a4dffb-b82d-4bfa-a79f-902dd41a4545",
       "name": "Modality"
     },
     {
       "parameters": {
         "modelId": {
           "__rl": true,
-          "value": "={{ $json.options.model }}",
+          "value": "={{ $json.current_model }}",
           "mode": "id"
         },
         "messages": {
@@ -325,23 +325,23 @@
             }
           ]
         },
-        "builtInTools": {},
         "options": {}
       },
       "name": "Call Google Gemini Text",
       "type": "@n8n/n8n-nodes-langchain.googleGemini",
       "typeVersion": 1.1,
       "position": [
-        0,
-        368
+        4160,
+        480
       ],
-      "id": "3d4bad3a-08b5-4ae9-8b8a-e5724b203797",
+      "id": "95459cda-3556-4f89-83b3-f8b7aa8d9800",
       "credentials": {
         "googlePalmApi": {
           "id": "JJHsBmH2qC9U0KQA",
           "name": "Google Gemini(PaLM) Api account"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -349,27 +349,29 @@
         "operation": "analyze",
         "modelId": {
           "__rl": true,
-          "value": "={{ $('Modality').item.json.options.model }}",
+          "value": "={{ $('Prepare Model Call').first().json.current_model }}",
           "mode": "id"
         },
-        "text": "={{ $('Modality').item.json.prompt_content }}\n\nSchema:\n{{ $('Modality').item.json.schema_content }}",
+        "text": "={{ $('Prepare Model Call').first().json.prompt_content }}\n\nSchema:\n{{ $('Prepare Model Call').first().json.schema_content }}",
         "inputType": "binary",
+        "binaryPropertyName": "data",
         "options": {}
       },
       "name": "Call Google Gemini Image",
       "type": "@n8n/n8n-nodes-langchain.googleGemini",
       "typeVersion": 1.1,
       "position": [
-        64,
-        560
+        4224,
+        96
       ],
-      "id": "5b2f68ea-d820-4d94-aaf5-3b1b7c931e71",
+      "id": "2bc0cd38-0ba7-4ed1-bca2-8df4810d8649",
       "credentials": {
         "googlePalmApi": {
           "id": "JJHsBmH2qC9U0KQA",
           "name": "Google Gemini(PaLM) Api account"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -379,10 +381,10 @@
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1.1,
       "position": [
-        -224,
-        560
+        3488,
+        720
       ],
-      "id": "ff26f603-35c7-4ad0-8be6-9ce08c775ba3",
+      "id": "372866c1-1678-41fb-b269-8c33990f80f7",
       "name": "Modality Get Image"
     },
     {
@@ -393,10 +395,10 @@
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1.1,
       "position": [
-        -224,
-        752
+        3936,
+        912
       ],
-      "id": "783adf55-01b3-4c17-9244-cafe076cc7d1",
+      "id": "67ec81ec-0c12-4d8b-8c31-75a773988b59",
       "name": "Modality Get Audio"
     },
     {
@@ -405,7 +407,7 @@
         "operation": "analyze",
         "modelId": {
           "__rl": true,
-          "value": "={{ $('Modality').item.json.options.model }}",
+          "value": "={{ $('Modality').item.json.llm_options.model }}",
           "mode": "id"
         },
         "text": "={{ $('Modality').item.json.prompt_content }}\n\nSchema:\n{{ $('Modality').item.json.schema_content }}",
@@ -417,10 +419,10 @@
       "type": "@n8n/n8n-nodes-langchain.googleGemini",
       "typeVersion": 1.1,
       "position": [
-        64,
-        752
+        4224,
+        912
       ],
-      "id": "288c3189-bd80-4a1a-a393-617ee33504bf",
+      "id": "8fe5c8a4-4b11-4c66-8b8c-ec6d00a3fdd2",
       "credentials": {
         "googlePalmApi": {
           "id": "JJHsBmH2qC9U0KQA",
@@ -430,29 +432,29 @@
     },
     {
       "parameters": {
-        "jsCode": "\nconst fs = require('fs');\n\n// Get prompt_id from Init Config\nconst prompt_id = $('Init Config').first().json.prompt_id;\n\n// Resolve Path via Registry\nlet basePath = `/prompts/${prompt_id}`;\ntry {\n    if (fs.existsSync('/prompts/registry.json')) {\n        const registry = JSON.parse(fs.readFileSync('/prompts/registry.json', 'utf8'));\n        if (registry[prompt_id] && registry[prompt_id].path) {\n             basePath = `/prompts/${registry[prompt_id].path}`;\n        }\n    }\n} catch (e) {\n    // Ignore registry errors, fallback to default path\n    console.log('Registry lookup failed: ' + e.message);\n}\n\n// Construct paths\nconst promptPath = `${basePath}/prompt.md`;\nconst schemaPath = `${basePath}/schema.json`;\n\n// Read files\nlet prompt_content = '';\nlet schema_content = '';\n\ntry {\n    prompt_content = fs.readFileSync(promptPath, 'utf8');\n} catch (e) {\n    throw new Error(`Failed to read prompt file at ${promptPath}: ${e.message}`);\n}\n\ntry {\n    schema_content = fs.readFileSync(schemaPath, 'utf8');\n} catch (e) {\n    throw new Error(`Failed to read schema file at ${schemaPath}: ${e.message}`);\n}\n\n// Pass through original input and add context\nconst input = $input.first().json;\n\nreturn {\n    json: {\n        ...input,\n        prompt_content,\n        schema_content\n    }\n};\n"
+        "jsCode": "\nconst fs = require('fs');\n\n// Get prompt_id from Init Config\nconst prompt_id = $('Init Config').first().json.prompt_id;\n\n// Resolve Path via Registry\nlet basePath = `/prompts/${prompt_id}`;\ntry {\n    if (fs.existsSync('/prompts/registry.json')) {\n        const registry = JSON.parse(fs.readFileSync('/prompts/registry.json', 'utf8'));\n        if (registry[prompt_id] && registry[prompt_id].path) {\n             basePath = `/prompts/${registry[prompt_id].path}`;\n        }\n    }\n} catch (e) {\n    // Ignore registry errors, fallback to default path\n    console.log('Registry lookup failed: ' + e.message);\n}\n\n// Construct paths\nconst promptPath = `${basePath}/prompt.md`;\nconst schemaPath = `${basePath}/schema.json`;\n\n// Read files\nlet prompt_content = '';\nlet schema_content = '';\n\ntry {\n    prompt_content = fs.readFileSync(promptPath, 'utf8');\n} catch (e) {\n    throw new Error(`Failed to read prompt file at ${promptPath}: ${e.message}`);\n}\n\ntry {\n    schema_content = fs.readFileSync(schemaPath, 'utf8');\n} catch (e) {\n    throw new Error(`Failed to read schema file at ${schemaPath}: ${e.message}`);\n}\n\n// Pass through original input and add context\nconst input = $input.first().json;\n\n// Calculate today\nconst now = new Date();\nconst today = now.toISOString().split('T')[0];\n\nif (prompt_content) {\n    prompt_content = prompt_content.replace(/{{current_date}}/g, today);\n}\n\nreturn {\n    json: {\n        ...input,\n        prompt_content,\n        schema_content\n    }\n};\n"
       },
       "name": "Load Context",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -672,
-        560
+        2816,
+        720
       ],
-      "id": "5c03b096-ce9b-4867-838f-0a1a1975fbcd"
+      "id": "389b131b-172c-4642-a6ac-7f82f9d5314e"
     },
     {
       "parameters": {
-        "jsCode": "\nconst fs = require('fs');\n\n// Convert Gemini JSON response to binary for file storage\nconst response = $input.first().json;\n\n// Extract the text content (which contains JSON wrapped in markdown)\nlet textContent = '';\nif (response.content && response.content.parts && response.content.parts[0]) {\n    textContent = response.content.parts[0].text || '';\n}\n\n// Clean markdown wrapping if present\nconst cleanJson = textContent.replace(/```json\\n?|\\n?```/g, '').trim();\n\n// Get cache path and extract directory using string manipulation (no path module)\nconst cachePath = $('Check Cache').first().json.cache_path;\nconst cacheDir = cachePath.substring(0, cachePath.lastIndexOf('/'));\n\n// Create directory if it doesn't exist\nif (!fs.existsSync(cacheDir)) {\n    fs.mkdirSync(cacheDir, { recursive: true });\n}\n\n// Convert to binary buffer\nconst buffer = Buffer.from(cleanJson, 'utf8');\n\nreturn {\n    json: {\n        ...response,\n        cache_path: cachePath,\n        source: 'live'\n    },\n    binary: {\n        data: {\n            data: buffer.toString('base64'),\n            mimeType: 'application/json',\n            fileName: 'cache.json'\n        }\n    }\n};\n"
+        "jsCode": "\nconst fs = require('fs');\n\n// Convert LLM JSON response to binary for file storage\nconst response = $input.first().json;\n\n// Extract the text content (which contains JSON wrapped in markdown)\nlet textContent = '';\n\n// Check for OpenAI response format\nif (response.choices && response.choices[0] && response.choices[0].message) {\n    textContent = response.choices[0].message.content || '';\n} else if (response.message && response.message.content) {\n    textContent = response.message.content || '';\n}\n// Check for Gemini response format\nelse if (response.content && response.content.parts && response.content.parts[0]) {\n    textContent = response.content.parts[0].text || '';\n}\n\n// Clean markdown wrapping if present\nconst cleanJson = textContent.replace(/```json\\n?|\\n?```/g, '').trim();\n\n// Get cache path and extract directory using string manipulation (no path module)\nconst cachePath = $('Check Cache').first().json.cache_path;\nconst cacheDir = cachePath.substring(0, cachePath.lastIndexOf('/'));\n\n// Create directory if it doesn't exist\nif (!fs.existsSync(cacheDir)) {\n    fs.mkdirSync(cacheDir, { recursive: true });\n}\n\n// Determine source based on provider\nconst prepareData = $('Prepare Model Call').first().json;\nconst source = prepareData.provider === 'openai' ? 'live-openai' : 'live-gemini';\n\n// Convert to binary buffer\nconst buffer = Buffer.from(cleanJson, 'utf8');\n\nreturn {\n    json: {\n        ...response,\n        cache_path: cachePath,\n        source: source\n    },\n    binary: {\n        data: {\n            data: buffer.toString('base64'),\n            mimeType: 'application/json',\n            fileName: 'cache.json'\n        }\n    }\n};\n"
       },
       "name": "Prepare Cache",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        352,
-        560
+        4960,
+        752
       ],
-      "id": "3f1fa5fb-11fc-4fa8-8193-63f1d49793e4"
+      "id": "b5067161-673d-4c22-ad85-6fc29ace9c48"
     },
     {
       "parameters": {
@@ -461,14 +463,269 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1344,
-        352
+        2144,
+        912
       ],
-      "id": "2477e5b1-65be-43ee-a555-504ddd0b6ace",
+      "id": "0ff3094e-b473-42b5-9392-9083923e21c0",
       "name": "Check Cache"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare model call - determine current model and provider\nconst input = $input.first().json;\nconst models = input.models || ['models/gemini-3-flash-preview'];\nconst idx = input.model_index || 0;\nlet currentModel = models[idx];\n\n// Determine provider from model name\nconst isOpenAI = currentModel.includes('gpt') || currentModel.includes('openai');\nconst provider = isOpenAI ? 'openai' : 'gemini';\n\n// OpenAI API doesn't accept 'models/' prefix, strip it if present\nif (isOpenAI && currentModel.startsWith('models/')) {\n  currentModel = currentModel.replace('models/', '');\n}\n\nreturn {\n  json: {\n    ...input,\n    current_model: currentModel,\n    provider,\n    has_more_models: idx < models.length - 1\n  }\n};"
+      },
+      "name": "Prepare Model Call",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3040,
+        720
+      ],
+      "id": "6e160505-dae1-4a2f-8ddf-d31ec7b0d9f5"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "={{ $json.current_model }}",
+          "mode": "id"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Prompt:\n{{ $json.prompt_content }}\n\nSchema:\n{{ $json.schema_content }}"
+            },
+            {
+              "content": "=Input:\n{{ $json.input.input_text }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "name": "Call OpenAI Text",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        4224,
+        672
+      ],
+      "id": "9097ebf4-78e0-445d-8f45-e22c0dc707ed",
+      "credentials": {
+        "openAiApi": {
+          "id": "5FPvnzDIF3vm0DYw",
+          "name": "OpenAi account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "={{ $('Prepare Model Call').first().json.current_model }}",
+          "mode": "id"
+        },
+        "text": "={{ $('Prepare Model Call').first().json.prompt_content }}\n\nSchema:\n{{ $('Prepare Model Call').first().json.schema_content }}",
+        "inputType": "base64",
+        "binaryPropertyName": "data",
+        "options": {}
+      },
+      "name": "Call OpenAI Image",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        4224,
+        288
+      ],
+      "id": "ac4098ba-aca7-4729-9323-4add95e82ced",
+      "credentials": {
+        "openAiApi": {
+          "id": "5FPvnzDIF3vm0DYw",
+          "name": "OpenAi account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Handle LLM response - check for errors and retry with fallback if needed\nconst response = $input.first().json;\nconst prepareData = $('Prepare Model Call').first().json;\n\n// Check if this looks like an error response\nconst hasError = response.error || response.errorMessage || \n                (typeof response.message === 'string' && response.message.includes('error'));\n\nif (hasError && prepareData.has_more_models) {\n  // Return signal to retry with next model\n  return {\n    json: {\n      ...prepareData,\n      model_index: prepareData.model_index + 1,\n      retry_needed: true,\n      previous_error: response.error || response.errorMessage || 'Unknown error'\n    }\n  };\n}\n\nif (hasError) {\n  // No more fallbacks, propagate the error\n  throw new Error(`All models failed. Last error: ${response.error || response.errorMessage || 'Unknown error'}`);\n}\n\n// Success - pass through the response\nreturn {\n  json: {\n    ...response,\n    source: prepareData.provider === 'openai' ? 'live-openai' : 'live-gemini'\n  }\n};"
+      },
+      "name": "Handle LLM Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4512,
+        464
+      ],
+      "id": "56dd9f8f-cc62-4035-99f5-b958b12be9d8"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.retry_needed }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "name": "Retry Needed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        4736,
+        752
+      ],
+      "id": "522a86ce-9e34-4ef7-b334-2190cf1179cd"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.provider }}",
+                    "rightValue": "gemini",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "provider-gemini"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "gemini"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "provider-openai",
+                    "leftValue": "={{ $json.provider }}",
+                    "rightValue": "openai",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "openai"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        3936,
+        576
+      ],
+      "id": "1fea1d29-8c89-46a5-97ad-9ea8e681e88d",
+      "name": "Provider Router"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Prepare Model Call').first().json.provider }}",
+                    "rightValue": "gemini",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "provider-gemini-img"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "gemini"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "provider-openai-img",
+                    "leftValue": "={{ $('Prepare Model Call').first().json.provider }}",
+                    "rightValue": "openai",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "openai"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        3936,
+        192
+      ],
+      "id": "a027aec9-ef0a-4d19-ab9d-b329a6749d77",
+      "name": "Provider Router Image"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Combine JSON from Prepare Model Call with binary from input\nconst modelInfo = $('Prepare Model Call').first().json;\nconst binaryData = $input.first().binary;\n\nreturn {\n  json: modelInfo,\n  binary: binaryData\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3712,
+        192
+      ],
+      "id": "dc38bb5f-85a6-4749-b8e0-407fc7c00013",
+      "name": "Merge Model Info Image"
     }
   ],
-  "pinData": {},
   "connections": {
     "Execute Workflow Trigger": {
       "main": [
@@ -606,7 +863,7 @@
       "main": [
         [
           {
-            "node": "Call Google Gemini Text",
+            "node": "Provider Router",
             "type": "main",
             "index": 0
           }
@@ -631,7 +888,7 @@
       "main": [
         [
           {
-            "node": "Prepare Cache",
+            "node": "Handle LLM Response",
             "type": "main",
             "index": 0
           }
@@ -642,7 +899,25 @@
       "main": [
         [
           {
+            "node": "Merge Model Info Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Provider Router Image": {
+      "main": [
+        [
+          {
             "node": "Call Google Gemini Image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call OpenAI Image",
             "type": "main",
             "index": 0
           }
@@ -664,7 +939,7 @@
       "main": [
         [
           {
-            "node": "Prepare Cache",
+            "node": "Handle LLM Response",
             "type": "main",
             "index": 0
           }
@@ -675,7 +950,7 @@
       "main": [
         [
           {
-            "node": "Prepare Cache",
+            "node": "Handle LLM Response",
             "type": "main",
             "index": 0
           }
@@ -705,7 +980,7 @@
       "main": [
         [
           {
-            "node": "Modality",
+            "node": "Prepare Model Call",
             "type": "main",
             "index": 0
           }
@@ -755,6 +1030,97 @@
           }
         ]
       ]
+    },
+    "Prepare Model Call": {
+      "main": [
+        [
+          {
+            "node": "Modality",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Provider Router": {
+      "main": [
+        [
+          {
+            "node": "Call Google Gemini Text",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call OpenAI Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call OpenAI Text": {
+      "main": [
+        [
+          {
+            "node": "Handle LLM Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call OpenAI Image": {
+      "main": [
+        [
+          {
+            "node": "Handle LLM Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handle LLM Response": {
+      "main": [
+        [
+          {
+            "node": "Retry Needed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retry Needed?": {
+      "main": [
+        [
+          {
+            "node": "Prepare Model Call",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare Cache",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Model Info Image": {
+      "main": [
+        [
+          {
+            "node": "Provider Router Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
@@ -762,7 +1128,7 @@
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "13d56c67-9be2-451a-8cfe-d32932af742e",
+  "versionId": "60309d49-0763-47b2-9615-909976fb6b53",
   "meta": {
     "instanceId": "e1f8529dafc1c7b24188afd104b1a8e8824324405683593c80fc8bc56ba17881"
   },

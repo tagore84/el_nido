@@ -1,0 +1,18 @@
+{
+    "router_text_classification": [
+        "models/gemini-3-flash-preview",
+        "gpt-4.1-nano-2025-04-14"
+    ],
+    "router_photo_classification": [
+        "models/gemini-3-flash-preview",
+        "gpt-4o-mini-2024-07-18"
+    ],
+    "whiteboard_ocr": [
+        "models/gemini-3-flash-preview",
+        "gpt-4o-mini-2024-07-18"
+    ],
+    "calendar.event_parser": [
+        "models/gemini-3-flash-preview",
+        "gpt-4.1-nano-2025-04-14"
+    ]
+}

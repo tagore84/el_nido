@@ -13,11 +13,11 @@
             "type": "n8n-nodes-base.telegramTrigger",
             "typeVersion": 1,
             "position": [
-                -880,
-                96
+                816,
+                352
             ],
             "webhookId": "nido-router-telegram",
-            "id": "63b24603-1da6-4473-91ec-29d88f1016d7",
+            "id": "14169f29-3460-4d3a-a06d-295f014ec230",
             "credentials": {
                 "telegramApi": {
                     "id": "JLG33gMQcdi4JvQq",
@@ -27,16 +27,16 @@
         },
         {
             "parameters": {
-                "jsCode": "const msg = $input.item.json;\nlet type = 'other';\n\nif (msg.callback_query) {\n  type = 'callback';\n} else if (msg.message) {\n  if (msg.message.photo) type = 'photo';\n  else if (msg.message.text) type = 'text';\n}\n\nreturn { json: { ...msg, type } };"
+                "jsCode": "const msg = $('Telegram Trigger').item.json;\nlet type = 'other';\n\nif (msg.callback_query) {\n  type = 'callback';\n} else if (msg.message) {\n  if (msg.message.photo) type = 'photo';\n  else if (msg.message.text) type = 'text';\n}\n\nreturn { json: { ...msg, type } };"
             },
             "name": "Identify Type",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                -656,
-                96
+                1264,
+                352
             ],
-            "id": "ee895445-6ba6-4c33-a5d5-0e5e9b680573"
+            "id": "893c6270-eb57-4edf-8b79-26b48142bb14"
         },
         {
             "parameters": {
@@ -63,10 +63,10 @@
             "type": "n8n-nodes-base.switch",
             "typeVersion": 1,
             "position": [
-                -432,
-                96
+                1488,
+                320
             ],
-            "id": "ef3f695c-b08b-459e-adc4-7f963c04e4ea"
+            "id": "10d00a62-4c10-4311-809c-d2f7bfd77ea8"
         },
         {
             "parameters": {
@@ -78,10 +78,10 @@
             "type": "n8n-nodes-base.executeWorkflow",
             "typeVersion": 1,
             "position": [
-                -176,
-                -32
+                1712,
+                160
             ],
-            "id": "cb7e4de7-efd7-4f1d-a6aa-05d22610583a"
+            "id": "fb6907d2-a915-49bc-931d-c5a6ac7133b5"
         },
         {
             "parameters": {
@@ -93,10 +93,10 @@
             "type": "n8n-nodes-base.executeWorkflow",
             "typeVersion": 1,
             "position": [
-                -176,
-                128
+                1712,
+                352
             ],
-            "id": "0e9e3722-a2fd-4f8f-8fbc-1f23ed091355"
+            "id": "26d8c651-8dd4-472d-85af-a16b7d8516f9"
         },
         {
             "parameters": {
@@ -108,98 +108,60 @@
             "type": "n8n-nodes-base.executeWorkflow",
             "typeVersion": 1,
             "position": [
-                -176,
-                288
+                1712,
+                544
             ],
-            "id": "febb1e28-ca19-4937-acb5-b9251deb4ac6"
+            "id": "538453c5-67a9-4a19-ad8b-9f17f84e7daf"
         },
         {
             "parameters": {
-                "jsCode": "const chatMap = {\n    \"Nido-Alberto\": \"5785514136\",\n    \"Nido-Alberto-Laura\": \"-5223730192\",\n    \"Nido-Alberto-Laura-Testing\": \"-5234536185\",\n    \"Nido-Laura\": \"PLACEHOLDER\"\n};\nconst idToName = Object.fromEntries(Object.entries(chatMap).map(([k,v]) => [v, k]));\n\nconst item = $input.item.json;\nconst chatId = item.chat_id;\nconst chatName = idToName[String(chatId)] || 'Unknown';\n\nlet target = 'unknown';\n\n// Rule 1: Foto + Category: whiteboard_calendar + Chat: \"Nido-Alberto\" -> nido.whiteboard.ingest\nif (chatName === 'Nido-Alberto') {\n    if (item.image_type === 'whiteboard_calendar') {\n        target = 'whiteboard_ingest';\n    }\n    // Rule 2: Tipo: Callback + Chat: \"Nido-Alberto\" -> nido.whiteboard.review\n    if (item.type === 'callback') {\n        target = 'whiteboard_review';\n    }\n}\n\n// Rule 3: Chat \"Nido-Alberto-Laura-Testing\" rules\nif (chatName === 'Nido-Alberto-Laura-Testing') {\n    // Texto + Category: calendar -> nido.telegram.calendar\n    if (item.category === 'calendar') {\n        target = 'telegram_calendar';\n    }\n    // Callback: cal_save or cal_cancel -> nido.telegram.calendar\n    if (item.type === 'callback' && item.action && (item.action.startsWith('cal_'))) {\n        target = 'telegram_calendar';\n    }\n}\n\nreturn { json: { target, ...item, chatName } };"
+                "jsCode": "const chatMap = {\n    \"Nido-Alberto\": \"5785514136\",\n    \"Nido-Alberto-Laura\": \"-5223730192\",\n    \"Nido-Alberto-Laura-Testing\": \"-5234536185\",\n    \"Nido-Laura\": \"PLACEHOLDER\"\n};\nconst idToName = Object.fromEntries(Object.entries(chatMap).map(([k,v]) => [v, k]));\n\nconst item = $input.item.json;\nconst chatId = item.chat_id;\nconst chatName = idToName[String(chatId)] || 'Unknown';\n\nlet workflow_id = null;\nconst WORKFLOWS = {\n    WHITEBOARD_INGEST: 't3IsM1h5-xaYeegf0PpyK',\n    WHITEBOARD_REVIEW: 'gSnUtg5YnaLgjyYN2sKno',\n    TELEGRAM_CALENDAR: 'rnr5kvlbBNvVA9wXvJGAE',\n    SOCCER_EVENT: 'l-0lymHED94CrXwOsRH98'\n};\n\n// Rule 1: Foto + Category: whiteboard_calendar + Chat: \"Nido-Alberto\" -> nido.whiteboard.ingest\nif (chatName === 'Nido-Alberto') {\n    if (item.image_type === 'whiteboard_calendar') {\n        workflow_id = WORKFLOWS.WHITEBOARD_INGEST;\n    }\n    // Rule 2: Tipo: Callback + Chat: \"Nido-Alberto\" -> nido.whiteboard.review\n    if (item.type === 'callback') {\n        workflow_id = WORKFLOWS.WHITEBOARD_REVIEW;\n    }\n}\n\n// Rule 3: Chat \"Nido-Alberto-Laura-Testing\" rules\nif (chatName === 'Nido-Alberto-Laura-Testing') {\n    // Texto + Category: calendar -> nido.telegram.calendar\n    if (item.category === 'calendar') {\n        workflow_id = WORKFLOWS.TELEGRAM_CALENDAR;\n    }\n    // Callback: cal_save or cal_cancel -> nido.telegram.calendar\n    if (item.type === 'callback' && item.action && (item.action.startsWith('cal_'))) {\n        workflow_id = WORKFLOWS.TELEGRAM_CALENDAR;\n    }\n}\n\n// Global Rule: Calendar Callbacks (cal_*) always go to calendar workflow\nif (item.type === 'callback' && item.action && String(item.action).startsWith('cal_')) {\n    workflow_id = WORKFLOWS.TELEGRAM_CALENDAR;\n}\n\n// Global Rule: Soccer Callbacks (yes/no_football)\nif (item.type === 'callback' && item.action && (String(item.action) === 'yes_football' || String(item.action) === 'no_football')) {\n    workflow_id = WORKFLOWS.SOCCER_EVENT;\n}\n\nreturn { json: { workflow_id, ...item, chatName } };"
             },
             "name": "Route Logic",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                128,
-                128
+                1936,
+                352
             ],
-            "id": "59bcc6dc-9f14-4b01-8341-01dd6d2a7193"
+            "id": "ab0ac7b5-f631-4cd7-8d0e-78a382362082"
         },
         {
             "parameters": {
                 "dataType": "string",
-                "value1": "={{ $json.target }}",
+                "value1": "={{ $json.workflow_id ? 'found' : 'missing' }}",
                 "rules": {
                     "rules": [
                         {
-                            "value2": "whiteboard_ingest"
-                        },
-                        {
-                            "value2": "whiteboard_review",
-                            "output": 1
-                        },
-                        {
-                            "value2": "telegram_calendar",
-                            "output": 2
+                            "value2": "found"
                         }
                     ]
                 },
-                "fallbackOutput": 3
+                "fallbackOutput": 1
             },
             "name": "Switch Target",
             "type": "n8n-nodes-base.switch",
             "typeVersion": 1,
             "position": [
-                352,
-                128
+                2160,
+                320
             ],
-            "id": "72df2893-eb01-403e-b30c-bb97cc071b58"
+            "id": "f2c3271a-aeed-4fc4-a8ee-e954e64dcf14"
         },
         {
             "parameters": {
-                "workflowId": "t3IsM1h5-xaYeegf0PpyK",
+                "workflowId": "={{ $json.workflow_id }}",
                 "mode": "each",
                 "options": {}
             },
-            "name": "Execute Ingest",
+            "name": "Execute Target Workflow",
             "type": "n8n-nodes-base.executeWorkflow",
             "typeVersion": 1,
             "position": [
-                608,
-                -32
+                2384,
+                256
             ],
-            "id": "ec7b08b9-b6ed-4f42-b05d-c61401ac161c"
-        },
-        {
-            "parameters": {
-                "workflowId": "gSnUtg5YnaLgjyYN2sKno",
-                "mode": "each",
-                "options": {}
-            },
-            "name": "Execute Review",
-            "type": "n8n-nodes-base.executeWorkflow",
-            "typeVersion": 1,
-            "position": [
-                608,
-                128
-            ],
-            "id": "10ae0577-825d-4b9b-95ad-27f42573b2f9"
-        },
-        {
-            "parameters": {
-                "workflowId": "rnr5kvlbBNvVA9wXvJGAE",
-                "mode": "each",
-                "options": {}
-            },
-            "name": "Execute Calendar",
-            "type": "n8n-nodes-base.executeWorkflow",
-            "typeVersion": 1,
-            "position": [
-                608,
-                288
-            ],
-            "id": "e64fa8e4-fe3d-4467-886f-ab1d1c59be31"
+            "id": "5cad7b24-da19-4f3e-bd9c-a65748f11272"
         },
         {
             "parameters": {
@@ -211,11 +173,32 @@
             "type": "n8n-nodes-base.telegram",
             "typeVersion": 1,
             "position": [
-                608,
+                2384,
                 448
             ],
-            "id": "50a423f0-7af8-4695-b04d-7b06c628f2f3",
+            "id": "03ec6073-23d6-4031-9294-d99221355905",
             "webhookId": "reply-unknown-webhook",
+            "credentials": {
+                "telegramApi": {
+                    "id": "JLG33gMQcdi4JvQq",
+                    "name": "Telegram account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "operation": "sendChatAction",
+                "chatId": "={{ $json.message ? $json.message.chat.id : $json.callback_query.message.chat.id }}"
+            },
+            "type": "n8n-nodes-base.telegram",
+            "typeVersion": 1.2,
+            "position": [
+                1040,
+                352
+            ],
+            "id": "84033b75-e15a-468c-850d-a06c62fb01b3",
+            "name": "Typing",
+            "webhookId": "949906f6-4925-4058-a705-0071ae91fa64",
             "credentials": {
                 "telegramApi": {
                     "id": "JLG33gMQcdi4JvQq",
@@ -230,7 +213,7 @@
             "main": [
                 [
                     {
-                        "node": "Identify Type",
+                        "node": "Typing",
                         "type": "main",
                         "index": 0
                     }
@@ -321,21 +304,7 @@
             "main": [
                 [
                     {
-                        "node": "Execute Ingest",
-                        "type": "main",
-                        "index": 0
-                    }
-                ],
-                [
-                    {
-                        "node": "Execute Review",
-                        "type": "main",
-                        "index": 0
-                    }
-                ],
-                [
-                    {
-                        "node": "Execute Calendar",
+                        "node": "Execute Target Workflow",
                         "type": "main",
                         "index": 0
                     }
@@ -348,15 +317,27 @@
                     }
                 ]
             ]
+        },
+        "Typing": {
+            "main": [
+                [
+                    {
+                        "node": "Identify Type",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
         }
     },
-    "active": false,
+    "active": true,
     "settings": {
         "executionOrder": "v1",
         "availableInMCP": false
     },
-    "versionId": "e5d7873e-f426-43c9-b199-4dedd214b886",
+    "versionId": "b2623985-9b4e-4a6d-afe5-c8af08c2095d",
     "meta": {
+        "templateCredsSetupCompleted": true,
         "instanceId": "e1f8529dafc1c7b24188afd104b1a8e8824324405683593c80fc8bc56ba17881"
     },
     "id": "Idwsbwewlp1-aUO7NZrsg",

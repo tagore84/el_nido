@@ -14,7 +14,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Prepare input for LLM Adapter\nconst json = $input.item.json;\n\nreturn {\n  json: {\n    prompt_id: 'whiteboard_ocr',\n    input: {\n      input_type: 'IMAGE',\n      input_path: json.image_path\n    },\n    options: {\n      model: 'models/gemini-3-flash-preview'\n    }\n  }\n};"
+        "jsCode": "// Prepare input for LLM Adapter\nconst json = $input.item.json;\n\nreturn {\n  json: {\n    prompt_id: 'whiteboard_ocr',\n    input: {\n      input_type: 'IMAGE',\n      input_path: json.image_path\n    },\n    options: {}\n  }\n};"
       },
       "name": "Prepare LLM Input",
       "type": "n8n-nodes-base.code",

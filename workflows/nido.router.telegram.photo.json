@@ -102,7 +102,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const prompt_id = 'router_photo_classification';\nconst options = { model: 'models/gemini-3-flash-preview' };\n\nreturn $input.all().map(item => {\n  const json = item.json;\n  // Construct local path from folder and filename\n  // Assuming folder and filename are present from upstream 'Set Path' -> 'Merge'\n  const input_path = `${json.folder}/${json.filename}`;\n  \n  return {\n    json: {\n      prompt_id,\n      options,\n      input: {\n          input_type: 'IMAGE',\n          input_path\n      }\n    }\n  };\n});"
+        "jsCode": "const prompt_id = 'router_photo_classification';\nconst options = {};\n\nreturn $input.all().map(item => {\n  const json = item.json;\n  // Construct local path from folder and filename\n  // Assuming folder and filename are present from upstream 'Set Path' -> 'Merge'\n  const input_path = `${json.folder}/${json.filename}`;\n  \n  return {\n    json: {\n      prompt_id,\n      options,\n      input: {\n          input_type: 'IMAGE',\n          input_path\n      }\n    }\n  };\n});"
       },
       "name": "Prepare LLM Input",
       "type": "n8n-nodes-base.code",

@@ -54,7 +54,7 @@
         {
             "parameters": {
                 "mode": "runOnceForEachItem",
-                "jsCode": "const json = $input.item.json;\nconst text = json.text || '';\nconst chatId = json.chat_id;\n\n// Get current date for context\nconst now = new Date();\nconst currentDate = now.toISOString().split('T')[0];\n\nreturn {\n  json: {\n    prompt_id: 'calendar.event_parser',\n    options: { model: 'models/gemini-2.0-flash' },\n    input: {\n      input_type: 'TEXT',\n      input_text: text,\n      current_date: currentDate\n    },\n    _original: { text, chatId }\n  }\n};"
+                "jsCode": "const json = $input.item.json;\nconst text = json.text || '';\nconst chatId = json.chat_id;\n\n// Get current date for context\nconst now = new Date();\nconst currentDate = now.toISOString().split('T')[0];\n\nreturn {\n  json: {\n    prompt_id: 'calendar.event_parser',\n    options: {},\n    input: {\n      input_type: 'TEXT',\n      input_text: text,\n      current_date: currentDate\n    },\n    _original: { text, chatId }\n  }\n};"
             },
             "name": "Prepare Parse Input",
             "type": "n8n-nodes-base.code",
@@ -158,6 +158,7 @@
                 -320
             ],
             "id": "a1b2c3d4-e5f6-7890-abcd-666666666666",
+            "alwaysOutputData": true,
             "credentials": {
                 "googleCalendarOAuth2Api": {
                     "id": "FrzV2bMzBnHfLNY2",
@@ -167,7 +168,7 @@
         },
         {
             "parameters": {
-                "mode": "runOnceForEachItem",
+                "mode": "runOnceForAllItems",
                 "jsCode": "const events = $input.all().map(i => i.json);\n\n// Get original data from Validate node\nconst validateData = $node['Validate & Prepare'].json;\n\nreturn {\n  json: {\n    ...validateData,\n    albertoEvents: events.filter(e => e.id).map(e => ({\n      summary: e.summary || 'Sin título',\n      start: e.start?.dateTime || e.start?.date,\n      end: e.end?.dateTime || e.end?.date\n    }))\n  }\n};"
             },
             "name": "Collect Alberto Events",
@@ -202,6 +203,7 @@
                 -320
             ],
             "id": "a1b2c3d4-e5f6-7890-abcd-888888888888",
+            "alwaysOutputData": true,
             "credentials": {
                 "googleCalendarOAuth2Api": {
                     "id": "bB5cLTUIh2iApkRb",
@@ -211,7 +213,7 @@
         },
         {
             "parameters": {
-                "mode": "runOnceForEachItem",
+                "mode": "runOnceForAllItems",
                 "jsCode": "const sharedEvents = $input.all().map(i => i.json).filter(e => e.id);\nconst prevData = $node['Collect Alberto Events'].json;\n\n// Format all events for summary\nconst allEvents = [\n  ...prevData.albertoEvents,\n  ...sharedEvents.map(e => ({\n    summary: e.summary || 'Sin título',\n    start: e.start?.dateTime || e.start?.date,\n    end: e.end?.dateTime || e.end?.date\n  }))\n];\n\n// Format date nicely\nconst dateObj = new Date(prevData.date + 'T12:00:00');\nconst dayName = dateObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });\n\n// Build summary manually\nlet summary = `📅 *${dayName.charAt(0).toUpperCase() + dayName.slice(1)}*\\n\\n`;\n\nif (allEvents.length === 0) {\n  summary += '✨ No tienes eventos ese día.\\n\\n';\n} else {\n  summary += '📋 Eventos existentes:\\n';\n  allEvents.forEach(e => {\n    const time = e.start ? (e.start.includes('T') ? new Date(e.start).toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid'}) : 'Todo el día') : '';\n    summary += `• ${time} - ${e.summary}\\n`;\n  });\n  summary += '\\n';\n}\n\nconst timeStr = prevData.time ? ` a las ${prevData.time}` : '';\nsummary += `➕ *Nuevo evento:*\\n${prevData.description}${timeStr}\\n\\n¿Guardar en el calendario?`;\n\nreturn {\n  json: {\n    ...prevData,\n    summary,\n    eventCount: allEvents.length\n  }\n};"
             },
             "name": "Build Summary",
@@ -341,7 +343,7 @@
         {
             "parameters": {
                 "chatId": "={{ $node['Parse Callback'].json.chatId }}",
-                "text": "=✅ Evento guardado:\\n{{ $node['Parse Callback'].json.description }}\\n📅 {{ $node['Parse Callback'].json.date }}{{ $node['Parse Callback'].json.time ? ' a las ' + $node['Parse Callback'].json.time : '' }}",
+                "text": "=✅ Evento guardado:\n{{ $node['Parse Callback'].json.description }}\n📅 {{ $node['Parse Callback'].json.date }}{{ $node['Parse Callback'].json.time ? ' a las ' + $node['Parse Callback'].json.time : '' }}",
                 "additionalFields": {}
             },
             "name": "Confirm Saved",
