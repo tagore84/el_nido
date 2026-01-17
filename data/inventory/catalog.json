@@ -1,0 +1,62 @@
+{
+    "products": [
+        {
+            "id": "leche_entera",
+            "name": "Leche Entera",
+            "aliases": [
+                "leche",
+                "cartón de leche"
+            ],
+            "category": "dairy",
+            "unit": "liters",
+            "default_shelf_life_days": 7,
+            "ha_entity_id": "input_number.stock_leche_entera"
+        },
+        {
+            "id": "huevos",
+            "name": "Huevos",
+            "aliases": [
+                "docena de huevos",
+                "huevo"
+            ],
+            "category": "protein",
+            "unit": "units",
+            "default_shelf_life_days": 21,
+            "ha_entity_id": "input_number.stock_huevos"
+        },
+        {
+            "id": "pan_molde",
+            "name": "Pan de Molde",
+            "aliases": [
+                "pan",
+                "bimbo"
+            ],
+            "category": "bakery",
+            "unit": "units",
+            "default_shelf_life_days": 10,
+            "ha_entity_id": "input_number.stock_pan_molde"
+        },
+        {
+            "id": "aceite_oliva",
+            "name": "Aceite de Oliva",
+            "aliases": [
+                "aceite"
+            ],
+            "category": "pantry",
+            "unit": "liters",
+            "default_shelf_life_days": 365,
+            "ha_entity_id": "input_number.stock_aceite_oliva"
+        },
+        {
+            "id": "arroz",
+            "name": "Arroz",
+            "aliases": [
+                "paquete de arroz"
+            ],
+            "category": "pantry",
+            "unit": "kg",
+            "default_shelf_life_days": 365,
+            "ha_entity_id": "input_number.stock_arroz"
+        }
+    ]
+}

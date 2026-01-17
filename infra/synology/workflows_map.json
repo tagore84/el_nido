@@ -3,9 +3,11 @@
     "nido.router.telegram": "Idwsbwewlp1-aUO7NZrsg",
     "nido.router.telegram.text": "fk7A5h2ySSny8G3L_luha",
     "nido.router.telegram.photo": "i27XoV9nJmU0TkfZ39Jk0",
-    "nido.router.telegram.callback":"zJmvUMO9FN7ShjqeKed-S",
+    "nido.router.telegram.callback": "zJmvUMO9FN7ShjqeKed-S",
     "nido.whiteboard.ingest": "t3IsM1h5-xaYeegf0PpyK",
     "nido.whiteboard.review": "gSnUtg5YnaLgjyYN2sKno",
     "nido.soccer_event": "l-0lymHED94CrXwOsRH98",
-    "nido.telegram.calendar": "rnr5kvlbBNvVA9wXvJGAE"   
+    "nido.telegram.calendar": "rnr5kvlbBNvVA9wXvJGAE",
+    "nido.meals.inventory": "PLACEHOLDER_INVENTORY_ID",
+    "nido.meals.planner": "PLACEHOLDER_PLANNER_ID"
 }

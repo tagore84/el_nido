@@ -1,0 +1,24 @@
+{
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "product_id": {
+                "type": "string",
+                "description": "The exact ID from the provided catalog."
+            },
+            "quantity": {
+                "type": "number",
+                "description": "The quantity purchased."
+            },
+            "match_reason": {
+                "type": "string",
+                "description": "Brief explanation of why this match was made (e.g. 'Matched alias X')"
+            }
+        },
+        "required": [
+            "product_id",
+            "quantity"
+        ]
+    }
+}

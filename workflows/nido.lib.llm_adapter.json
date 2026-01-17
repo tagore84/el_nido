@@ -392,7 +392,7 @@
           "value": "={{ $('Prepare Model Call').first().json.current_model }}",
           "mode": "id"
         },
-        "text": "={{ $('Prepare Model Call').first().json.prompt_content }}\n\nSchema:\n{{ $('Prepare Model Call').first().json.schema_content }}",
+        "text": "={{ $('Prepare Model Call').first().json.prompt_content }}\n\nSchema:\n{{ $('Prepare Model Call').first().json.schema_content }}\n\nContext:\n{{ $('Prepare Model Call').first().json.input.input_text || '' }}",
         "inputType": "binary",
         "binaryPropertyName": "data",
         "options": {}
@@ -450,7 +450,7 @@
           "value": "={{ $('Modality').item.json.llm_options.model }}",
           "mode": "id"
         },
-        "text": "={{ $('Modality').item.json.prompt_content }}\n\nSchema:\n{{ $('Modality').item.json.schema_content }}",
+        "text": "={{ $('Modality').item.json.prompt_content }}\n\nSchema:\n{{ $('Modality').item.json.schema_content }}\n\nContext:\n{{ $('Modality').item.json.input.input_text || '' }}",
         "inputType": "binary",
         "binaryPropertyName": "image",
         "options": {}
@@ -568,7 +568,7 @@
           "value": "={{ $('Prepare Model Call').first().json.current_model }}",
           "mode": "id"
         },
-        "text": "={{ $('Prepare Model Call').first().json.prompt_content }}\n\nSchema:\n{{ $('Prepare Model Call').first().json.schema_content }}",
+        "text": "={{ $('Prepare Model Call').first().json.prompt_content }}\n\nSchema:\n{{ $('Prepare Model Call').first().json.schema_content }}\n\nContext:\n{{ $('Prepare Model Call').first().json.input.input_text || '' }}",
         "inputType": "base64",
         "binaryPropertyName": "data",
         "options": {}

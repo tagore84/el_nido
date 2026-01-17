@@ -1,0 +1,164 @@
+{
+    "name": "nido.meals.inventory",
+    "nodes": [
+        {
+            "parameters": {
+                "path": "webhook/meals/inventory",
+                "responseMode": "lastNode",
+                "options": {}
+            },
+            "name": "Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                460,
+                460
+            ],
+            "webhookId": "65b9b9b9-1111-4444-8888-c7e7e7e7e7e7",
+            "id": "webhook-node-uuid"
+        },
+        {
+            "parameters": {
+                "jsCode": "const fs = require('fs');\nconst path = require('path');\n\n// 1. Read Catalog\nlet catalog = { products: [] };\ntry {\n  const catalogPath = '/data/inventory/catalog.json';\n  if (fs.existsSync(catalogPath)) {\n    catalog = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));\n  }\n} catch (e) {\n  throw new Error('Failed to read catalog: ' + e.message);\n}\n\n// 2. Process Input\nconst inputData = $input.first().json;\nconst binaryData = $input.first().binary;\n\n// Determine Input Type (TEXT or IMAGE)\nlet input_type = 'TEXT';\nlet input_text = '';\nlet input_path = null;\n\n// Check if binary image exists\nif (binaryData && (binaryData.data || binaryData.image)) {\n   input_type = 'IMAGE';\n   const bin = binaryData.data || binaryData.image;\n   // Save to temp file\n   const tempDir = '/data/temp';\n   if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });\n   const fileName = `receipt_${Date.now()}.jpg`;\n   input_path = path.join(tempDir, fileName);\n   fs.writeFileSync(input_path, Buffer.from(bin.data, 'base64'));\n}\n\n// If text input is provided (e.g. caption or raw text)\nif (inputData.text || inputData.caption) {\n    input_text = inputData.text || inputData.caption;\n}\n\n// Construct Context\nconst catalogContext = JSON.stringify(catalog.products, null, 2);\nconst context = `CATALOG:\n${catalogContext}\n` + (input_type === 'TEXT' ? `\nRECEIPT TEXT:\n${input_text}` : `\nUSER NOTE:\n${input_text}`);\n\nreturn {\n  json: {\n    prompt_id: 'meals.receipt_ocr',\n    input: {\n      input_type,\n      input_text: context,\n      input_path\n    },\n    catalog: catalog.products\n  }\n};"
+            },
+            "name": "Prepare Input",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                680,
+                460
+            ],
+            "id": "prepare-input-node"
+        },
+        {
+            "parameters": {
+                "workflowId": "cIdjAXxgI1Z-LurEg16oO"
+            },
+            "name": "Extract Items",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1,
+            "position": [
+                900,
+                460
+            ],
+            "id": "call-llm-node"
+        },
+        {
+            "parameters": {
+                "jsCode": "const items = $input.first().json;\n// Items should be an array from LLM, but adapter wraps it.\nconst extracted = items;\nlet products = [];\nif (Array.isArray(extracted)) {\n    products = extracted;\n} else if (extracted.products) {\n    products = extracted.products;\n} else {\n    products = [extracted];\n}\n\n// Get Catalog from previous node context to map to HA IDs\nconst catalog = $('Prepare Input').first().json.catalog;\n\nconst updates = [];\n\nproducts.forEach(item => {\n    if (!item.product_id) return;\n    const catItem = catalog.find(c => c.id === item.product_id);\n    if (catItem && catItem.ha_entity_id) {\n        updates.push({\n            json: {\n                product_id: item.product_id,\n                product_name: catItem.name,\n                ha_entity_id: catItem.ha_entity_id,\n                new_state: 'on' // Always set to ON when purchased\n            }\n        });\n    }\n});\n\nreturn updates;"
+            },
+            "name": "Map to Entities",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1120,
+                460
+            ],
+            "id": "map-entities-node"
+        },
+        {
+            "parameters": {
+                "batchSize": 1,
+                "options": {}
+            },
+            "name": "Split Loop",
+            "type": "n8n-nodes-base.splitInBatches",
+            "typeVersion": 3,
+            "position": [
+                1340,
+                460
+            ],
+            "id": "split-loop-node"
+        },
+        {
+            "parameters": {
+                "operation": "upsert",
+                "entityId": "={{ $json.ha_entity_id }}",
+                "resource": "state",
+                "state": "={{ $json.new_state }}"
+            },
+            "name": "Update Entity",
+            "type": "n8n-nodes-base.homeAssistant",
+            "typeVersion": 1,
+            "position": [
+                1560, // Moved closer since we removed nodes
+                460
+            ],
+            "id": "ha-set-state",
+            "credentials": {
+                "homeAssistantApi": {
+                    "id": "I3MbDcoMCh6VZ8R1",
+                    "name": "Home Assistant account"
+                }
+            }
+        }
+    ],
+    "connections": {
+        "Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Prepare Input",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Prepare Input": {
+            "main": [
+                [
+                    {
+                        "node": "Extract Items",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Extract Items": {
+            "main": [
+                [
+                    {
+                        "node": "Map to Entities",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Map to Entities": {
+            "main": [
+                [
+                    {
+                        "node": "Split Loop",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Split Loop": {
+            "main": [
+                [
+                    {
+                        "node": "Update Entity",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Update Entity": {
+            "main": [
+                [
+                    {
+                        "node": "Split Loop",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}

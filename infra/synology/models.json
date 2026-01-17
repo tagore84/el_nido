@@ -14,5 +14,13 @@
     "calendar.event_parser": [
         "models/gemini-3-flash-preview",
         "gpt-4.1-nano-2025-04-14"
+    ],
+    "meals.receipt_ocr": [
+        "gpt-4o-2024-08-06",
+        "models/gemini-1.5-pro-002"
+    ],
+    "meals.planner": [
+        "gpt-4o-2024-08-06",
+        "models/gemini-1.5-pro-002"
     ]
 }
