@@ -14,7 +14,7 @@
         },
         {
             "parameters": {
-                "jsCode": "const fs = require('fs');\n\n// 1. Read Catalog\nlet catalog = [];\ntry {\n  const catalogPath = '/data/inventory/catalog.json';\n  if (fs.existsSync(catalogPath)) {\n    catalog = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));\n    if (catalog.products) catalog = catalog.products;\n  }\n} catch (e) {\n  throw new Error('Failed to read catalog: ' + e.message);\n}\n\n// Filter products that track stock (have entity_id)\nconst tracked = catalog.filter(p => p.entity_id);\n\nreturn tracked.map(p => ({\n    json: {\n        ...p\n    }\n}));"
+                "jsCode": "const fs = require('fs');\n\n// Read Catalog\nlet catalog = [];\ntry {\n  const catalogPath = '/data/inventory/catalog.json';\n  if (fs.existsSync(catalogPath)) {\n    catalog = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));\n    if (catalog.products) catalog = catalog.products;\n  }\n} catch (e) {\n  throw new Error('Failed to read catalog: ' + e.message);\n}\n\n// Filter products that track stock (have entity_id)\nconst tracked = catalog.filter(p => p.entity_id);\n\n// Get trigger data\nconst triggerData = $input.first().json;\nconst user_request = triggerData.input?.input_text || triggerData.input_text || '';\nconst chat_id = triggerData.chat_id;\n\n// Return catalog items to check stock via Split In Batches + HA node\nreturn {\n  json: {\n    catalog: tracked,\n    user_request,\n    chat_id\n  }\n};"
             },
             "name": "Load Catalog",
             "type": "n8n-nodes-base.code",
@@ -27,17 +27,18 @@
         },
         {
             "parameters": {
-                "operation": "get",
-                "entityId": "={{ $json.entity_id }}"
+                "resource": "state",
+                "operation": "getAll",
+                "returnAll": true
             },
-            "name": "Check Stock",
+            "name": "Get All States",
             "type": "n8n-nodes-base.homeAssistant",
             "typeVersion": 1,
             "position": [
                 900,
                 460
             ],
-            "id": "check-stock",
+            "id": "get-all-states",
             "credentials": {
                 "homeAssistantApi": {
                     "id": "I3MbDcoMCh6VZ8R1",
@@ -47,7 +48,7 @@
         },
         {
             "parameters": {
-                "jsCode": "// Aggregate results and filter available items\nconst items = $input.all();\nconst available = [];\n\nitems.forEach(item => {\n    // Use itemMatching to get original catalog info\n    const product = $('Load Catalog').itemMatching(item.pa).json;\n    // Logic: Input Boolean = 'on' -> Available\n    if (item.json.state === 'on') {\n        available.push(product.display_name || product.name || product.id);\n    }\n});\n\nconst user_request = $('Execute Workflow Trigger').first().json.input.input_text || '';\nconst chat_id = $('Execute Workflow Trigger').first().json.chat_id;\n\n// Construct Prompt Context\nconst promptContext = `AVAILABLE INGREDIENTS:\n${available.join(', ')}\n`;\n\nreturn {\n    json: {\n        prompt_id: 'meals.planner',\n        chat_id,\n        input: {\n            input_type: 'TEXT',\n            input_text: user_request + '\\n\\n' + promptContext\n        }\n    }\n};"
+                "jsCode": "// Get all states from HA\nconst allStates = $input.all().map(item => item.json);\nconst catalogData = $('Load Catalog').first().json;\nconst catalog = catalogData.catalog;\nconst user_request = catalogData.user_request;\nconst chat_id = catalogData.chat_id;\n\n// Create a map of entity_id -> state\nconst stateMap = {};\nallStates.forEach(s => {\n  stateMap[s.entity_id] = s.state;\n});\n\n// Find available ingredients\nconst available = [];\ncatalog.forEach(product => {\n  const state = stateMap[product.entity_id];\n  if (state === 'on') {\n    available.push(product.display_name || product.name || product.id);\n  }\n});\n\n// Construct Prompt Context\nconst promptContext = `AVAILABLE INGREDIENTS:\n${available.length > 0 ? available.join(', ') : 'No ingredients with stock available'}\n`;\n\nreturn {\n  json: {\n    prompt_id: 'meals.planner',\n    chat_id,\n    input: {\n      input_type: 'TEXT',\n      input_text: user_request + '\\n\\n' + promptContext\n    }\n  }\n};"
             },
             "name": "Prepare LLM",
             "type": "n8n-nodes-base.code",
@@ -73,7 +74,7 @@
         },
         {
             "parameters": {
-                "chatId": "={{ $json.chat_id }}",
+                "chatId": "={{ $('Load Catalog').first().json.chat_id }}",
                 "text": "=🍽️ **Propuestas del Chef**\n\n{{ $json.suggestions.map(s => `🔹 *${s.title}*\n_${s.ingredients_used.join(', ')}_\n${s.explanation}`).join('\\n\\n') }}\n\n{{ $json.message }}",
                 "parseMode": "Markdown",
                 "additionalFields": {}
@@ -110,14 +111,14 @@
             "main": [
                 [
                     {
-                        "node": "Check Stock",
+                        "node": "Get All States",
                         "type": "main",
                         "index": 0
                     }
                 ]
             ]
         },
-        "Check Stock": {
+        "Get All States": {
             "main": [
                 [
                     {

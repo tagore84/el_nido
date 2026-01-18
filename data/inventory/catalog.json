@@ -203,10 +203,10 @@
     }
   },
   {
-    "id": "patata_juliana",
+    "id": "patata",
     "category": "verduras",
-    "display_name": "Patata juliana",
-    "entity_id": "input_boolean.stock_verduras_patata_juliana",
+    "display_name": "Patata",
+    "entity_id": "input_boolean.stock_verduras_patata",
     "ean": "8710438126853",
     "ticket_description": "PATAT.JULIENN.600G",
     "quantity": "2,000",

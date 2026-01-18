@@ -5,7 +5,7 @@ You will receive:
 1. A list of existing events for that day (may be empty)
 2. A new event the user wants to add
 
-Create a brief, friendly summary in Spanish that:
+Create a brief, friendly summary in **Spanish (Spain)** that:
 - Lists existing events (if any) with their times
 - Highlights the new event being added
 - Keeps the tone friendly and concise
