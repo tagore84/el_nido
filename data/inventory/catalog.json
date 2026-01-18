@@ -1,62 +1,547 @@
-{
-    "products": [
-        {
-            "id": "leche_entera",
-            "name": "Leche Entera",
-            "aliases": [
-                "leche",
-                "cartón de leche"
-            ],
-            "category": "dairy",
-            "unit": "liters",
-            "default_shelf_life_days": 7,
-            "ha_entity_id": "input_number.stock_leche_entera"
-        },
-        {
-            "id": "huevos",
-            "name": "Huevos",
-            "aliases": [
-                "docena de huevos",
-                "huevo"
-            ],
-            "category": "protein",
-            "unit": "units",
-            "default_shelf_life_days": 21,
-            "ha_entity_id": "input_number.stock_huevos"
-        },
-        {
-            "id": "pan_molde",
-            "name": "Pan de Molde",
-            "aliases": [
-                "pan",
-                "bimbo"
-            ],
-            "category": "bakery",
-            "unit": "units",
-            "default_shelf_life_days": 10,
-            "ha_entity_id": "input_number.stock_pan_molde"
-        },
-        {
-            "id": "aceite_oliva",
-            "name": "Aceite de Oliva",
-            "aliases": [
-                "aceite"
-            ],
-            "category": "pantry",
-            "unit": "liters",
-            "default_shelf_life_days": 365,
-            "ha_entity_id": "input_number.stock_aceite_oliva"
-        },
-        {
-            "id": "arroz",
-            "name": "Arroz",
-            "aliases": [
-                "paquete de arroz"
-            ],
-            "category": "pantry",
-            "unit": "kg",
-            "default_shelf_life_days": 365,
-            "ha_entity_id": "input_number.stock_arroz"
-        }
-    ]
-}
+[
+  {
+    "id": "jamon_cocido",
+    "category": "charcuteria",
+    "display_name": "Jamón cocido",
+    "entity_id": "input_boolean.stock_charcuteria_jamon_cocido",
+    "ean": "8410783327256",
+    "ticket_description": "JAM.COCID.NOEL 120",
+    "quantity": "3,000",
+    "synonyms": [
+      "jam.cocid.noel 120",
+      "jamon cocido",
+      "noel",
+      "jam.cocid.noel",
+      "jam cocido noel 120"
+    ],
+    "icon": "mdi:food-deli",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "morcilla_cebolla",
+    "category": "charcuteria",
+    "display_name": "Morcilla de cebolla",
+    "entity_id": "input_boolean.stock_charcuteria_morcilla_cebolla",
+    "ean": "2933488000003",
+    "ticket_description": "MORCILLA CEBOLLA O",
+    "quantity": "1,000",
+    "synonyms": [
+      "morcilla cebolla o",
+      "morcilla",
+      "morcilla cebolla"
+    ],
+    "icon": "mdi:sausage",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "queso_cabra",
+    "category": "lacteos",
+    "display_name": "Queso de cabra",
+    "entity_id": "input_boolean.stock_lacteos_queso_cabra",
+    "ean": "8412289002200",
+    "ticket_description": "QUESO CABRA 250G",
+    "quantity": "1,000",
+    "synonyms": [
+      "queso cabra 250g",
+      "queso cabra",
+      "queso de cabra"
+    ],
+    "icon": "mdi:cheese",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "yogur_fitness",
+    "category": "lacteos",
+    "display_name": "Yogur Fitness",
+    "entity_id": "input_boolean.stock_lacteos_yogur_fitness",
+    "ean": "5900020043504",
+    "ticket_description": "FITNESS 0% HONEY F",
+    "quantity": "1,000",
+    "synonyms": [
+      "fitness 0% honey f",
+      "fitness 0%",
+      "yogur fitness",
+      "honey",
+      "miel",
+      "fitness 0 honey"
+    ],
+    "icon": "mdi:bowl-mix",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "pan_molde",
+    "category": "panaderia",
+    "display_name": "Pan de molde",
+    "entity_id": "input_boolean.stock_panaderia_pan_molde",
+    "ean": "3560071173418",
+    "ticket_description": "PAÑ FA 3CUBO CRF60",
+    "quantity": "1,000",
+    "synonyms": [
+      "pañ fa 3cubo crf60",
+      "pan",
+      "pan molde",
+      "3 cubos",
+      "pan fa 3cubo"
+    ],
+    "icon": "mdi:bread-slice",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "panceta",
+    "category": "carne",
+    "display_name": "Panceta",
+    "entity_id": "input_boolean.stock_carne_panceta",
+    "ean": "8008706026319",
+    "ticket_description": "PANCETA FERRA 90GR",
+    "quantity": "1,000",
+    "synonyms": [
+      "panceta ferra 90gr",
+      "panceta",
+      "panceta 90g",
+      "panceta ferra"
+    ],
+    "icon": "mdi:bacon",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "yogur_natural",
+    "category": "lacteos",
+    "display_name": "Yogur natural",
+    "entity_id": "input_boolean.stock_lacteos_yogur_natural",
+    "ean": "8410500001360",
+    "ticket_description": "YOGUR NATURAL X 8",
+    "quantity": "1,000",
+    "synonyms": [
+      "yogur natural x 8",
+      "yogur",
+      "yogur natural",
+      "natural x 8"
+    ],
+    "icon": "mdi:bowl-mix",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "leche_semidesnatada",
+    "category": "lacteos",
+    "display_name": "Leche semidesnatada",
+    "entity_id": "input_boolean.stock_lacteos_leche_semidesnatada",
+    "ean": "8411700603781",
+    "ticket_description": "LECH.SEMID.ECO PUL",
+    "quantity": "6,000",
+    "synonyms": [
+      "lech.semid.eco pul",
+      "leche",
+      "leche semidesnatada",
+      "semid",
+      "eco"
+    ],
+    "icon": "mdi:milk",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "salsa_pizza",
+    "category": "despensa",
+    "display_name": "Salsa para pizza",
+    "entity_id": "input_boolean.stock_despensa_salsa_pizza",
+    "ean": "8005110551215",
+    "ticket_description": "SALSA PIZZA MUTTI",
+    "quantity": "3,000",
+    "synonyms": [
+      "salsa pizza mutti",
+      "salsa pizza",
+      "mutti"
+    ],
+    "icon": "mdi:bottle-soda-classic-outline",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "pasta_plumas",
+    "category": "despensa",
+    "display_name": "Pasta plumas 3 minutos",
+    "entity_id": "input_boolean.stock_despensa_pasta_plumas",
+    "ean": "8410069014368",
+    "ticket_description": "PLUMAS 3MINUT.GALL",
+    "quantity": "1,000",
+    "synonyms": [
+      "plumas 3minut.gall",
+      "plumas",
+      "pasta plumas",
+      "3min",
+      "gallo"
+    ],
+    "icon": "mdi:pasta",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "patata_juliana",
+    "category": "verduras",
+    "display_name": "Patata juliana",
+    "entity_id": "input_boolean.stock_verduras_patata_juliana",
+    "ean": "8710438126853",
+    "ticket_description": "PATAT.JULIENN.600G",
+    "quantity": "2,000",
+    "synonyms": [
+      "patat.julienn.600g",
+      "patata",
+      "juliana",
+      "patat.julienn",
+      "patata juliana 600g"
+    ],
+    "icon": "mdi:potato",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "pasta_helices",
+    "category": "despensa",
+    "display_name": "Pasta hélices",
+    "entity_id": "input_boolean.stock_despensa_pasta_helices",
+    "ean": "8410069014306",
+    "ticket_description": "HELICES VEG.3MINUT",
+    "quantity": "2,000",
+    "synonyms": [
+      "helices veg.3minut",
+      "helices",
+      "hélices",
+      "veg",
+      "helices veg 3minut"
+    ],
+    "icon": "mdi:pasta",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "queso_curado",
+    "category": "lacteos",
+    "display_name": "Queso curado",
+    "entity_id": "input_boolean.stock_lacteos_queso_curado",
+    "ean": "2975388000004",
+    "ticket_description": "QSO.CURADO 210G",
+    "quantity": "3,000",
+    "synonyms": [
+      "qso.curado 210g",
+      "queso curado",
+      "qso.curado",
+      "210g"
+    ],
+    "icon": "mdi:cheese",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "pulpa_tomate",
+    "category": "despensa",
+    "display_name": "Pulpa de tomate",
+    "entity_id": "input_boolean.stock_despensa_pulpa_tomate",
+    "ean": "0000080042556",
+    "ticket_description": "PULPA TOM.MUTTI400",
+    "quantity": "3,000",
+    "synonyms": [
+      "pulpa tom.mutti400",
+      "pulpa tomate",
+      "mutti",
+      "pulpa tom",
+      "pulpa tom mutti400"
+    ],
+    "icon": "mdi:tomato",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "apio_blanco",
+    "category": "verduras",
+    "display_name": "Apio blanco",
+    "entity_id": "input_boolean.stock_verduras_apio_blanco",
+    "ean": "8431876353471",
+    "ticket_description": "APIO BCO.CARRF.500",
+    "quantity": "1,000",
+    "synonyms": [
+      "apio bco.carrf.500",
+      "apio",
+      "apio blanco",
+      "apio bco",
+      "carrf 500"
+    ],
+    "icon": "mdi:celery",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "masa_pizza_fina",
+    "category": "despensa",
+    "display_name": "Masa de pizza fina",
+    "entity_id": "input_boolean.stock_despensa_masa_pizza_fina",
+    "ean": "8445291131569",
+    "ticket_description": "MAS.PIZ.FIN BUITON",
+    "quantity": "2,000",
+    "synonyms": [
+      "mas.piz.fin buiton",
+      "masa pizza",
+      "pizza fina",
+      "buitoni"
+    ],
+    "icon": "mdi:pizza",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "costilla_cerdo",
+    "category": "carne",
+    "display_name": "Costilla de cerdo",
+    "entity_id": "input_boolean.stock_carne_costilla_cerdo",
+    "ean": "2943460000006",
+    "ticket_description": "CERDO COSTILLA",
+    "quantity": "1,000",
+    "synonyms": [
+      "cerdo costilla",
+      "costilla",
+      "cerdo",
+      "costilla cerdo"
+    ],
+    "icon": "mdi:food-steak",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "zanahoria",
+    "category": "verduras",
+    "display_name": "Zanahoria",
+    "entity_id": "input_boolean.stock_verduras_zanahoria",
+    "ean": "8431876282665",
+    "ticket_description": "ZANAHORIA CDC 500G",
+    "quantity": "1,000",
+    "synonyms": [
+      "zanahoria cdc 500g",
+      "zanahoria",
+      "cdc 500g"
+    ],
+    "icon": "mdi:carrot",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "pechuga_pavo_fileteada",
+    "category": "carne",
+    "display_name": "Pechuga de pavo fileteada",
+    "entity_id": "input_boolean.stock_carne_pechuga_pavo_fileteada",
+    "ean": "8410320031325",
+    "ticket_description": "P.PAV F/L CAMP 165",
+    "quantity": "3,000",
+    "synonyms": [
+      "p.pav f/l camp 165",
+      "pavo",
+      "pechuga pavo",
+      "filetes pavo",
+      "p.pav f/l",
+      "camp 165"
+    ],
+    "icon": "mdi:food-turkey",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "patata_lavada",
+    "category": "verduras",
+    "display_name": "Patata lavada",
+    "entity_id": "input_boolean.stock_verduras_patata_lavada",
+    "ean": "2998188000005",
+    "ticket_description": "PATATA LAVADA CRF",
+    "quantity": "1,000",
+    "synonyms": [
+      "patata lavada crf",
+      "patata lavada",
+      "patata",
+      "crf"
+    ],
+    "icon": "mdi:potato",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "preparado_carne_anojo",
+    "category": "carne",
+    "display_name": "Preparado de carne de añojo",
+    "entity_id": "input_boolean.stock_carne_preparado_carne_anojo",
+    "ean": "8431876273113",
+    "ticket_description": "PREP CARNE AÑOJO",
+    "quantity": "1,000",
+    "synonyms": [
+      "prep carne añojo",
+      "prep carne",
+      "añojo",
+      "preparado carne añojo"
+    ],
+    "icon": "mdi:food-steak",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "queso_tostado",
+    "category": "lacteos",
+    "display_name": "Queso tostado",
+    "entity_id": "input_boolean.stock_lacteos_queso_tostado",
+    "ean": "8412289006338",
+    "ticket_description": "QSO.TOST.YA C.200G",
+    "quantity": "1,000",
+    "synonyms": [
+      "qso.tost.ya c.200g",
+      "queso tostado",
+      "qso.tost",
+      "200g"
+    ],
+    "icon": "mdi:cheese",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "mozzarella_rallada",
+    "category": "lacteos",
+    "display_name": "Mozzarella rallada",
+    "entity_id": "input_boolean.stock_lacteos_mozzarella_rallada",
+    "ean": "8000430137866",
+    "ticket_description": "MOZZAR.RALLA.GA150",
+    "quantity": "2,000",
+    "synonyms": [
+      "mozzar.ralla.ga150",
+      "mozzarella",
+      "mozzarella rallada"
+    ],
+    "icon": "mdi:cheese",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "chocolate_negro",
+    "category": "dulces",
+    "display_name": "Chocolate negro",
+    "entity_id": "input_boolean.stock_dulces_chocolate_negro",
+    "ean": "3046920029759",
+    "ticket_description": "CHOCO.NEGRO EXCE90",
+    "quantity": "4,000",
+    "synonyms": [
+      "choco.negro exce90",
+      "chocolate",
+      "negro",
+      "90"
+    ],
+    "icon": "mdi:chocolate-bar",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "alas_de_pollo",
+    "category": "carne",
+    "display_name": "Alas de pollo",
+    "entity_id": "input_boolean.stock_carne_alas_de_pollo",
+    "ean": "2976931000007",
+    "ticket_description": "POLLO ALAS CRF",
+    "quantity": "1,000",
+    "synonyms": [
+      "pollo alas crf",
+      "pollo",
+      "alas",
+      "pollo alas"
+    ],
+    "icon": "mdi:food-drumstick",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "calabaza",
+    "category": "verduras",
+    "display_name": "Calabaza",
+    "entity_id": "input_boolean.stock_verduras_calabaza",
+    "ean": "8431876272116",
+    "ticket_description": "CALABAZ CRF BIO400",
+    "quantity": "1,000",
+    "synonyms": [
+      "calabaz crf bio400",
+      "calabaza",
+      "bio"
+    ],
+    "icon": "mdi:pumpkin",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "tomate_concentrado",
+    "category": "despensa",
+    "display_name": "Tomate concentrado",
+    "entity_id": "input_boolean.stock_despensa_tomate_concentrado",
+    "ean": "0000080042532",
+    "ticket_description": "TOM.CON.MUTTI 130G",
+    "quantity": "1,000",
+    "synonyms": [
+      "tom.con.mutti 130g",
+      "tomate concentrado",
+      "mutti"
+    ],
+    "icon": "mdi:tomato",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  }
+]

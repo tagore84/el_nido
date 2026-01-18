@@ -7,10 +7,10 @@
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1,
       "position": [
-        1024,
-        1040
+        160,
+        2928
       ],
-      "id": "8e187104-c3ac-4553-aa5c-5d1d565968e3"
+      "id": "93102aa3-1263-42bd-bdb2-8653ad0a6d02"
     },
     {
       "parameters": {
@@ -21,10 +21,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1248,
-        752
+        384,
+        2544
       ],
-      "id": "16814727-545f-4bcf-a58f-444ae1fa50e3"
+      "id": "0075885b-1e82-4d61-828c-687cf7b60f62"
     },
     {
       "parameters": {
@@ -41,10 +41,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        1472,
-        480
+        608,
+        2336
       ],
-      "id": "check-chat-id-node"
+      "id": "1ee831ee-8a16-4596-9a69-b4511cc19d74"
     },
     {
       "parameters": {
@@ -55,10 +55,11 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        1696,
-        464
+        832,
+        2336
       ],
-      "id": "llm-adapter-typing-node",
+      "id": "575ff1bd-ff20-417c-a461-85554116d8ea",
+      "webhookId": "6f9894f6-f10f-424e-b3e7-410275619e6e",
       "credentials": {
         "telegramApi": {
           "id": "JLG33gMQcdi4JvQq",
@@ -81,10 +82,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        2368,
-        912
+        1504,
+        2816
       ],
-      "id": "614d12ee-48c1-4de1-95e8-9f8b554c2420"
+      "id": "ff081e37-92bc-4470-8099-f2d1a0197b57"
     },
     {
       "parameters": {
@@ -107,10 +108,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 1,
       "position": [
-        2592,
-        784
+        1728,
+        2688
       ],
-      "id": "1fea5f86-3d2c-4157-a620-bb9c9d3f0934"
+      "id": "fdd7048c-4153-4bcc-9057-8816824b414f"
     },
     {
       "parameters": {
@@ -120,10 +121,10 @@
       "type": "n8n-nodes-base.stopAndError",
       "typeVersion": 1,
       "position": [
-        2816,
-        992
+        1952,
+        2992
       ],
-      "id": "01a46155-18ca-431c-bd71-596c41299ceb"
+      "id": "a554c5ac-6ca4-4c6b-b669-806408880a98"
     },
     {
       "parameters": {
@@ -133,10 +134,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        5184,
-        1328
+        4544,
+        3296
       ],
-      "id": "5c424f7a-b05d-4b96-a56d-b063cabff6da"
+      "id": "cd932fc7-aa87-4bd5-a572-0c4d27f59a3f"
     },
     {
       "parameters": {
@@ -150,10 +151,10 @@
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1,
       "position": [
-        5184,
-        752
+        4544,
+        2752
       ],
-      "id": "2696b822-0f04-4dc2-aa8b-a71e484a2370"
+      "id": "750c7d5d-5886-4c29-a88e-6eda08d2c3c3"
     },
     {
       "parameters": {
@@ -163,10 +164,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        5408,
-        1232
+        4768,
+        3200
       ],
-      "id": "6fb22d19-2c23-4f13-b6b8-849910996fa9"
+      "id": "3c6174e4-1a9f-48e4-8c4a-19510068eddf"
     },
     {
       "parameters": {
@@ -176,10 +177,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        5632,
-        1232
+        4992,
+        3200
       ],
-      "id": "b14b2163-6a2a-4bb8-8958-18c3439a3e2a"
+      "id": "a40b3d1e-54b2-420e-b003-254ec2c4ba0a"
     },
     {
       "parameters": {
@@ -189,10 +190,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1472,
-        1232
+        608,
+        3120
       ],
-      "id": "d62acbbb-278e-40c5-8081-06800d323d19"
+      "id": "935b540b-d495-4857-a321-edc91ac94c49"
     },
     {
       "parameters": {
@@ -202,10 +203,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1472,
-        1040
+        608,
+        2928
       ],
-      "id": "d3001293-1a18-4a23-b969-211fd0b74c3e"
+      "id": "cb2977f4-df51-4ad2-ad14-1e0f34f60cba"
     },
     {
       "parameters": {
@@ -214,10 +215,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        1696,
-        880
+        832,
+        2784
       ],
-      "id": "d5ec2e7c-0be8-406b-b3be-b79bed0096f5",
+      "id": "0c8547c5-e40a-4f79-9d40-5f87de9998be",
       "name": "Merge Input Hash"
     },
     {
@@ -228,10 +229,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1472,
-        656
+        608,
+        2544
       ],
-      "id": "943e0ba7-6a3c-485b-9198-444683bf9a88"
+      "id": "1e04cd99-9f62-4ad1-99e3-3f813d765be5"
     },
     {
       "parameters": {
@@ -241,10 +242,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1920,
-        912
+        1056,
+        2816
       ],
-      "id": "84e983cf-e345-4274-b512-f3ee2c0db129"
+      "id": "3852cad1-6699-4677-b769-b7adc8366921"
     },
     {
       "parameters": {
@@ -254,10 +255,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1472,
-        848
+        608,
+        2736
       ],
-      "id": "fa32a6fc-47f0-48c4-82e0-41c2c7d068fa"
+      "id": "bbb658d6-66f6-4f41-a6fa-5e54fa3d9354"
     },
     {
       "parameters": {
@@ -342,10 +343,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.4,
       "position": [
-        3264,
-        704
+        2400,
+        2512
       ],
-      "id": "31a4dffb-b82d-4bfa-a79f-902dd41a4545",
+      "id": "4cf92d89-f641-458a-99e1-b897c126983f",
       "name": "Modality"
     },
     {
@@ -365,16 +366,17 @@
             }
           ]
         },
+        "builtInTools": {},
         "options": {}
       },
       "name": "Call Google Gemini Text",
       "type": "@n8n/n8n-nodes-langchain.googleGemini",
       "typeVersion": 1.1,
       "position": [
-        4160,
-        480
+        3296,
+        2000
       ],
-      "id": "95459cda-3556-4f89-83b3-f8b7aa8d9800",
+      "id": "d2d0a6fc-5acd-4508-8a1c-a407894e19ed",
       "credentials": {
         "googlePalmApi": {
           "id": "JJHsBmH2qC9U0KQA",
@@ -392,19 +394,18 @@
           "value": "={{ $('Prepare Model Call').first().json.current_model }}",
           "mode": "id"
         },
-        "text": "={{ $('Prepare Model Call').first().json.prompt_content }}\n\nSchema:\n{{ $('Prepare Model Call').first().json.schema_content }}\n\nContext:\n{{ $('Prepare Model Call').first().json.input.input_text || '' }}",
+        "text": "={{ $('Prepare Model Call').first().json.prompt_content }}\n\nSchema:\n{{ $('Prepare Model Call').first().json.schema_content }}",
         "inputType": "binary",
-        "binaryPropertyName": "data",
         "options": {}
       },
       "name": "Call Google Gemini Image",
       "type": "@n8n/n8n-nodes-langchain.googleGemini",
       "typeVersion": 1.1,
       "position": [
-        4224,
-        96
+        3360,
+        2384
       ],
-      "id": "2bc0cd38-0ba7-4ed1-bca2-8df4810d8649",
+      "id": "6e52416e-2385-4cac-972f-b0acb8c91e82",
       "credentials": {
         "googlePalmApi": {
           "id": "JJHsBmH2qC9U0KQA",
@@ -421,10 +422,10 @@
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1.1,
       "position": [
-        3488,
-        720
+        2624,
+        2480
       ],
-      "id": "372866c1-1678-41fb-b269-8c33990f80f7",
+      "id": "f1b5ede5-de3e-498c-a1b6-18a691098de8",
       "name": "Modality Get Image"
     },
     {
@@ -435,10 +436,10 @@
       "type": "n8n-nodes-base.readWriteFile",
       "typeVersion": 1.1,
       "position": [
-        3936,
-        912
+        3072,
+        2768
       ],
-      "id": "67ec81ec-0c12-4d8b-8c31-75a773988b59",
+      "id": "89fb5b18-205e-4f1c-805c-45ce338bccb5",
       "name": "Modality Get Audio"
     },
     {
@@ -450,7 +451,7 @@
           "value": "={{ $('Modality').item.json.llm_options.model }}",
           "mode": "id"
         },
-        "text": "={{ $('Modality').item.json.prompt_content }}\n\nSchema:\n{{ $('Modality').item.json.schema_content }}\n\nContext:\n{{ $('Modality').item.json.input.input_text || '' }}",
+        "text": "={{ $('Modality').item.json.prompt_content }}\n\nSchema:\n{{ $('Modality').item.json.schema_content }}",
         "inputType": "binary",
         "binaryPropertyName": "image",
         "options": {}
@@ -459,10 +460,10 @@
       "type": "@n8n/n8n-nodes-langchain.googleGemini",
       "typeVersion": 1.1,
       "position": [
-        4224,
-        912
+        3360,
+        2768
       ],
-      "id": "8fe5c8a4-4b11-4c66-8b8c-ec6d00a3fdd2",
+      "id": "6bdcf579-974c-40be-b182-981c861ef273",
       "credentials": {
         "googlePalmApi": {
           "id": "JJHsBmH2qC9U0KQA",
@@ -478,10 +479,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2816,
-        720
+        1952,
+        2624
       ],
-      "id": "389b131b-172c-4642-a6ac-7f82f9d5314e"
+      "id": "135293fd-0226-4fb0-b78c-5eaf86086e1e"
     },
     {
       "parameters": {
@@ -491,10 +492,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        4960,
-        752
+        4320,
+        2752
       ],
-      "id": "b5067161-673d-4c22-ad85-6fc29ace9c48"
+      "id": "670f5bda-f955-4761-981b-e97458e69990"
     },
     {
       "parameters": {
@@ -503,10 +504,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2144,
-        912
+        1280,
+        2816
       ],
-      "id": "0ff3094e-b473-42b5-9392-9083923e21c0",
+      "id": "0eb746c7-5995-4cf5-9dd9-d824e692ae8b",
       "name": "Check Cache"
     },
     {
@@ -517,10 +518,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3040,
-        720
+        2176,
+        2624
       ],
-      "id": "6e160505-dae1-4a2f-8ddf-d31ec7b0d9f5"
+      "id": "3cf9c46b-b468-4fc4-9ba4-d19ae09217db"
     },
     {
       "parameters": {
@@ -547,10 +548,10 @@
       "type": "@n8n/n8n-nodes-langchain.openAi",
       "typeVersion": 1.8,
       "position": [
-        4224,
-        672
+        3360,
+        2192
       ],
-      "id": "9097ebf4-78e0-445d-8f45-e22c0dc707ed",
+      "id": "03f465d3-576f-43cb-97e6-5793ebe93056",
       "credentials": {
         "openAiApi": {
           "id": "5FPvnzDIF3vm0DYw",
@@ -568,19 +569,18 @@
           "value": "={{ $('Prepare Model Call').first().json.current_model }}",
           "mode": "id"
         },
-        "text": "={{ $('Prepare Model Call').first().json.prompt_content }}\n\nSchema:\n{{ $('Prepare Model Call').first().json.schema_content }}\n\nContext:\n{{ $('Prepare Model Call').first().json.input.input_text || '' }}",
+        "text": "={{ $('Prepare Model Call').first().json.prompt_content }}\n\nSchema:\n{{ $('Prepare Model Call').first().json.schema_content }}",
         "inputType": "base64",
-        "binaryPropertyName": "data",
         "options": {}
       },
       "name": "Call OpenAI Image",
       "type": "@n8n/n8n-nodes-langchain.openAi",
       "typeVersion": 1.8,
       "position": [
-        4224,
-        288
+        3360,
+        2576
       ],
-      "id": "ac4098ba-aca7-4729-9323-4add95e82ced",
+      "id": "191cb7eb-dc06-4275-9930-3c9919ddc904",
       "credentials": {
         "openAiApi": {
           "id": "5FPvnzDIF3vm0DYw",
@@ -591,16 +591,16 @@
     },
     {
       "parameters": {
-        "jsCode": "// Handle LLM response - check for errors and retry with fallback if needed\nconst response = $input.first().json;\nconst prepareData = $('Prepare Model Call').first().json;\n\n// Check if this looks like an error response\nconst hasError = response.error || response.errorMessage || \n                (typeof response.message === 'string' && response.message.includes('error'));\n\nif (hasError && prepareData.has_more_models) {\n  // Return signal to retry with next model\n  return {\n    json: {\n      ...prepareData,\n      model_index: prepareData.model_index + 1,\n      retry_needed: true,\n      previous_error: response.error || response.errorMessage || 'Unknown error'\n    }\n  };\n}\n\nif (hasError) {\n  // No more fallbacks, propagate the error\n  throw new Error(`All models failed. Last error: ${response.error || response.errorMessage || 'Unknown error'}`);\n}\n\n// Success - pass through the response\nreturn {\n  json: {\n    ...response,\n    source: prepareData.provider === 'openai' ? 'live-openai' : 'live-gemini'\n  }\n};"
+        "jsCode": "// Handle LLM response - check for errors and retry with fallback if needed\nconst response = $input.first().json;\nconst prepareData = $('Prepare Model Call').first().json;\n\n// Check if this looks like an error response\nconst hasError = response.error || response.errorMessage || \n                (typeof response.message === 'string' && response.message.includes('error'));\n\nif (hasError && prepareData.has_more_models) {\n  // Return signal to retry with next model\n  return {\n    json: {\n      ...prepareData,\n      model_index: prepareData.model_index + 1,\n      retry_needed: true,\n      previous_error: response.error || response.errorMessage || 'Unknown error'\n    }\n  };\n}\n\n// Success - pass through the response\nreturn {\n  json: {\n    ...response,\n    source: prepareData.provider === 'openai' ? 'live-openai' : 'live-gemini'\n  }\n};"
       },
       "name": "Handle LLM Response",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        4512,
-        464
+        3648,
+        2416
       ],
-      "id": "56dd9f8f-cc62-4035-99f5-b958b12be9d8"
+      "id": "a41372bd-b994-496d-a663-91ac16184196"
     },
     {
       "parameters": {
@@ -617,10 +617,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
       "position": [
-        4736,
-        752
+        4096,
+        2752
       ],
-      "id": "522a86ce-9e34-4ef7-b334-2190cf1179cd"
+      "id": "eddf7e47-ae09-4eb3-8e95-dcf5f3f1cd25"
     },
     {
       "parameters": {
@@ -681,10 +681,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.4,
       "position": [
-        3936,
-        576
+        3072,
+        2096
       ],
-      "id": "1fea1d29-8c89-46a5-97ad-9ea8e681e88d",
+      "id": "931166a7-ed4d-4337-a0ad-6e0033caeda4",
       "name": "Provider Router"
     },
     {
@@ -746,10 +746,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.4,
       "position": [
-        3936,
-        192
+        3072,
+        2480
       ],
-      "id": "a027aec9-ef0a-4d19-ab9d-b329a6749d77",
+      "id": "959d4403-7000-4f15-aad9-4a752d853671",
       "name": "Provider Router Image"
     },
     {
@@ -759,10 +759,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3712,
-        192
+        2848,
+        2480
       ],
-      "id": "dc38bb5f-85a6-4749-b8e0-407fc7c00013",
+      "id": "64875928-48f9-4961-9a56-75ac6167e78a",
       "name": "Merge Model Info Image"
     },
     {
@@ -773,12 +773,13 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        4624,
-        608
+        3872,
+        2416
       ],
-      "id": "log-usage-node"
+      "id": "30e74fdb-188a-4d6d-ace6-19cea5202b0a"
     }
   ],
+  "pinData": {},
   "connections": {
     "Execute Workflow Trigger": {
       "main": [
@@ -1208,8 +1209,9 @@
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "60309d49-0763-47b2-9615-909976fb6b53",
+  "versionId": "6db905c7-a572-4a95-bb04-c9c488183311",
   "meta": {
+    "templateCredsSetupCompleted": true,
     "instanceId": "e1f8529dafc1c7b24188afd104b1a8e8824324405683593c80fc8bc56ba17881"
   },
   "id": "cIdjAXxgI1Z-LurEg16oO",

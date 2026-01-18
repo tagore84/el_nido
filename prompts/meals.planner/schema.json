@@ -1,0 +1,37 @@
+{
+    "type": "object",
+    "properties": {
+        "suggestions": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "ingredients_used": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "explanation": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "title",
+                    "ingredients_used",
+                    "explanation"
+                ]
+            }
+        },
+        "message": {
+            "type": "string",
+            "description": "A polite closing message or additional context."
+        }
+    },
+    "required": [
+        "suggestions"
+    ]
+}

@@ -13,5 +13,11 @@
     },
     "calendar.summary": {
         "path": "calendar_summary"
+    },
+    "meals.receipt_ocr": {
+        "path": "meals.receipt_ocr"
+    },
+    "meals.planner": {
+        "path": "meals.planner"
     }
 }

@@ -1,0 +1,154 @@
+{
+    "name": "nido.meals.planner",
+    "nodes": [
+        {
+            "parameters": {},
+            "name": "Execute Workflow Trigger",
+            "type": "n8n-nodes-base.executeWorkflowTrigger",
+            "typeVersion": 1,
+            "position": [
+                460,
+                460
+            ],
+            "id": "trigger-node"
+        },
+        {
+            "parameters": {
+                "jsCode": "const fs = require('fs');\n\n// 1. Read Catalog\nlet catalog = [];\ntry {\n  const catalogPath = '/data/inventory/catalog.json';\n  if (fs.existsSync(catalogPath)) {\n    catalog = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));\n    if (catalog.products) catalog = catalog.products;\n  }\n} catch (e) {\n  throw new Error('Failed to read catalog: ' + e.message);\n}\n\n// Filter products that track stock (have entity_id)\nconst tracked = catalog.filter(p => p.entity_id);\n\nreturn tracked.map(p => ({\n    json: {\n        ...p\n    }\n}));"
+            },
+            "name": "Load Catalog",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                680,
+                460
+            ],
+            "id": "load-catalog"
+        },
+        {
+            "parameters": {
+                "operation": "get",
+                "entityId": "={{ $json.entity_id }}"
+            },
+            "name": "Check Stock",
+            "type": "n8n-nodes-base.homeAssistant",
+            "typeVersion": 1,
+            "position": [
+                900,
+                460
+            ],
+            "id": "check-stock",
+            "credentials": {
+                "homeAssistantApi": {
+                    "id": "I3MbDcoMCh6VZ8R1",
+                    "name": "Home Assistant account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "// Aggregate results and filter available items\nconst items = $input.all();\nconst available = [];\n\nitems.forEach(item => {\n    // Use itemMatching to get original catalog info\n    const product = $('Load Catalog').itemMatching(item.pa).json;\n    // Logic: Input Boolean = 'on' -> Available\n    if (item.json.state === 'on') {\n        available.push(product.display_name || product.name || product.id);\n    }\n});\n\nconst user_request = $('Execute Workflow Trigger').first().json.input.input_text || '';\nconst chat_id = $('Execute Workflow Trigger').first().json.chat_id;\n\n// Construct Prompt Context\nconst promptContext = `AVAILABLE INGREDIENTS:\n${available.join(', ')}\n`;\n\nreturn {\n    json: {\n        prompt_id: 'meals.planner',\n        chat_id,\n        input: {\n            input_type: 'TEXT',\n            input_text: user_request + '\\n\\n' + promptContext\n        }\n    }\n};"
+            },
+            "name": "Prepare LLM",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1120,
+                460
+            ],
+            "id": "prepare-llm"
+        },
+        {
+            "parameters": {
+                "workflowId": "cIdjAXxgI1Z-LurEg16oO"
+            },
+            "name": "Call Planner",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1,
+            "position": [
+                1340,
+                460
+            ],
+            "id": "call-planner"
+        },
+        {
+            "parameters": {
+                "chatId": "={{ $json.chat_id }}",
+                "text": "=🍽️ **Propuestas del Chef**\n\n{{ $json.suggestions.map(s => `🔹 *${s.title}*\n_${s.ingredients_used.join(', ')}_\n${s.explanation}`).join('\\n\\n') }}\n\n{{ $json.message }}",
+                "parseMode": "Markdown",
+                "additionalFields": {}
+            },
+            "name": "Send Reply",
+            "type": "n8n-nodes-base.telegram",
+            "typeVersion": 1,
+            "position": [
+                1560,
+                460
+            ],
+            "id": "send-reply",
+            "credentials": {
+                "telegramApi": {
+                    "id": "JLG33gMQcdi4JvQq",
+                    "name": "Telegram account"
+                }
+            }
+        }
+    ],
+    "connections": {
+        "Execute Workflow Trigger": {
+            "main": [
+                [
+                    {
+                        "node": "Load Catalog",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Load Catalog": {
+            "main": [
+                [
+                    {
+                        "node": "Check Stock",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Check Stock": {
+            "main": [
+                [
+                    {
+                        "node": "Prepare LLM",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Prepare LLM": {
+            "main": [
+                [
+                    {
+                        "node": "Call Planner",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Call Planner": {
+            "main": [
+                [
+                    {
+                        "node": "Send Reply",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}
