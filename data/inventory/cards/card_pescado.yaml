@@ -1,0 +1,56 @@
+type: custom:stack-in-card
+mode: vertical
+cards:
+- type: custom:mushroom-title-card
+  title: Pescado
+- type: custom:mushroom-template-card
+  entity: input_select.stock_pescado_lubina
+  primary: Lubina
+  secondary: '{% set s = states(''input_select.stock_pescado_lubina'') %}
+
+    {{ s if s not in [''unknown'',''unavailable'',''''] else ''Sin estado'' }}'
+  icon: mdi:fish
+  icon_color: '{% set s = states(''input_select.stock_pescado_lubina'') %}
+
+    {{ ''green'' if s == ''Hay'' else ''blue'' if s == ''Congelado'' else ''red'' }}'
+  tap_action:
+    action: call-service
+    service: script.stock_cycle_input_select
+    data:
+      entity_id: input_select.stock_pescado_lubina
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_select.stock_pescado_salmon
+  primary: Salmón
+  secondary: '{% set s = states(''input_select.stock_pescado_salmon'') %}
+
+    {{ s if s not in [''unknown'',''unavailable'',''''] else ''Sin estado'' }}'
+  icon: mdi:fish
+  icon_color: '{% set s = states(''input_select.stock_pescado_salmon'') %}
+
+    {{ ''green'' if s == ''Hay'' else ''blue'' if s == ''Congelado'' else ''red'' }}'
+  tap_action:
+    action: call-service
+    service: script.stock_cycle_input_select
+    data:
+      entity_id: input_select.stock_pescado_salmon
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_select.stock_pescado_sepia
+  primary: Sepia
+  secondary: '{% set s = states(''input_select.stock_pescado_sepia'') %}
+
+    {{ s if s not in [''unknown'',''unavailable'',''''] else ''Sin estado'' }}'
+  icon: mdi:fish
+  icon_color: '{% set s = states(''input_select.stock_pescado_sepia'') %}
+
+    {{ ''green'' if s == ''Hay'' else ''blue'' if s == ''Congelado'' else ''red'' }}'
+  tap_action:
+    action: call-service
+    service: script.stock_cycle_input_select
+    data:
+      entity_id: input_select.stock_pescado_sepia
+  hold_action:
+    action: more-info

@@ -29,6 +29,14 @@ Orquestación de flujos, OCR, clasificación, lógica de negocio, llamadas a LLM
 ## 3. Inventario Doméstico
 Catálogo base versionado en Git con productos habituales, precios estimados y reglas de reposición.
 
+### 3.1 Estructura de Datos
+El sistema mantiene la coherencia entre los datos de backend y la interfaz de Home Assistant mediante dos ficheros principales:
+
+- **`data/inventory/catalog.json`**: Contiene la definición maestra de los productos (ID, categoría, EAN, sinónimos para OCR, etc.). Es la fuente de verdad para la lógica de negocio.
+- **`data/inventory/helpers_stock_*.yaml`**: Conjunto de ficheros (uno por categoría, ej: `helpers_stock_lacteos.yaml`) que definen los *Input Booleans* de Home Assistant. Estos ficheros son la **fuente de verdad para la representación visual** (iconos y nombres amigables) en el dashboard de HA.
+
+El campo `entity_id` en el catálogo vincula ambos mundos. Cualquier discrepancia visual (iconos) entre ambos ficheros debe resolverse priorizando lo definido en los ficheros yaml de helpers.
+
 ## 4. Flujo 1 – Reposición Automática tras la Compra
 Procesamiento de tickets físicos u online para actualizar automáticamente el inventario y la lista de la compra.
 

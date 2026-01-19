@@ -1,0 +1,113 @@
+type: custom:stack-in-card
+mode: vertical
+cards:
+- type: custom:mushroom-title-card
+  title: Lácteos
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_lacteos_queso_cabra
+  primary: Queso de cabra
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_lacteos_queso_cabra'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:cheese
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_lacteos_queso_cabra'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_lacteos_yogur_fitness
+  primary: Yogur Fitness
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_lacteos_yogur_fitness'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:bowl-mix
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_lacteos_yogur_fitness'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_lacteos_yogur_natural
+  primary: Yogur natural
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_lacteos_yogur_natural'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:bowl-mix
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_lacteos_yogur_natural'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_lacteos_leche_semidesnatada
+  primary: Leche semidesnatada
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_lacteos_leche_semidesnatada'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:cup-water
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_lacteos_leche_semidesnatada'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_lacteos_queso_curado
+  primary: Queso curado
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_lacteos_queso_curado'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:cheese
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_lacteos_queso_curado'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_lacteos_queso_tostado
+  primary: Queso tostado
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_lacteos_queso_tostado'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:cheese
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_lacteos_queso_tostado'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_lacteos_mozzarella_rallada
+  primary: Mozzarella rallada
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_lacteos_mozzarella_rallada'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:cheese
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_lacteos_mozzarella_rallada'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_lacteos_mantequilla
+  primary: Mantequilla
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_lacteos_mantequilla'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:food-variant
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_lacteos_mantequilla'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_lacteos_huevos
+  primary: Huevos
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_lacteos_huevos'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:egg
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_lacteos_huevos'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info

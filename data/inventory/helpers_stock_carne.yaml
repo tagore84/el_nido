@@ -1,0 +1,44 @@
+stock_carne_panceta:
+  name: "Panceta"
+  options:
+    - "No hay"
+    - "Hay"
+    - "Congelado"
+  initial: "No hay"
+  icon: mdi:food-steak
+
+stock_carne_costilla_cerdo:
+  name: "Costilla de cerdo"
+  options:
+    - "No hay"
+    - "Hay"
+    - "Congelado"
+  initial: "No hay"
+  icon: mdi:food-steak
+
+stock_carne_alitas_de_pollo:
+  name: "Alitas de pollo"
+  options:
+    - "No hay"
+    - "Hay"
+    - "Congelado"
+  initial: "No hay"
+  icon: mdi:food-drumstick
+
+stock_carne_carne_picada:
+  name: "Carne picada"
+  options:
+    - "No hay"
+    - "Hay"
+    - "Congelado"
+  initial: "No hay"
+  icon: mdi:food-steak
+
+stock_carne_preparado_de_cocido:
+  name: "Preparado de cocido"
+  options:
+    - "No hay"
+    - "Hay"
+    - "Congelado"
+  initial: "No hay"
+  icon: mdi:food-steak

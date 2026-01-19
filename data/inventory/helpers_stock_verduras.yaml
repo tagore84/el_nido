@@ -1,0 +1,43 @@
+stock_verduras_patata:
+  name: "Patata"
+  icon: mdi:food-apple
+
+stock_verduras_zanahoria:
+  name: "Zanahoria"
+  icon: mdi:carrot
+
+stock_verduras_patata_lavada:
+  name: "Patata lavada"
+  icon: mdi:food-apple
+
+stock_verduras_calabaza:
+  name: "Calabaza"
+  icon: mdi:pumpkin
+
+stock_verduras_apio_blanco:
+  name: "Apio blanco"
+  icon: mdi:sprout
+
+stock_verduras_cebolla:
+  name: "Cebollas"
+  icon: mdi:circle-slice-8
+
+stock_verduras_ajos:
+  name: "Ajos"
+  icon: mdi:sprout
+
+stock_verduras_tomate:
+  name: "Tomate"
+  icon: mdi:tomato
+
+stock_verduras_lechuga:
+  name: "Lechuga"
+  icon: mdi:leaf
+
+stock_verduras_pimiento_verde:
+  name: "Pimiento verde"
+  icon: mdi:chili-hot-outline
+
+stock_verduras_pimiento_rojo:
+  name: "Pimiento rojo"
+  icon: mdi:chili-hot

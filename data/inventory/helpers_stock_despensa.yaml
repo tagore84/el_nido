@@ -1,0 +1,43 @@
+stock_despensa_pasta_helices:
+  name: "Pasta hélices vegetales"
+  icon: mdi:pasta
+
+stock_despensa_pulpa_tomate:
+  name: "Pulpa de tomate"
+  icon: mdi:food-apple
+
+stock_despensa_masa_pizza_fina:
+  name: "Masa de pizza fina"
+  icon: mdi:pizza
+
+stock_despensa_tomate_concentrado:
+  name: "Tomate concentrado"
+  icon: mdi:food-apple
+
+stock_despensa_salsa_pizza:
+  name: "Salsa para pizza"
+  icon: mdi:bottle-soda-classic-outline
+
+stock_despensa_pasta_plumas:
+  name: "Pasta plumas"
+  icon: mdi:pasta
+
+stock_despensa_arroz:
+  name: "Arroz"
+  icon: mdi:rice
+
+stock_despensa_aceite_oliva:
+  name: "Aceite de Oliva"
+  icon: mdi:oil
+
+stock_despensa_atun:
+  name: "Atún en lata"
+  icon: mdi:fish
+
+stock_despensa_harina:
+  name: "Harina de trigo"
+  icon: mdi:barley
+
+stock_despensa_maiz:
+  name: "Maíz"
+  icon: mdi:corn

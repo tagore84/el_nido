@@ -1,0 +1,137 @@
+type: custom:stack-in-card
+mode: vertical
+cards:
+- type: custom:mushroom-title-card
+  title: Despensa
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_despensa_pasta_helices
+  primary: Pasta hélices vegetales
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_despensa_pasta_helices'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:pasta
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_despensa_pasta_helices'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_despensa_pulpa_tomate
+  primary: Pulpa de tomate
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_despensa_pulpa_tomate'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:food-apple
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_despensa_pulpa_tomate'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_despensa_masa_pizza_fina
+  primary: Masa de pizza fina
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_despensa_masa_pizza_fina'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:pizza
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_despensa_masa_pizza_fina'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_despensa_tomate_concentrado
+  primary: Tomate concentrado
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_despensa_tomate_concentrado'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:food-apple
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_despensa_tomate_concentrado'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_despensa_salsa_pizza
+  primary: Salsa para pizza
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_despensa_salsa_pizza'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:bottle-soda-classic-outline
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_despensa_salsa_pizza'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_despensa_pasta_plumas
+  primary: Pasta plumas
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_despensa_pasta_plumas'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:pasta
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_despensa_pasta_plumas'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_despensa_arroz
+  primary: Arroz
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_despensa_arroz'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:rice
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_despensa_arroz'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_despensa_aceite_oliva
+  primary: Aceite de Oliva
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_despensa_aceite_oliva'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:oil
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_despensa_aceite_oliva'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_despensa_atun
+  primary: Atún en lata
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_despensa_atun'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:fish
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_despensa_atun'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_despensa_harina
+  primary: Harina de trigo
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_despensa_harina'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:barley
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_despensa_harina'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_despensa_maiz
+  primary: Maíz
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_despensa_maiz'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:corn
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_despensa_maiz'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info

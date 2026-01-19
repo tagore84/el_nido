@@ -1,0 +1,137 @@
+type: custom:stack-in-card
+mode: vertical
+cards:
+- type: custom:mushroom-title-card
+  title: Verduras
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_verduras_patata
+  primary: Patata
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_verduras_patata'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:food-apple
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_verduras_patata'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_verduras_zanahoria
+  primary: Zanahoria
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_verduras_zanahoria'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:carrot
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_verduras_zanahoria'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_verduras_patata_lavada
+  primary: Patata lavada
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_verduras_patata_lavada'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:food-apple
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_verduras_patata_lavada'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_verduras_calabaza
+  primary: Calabaza
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_verduras_calabaza'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:pumpkin
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_verduras_calabaza'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_verduras_apio_blanco
+  primary: Apio blanco
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_verduras_apio_blanco'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:sprout
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_verduras_apio_blanco'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_verduras_cebolla
+  primary: Cebollas
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_verduras_cebolla'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:onion
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_verduras_cebolla'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_verduras_ajos
+  primary: Ajos
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_verduras_ajos'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:garlic
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_verduras_ajos'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_verduras_tomate
+  primary: Tomate
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_verduras_tomate'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:tomato
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_verduras_tomate'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_verduras_lechuga
+  primary: Lechuga
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_verduras_lechuga'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:leaf
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_verduras_lechuga'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_verduras_pimiento_verde
+  primary: Pimiento verde
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_verduras_pimiento_verde'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:chili-pepper
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_verduras_pimiento_verde'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_verduras_pimiento_rojo
+  primary: Pimiento rojo
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_verduras_pimiento_rojo'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:chili-pepper
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_verduras_pimiento_rojo'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info

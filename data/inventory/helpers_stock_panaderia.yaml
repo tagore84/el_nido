@@ -1,0 +1,11 @@
+stock_panaderia_pan_molde:
+  name: "Pan de molde"
+  icon: mdi:bread-slice
+
+stock_panaderia_pan_hamburguesa:
+  name: "Pan de hamburguesa"
+  icon: mdi:hamburger
+
+stock_panaderia_pan_pita:
+  name: "Pan de pita"
+  icon: mdi:bread-slice

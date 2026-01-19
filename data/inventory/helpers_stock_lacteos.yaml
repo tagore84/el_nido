@@ -1,0 +1,31 @@
+stock_lacteos_queso_cabra:
+  name: "Queso de cabra"
+  icon: mdi:cheese
+
+stock_lacteos_yogur_fitness:
+  name: "Yogur Fitness"
+  icon: mdi:bowl-mix
+
+stock_lacteos_yogur_natural:
+  name: "Yogur natural"
+  icon: mdi:bowl-mix
+
+stock_lacteos_leche_semidesnatada:
+  name: "Leche semidesnatada"
+  icon: mdi:cup-water
+
+stock_lacteos_queso_curado:
+  name: "Queso curado"
+  icon: mdi:cheese
+
+stock_lacteos_mozzarella_rallada:
+  name: "Mozzarella rallada"
+  icon: mdi:cheese
+
+stock_lacteos_mantequilla:
+  name: "Mantequilla"
+  icon: mdi:butter
+
+stock_lacteos_huevos:
+  name: "Huevos"
+  icon: mdi:egg

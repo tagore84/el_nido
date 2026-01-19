@@ -1,0 +1,65 @@
+type: custom:stack-in-card
+mode: vertical
+cards:
+- type: custom:mushroom-title-card
+  title: Charcutería
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_charcuteria_jamon_cocido
+  primary: Jamón cocido
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_charcuteria_jamon_cocido'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:food-steak
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_charcuteria_jamon_cocido'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_charcuteria_morcilla_cebolla
+  primary: Morcilla de cebolla
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_charcuteria_morcilla_cebolla'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:sausage
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_charcuteria_morcilla_cebolla'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_charcuteria_jamon_serrano
+  primary: Jamón Serrano
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_charcuteria_jamon_serrano'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:food-steak
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_charcuteria_jamon_serrano'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_charcuteria_chorizo
+  primary: Chorizo
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_charcuteria_chorizo'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:sausage
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_charcuteria_chorizo'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_charcuteria_pavo
+  primary: Pavo
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_charcuteria_pavo'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:food-drumstick
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_charcuteria_pavo'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info

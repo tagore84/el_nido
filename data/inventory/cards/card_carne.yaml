@@ -1,0 +1,90 @@
+type: custom:stack-in-card
+mode: vertical
+cards:
+- type: custom:mushroom-title-card
+  title: Carne
+- type: custom:mushroom-template-card
+  entity: input_select.stock_carne_alitas_de_pollo
+  primary: Alitas de pollo
+  secondary: '{% set s = states(''input_select.stock_carne_alitas_de_pollo'') %}
+
+    {{ s if s not in [''unknown'',''unavailable'',''''] else ''Sin estado'' }}'
+  icon: mdi:food-drumstick
+  icon_color: '{% set s = states(''input_select.stock_carne_alitas_de_pollo'') %}
+
+    {{ ''green'' if s == ''Hay'' else ''blue'' if s == ''Congelado'' else ''red'' }}'
+  tap_action:
+    action: call-service
+    service: script.stock_cycle_input_select
+    data:
+      entity_id: input_select.stock_carne_alitas_de_pollo
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_select.stock_carne_carne_picada
+  primary: Carne picada
+  secondary: '{% set s = states(''input_select.stock_carne_carne_picada'') %}
+
+    {{ s if s not in [''unknown'',''unavailable'',''''] else ''Sin estado'' }}'
+  icon: mdi:food-steak
+  icon_color: '{% set s = states(''input_select.stock_carne_carne_picada'') %}
+
+    {{ ''green'' if s == ''Hay'' else ''blue'' if s == ''Congelado'' else ''red'' }}'
+  tap_action:
+    action: call-service
+    service: script.stock_cycle_input_select
+    data:
+      entity_id: input_select.stock_carne_carne_picada
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_select.stock_carne_costilla_cerdo
+  primary: Costilla de cerdo
+  secondary: '{% set s = states(''input_select.stock_carne_costilla_cerdo'') %}
+
+    {{ s if s not in [''unknown'',''unavailable'',''''] else ''Sin estado'' }}'
+  icon: mdi:food-steak
+  icon_color: '{% set s = states(''input_select.stock_carne_costilla_cerdo'') %}
+
+    {{ ''green'' if s == ''Hay'' else ''blue'' if s == ''Congelado'' else ''red'' }}'
+  tap_action:
+    action: call-service
+    service: script.stock_cycle_input_select
+    data:
+      entity_id: input_select.stock_carne_costilla_cerdo
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_select.stock_carne_panceta
+  primary: Panceta
+  secondary: '{% set s = states(''input_select.stock_carne_panceta'') %}
+
+    {{ s if s not in [''unknown'',''unavailable'',''''] else ''Sin estado'' }}'
+  icon: mdi:food-steak
+  icon_color: '{% set s = states(''input_select.stock_carne_panceta'') %}
+
+    {{ ''green'' if s == ''Hay'' else ''blue'' if s == ''Congelado'' else ''red'' }}'
+  tap_action:
+    action: call-service
+    service: script.stock_cycle_input_select
+    data:
+      entity_id: input_select.stock_carne_panceta
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_select.stock_carne_preparado_de_cocido
+  primary: Preparado de cocido
+  secondary: '{% set s = states(''input_select.stock_carne_preparado_de_cocido'') %}
+
+    {{ s if s not in [''unknown'',''unavailable'',''''] else ''Sin estado'' }}'
+  icon: mdi:food-steak
+  icon_color: '{% set s = states(''input_select.stock_carne_preparado_de_cocido'') %}
+
+    {{ ''green'' if s == ''Hay'' else ''blue'' if s == ''Congelado'' else ''red'' }}'
+  tap_action:
+    action: call-service
+    service: script.stock_cycle_input_select
+    data:
+      entity_id: input_select.stock_carne_preparado_de_cocido
+  hold_action:
+    action: more-info

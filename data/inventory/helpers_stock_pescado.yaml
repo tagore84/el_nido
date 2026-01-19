@@ -1,0 +1,26 @@
+stock_pescado_salmon:
+  name: "Salmón"
+  options:
+    - "No hay"
+    - "Hay"
+    - "Congelado"
+  initial: "No hay"
+  icon: mdi:fish
+
+stock_pescado_lubina:
+  name: "Lubina"
+  options:
+    - "No hay"
+    - "Hay"
+    - "Congelado"
+  initial: "No hay"
+  icon: mdi:food-steak
+
+stock_pescado_sepia:
+  name: "Sepia"
+  options:
+    - "No hay"
+    - "Hay"
+    - "Congelado"
+  initial: "No hay"
+  icon: mdi:fish

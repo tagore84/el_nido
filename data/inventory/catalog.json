@@ -14,7 +14,7 @@
       "jam.cocid.noel",
       "jam cocido noel 120"
     ],
-    "icon": "mdi:food-deli",
+    "icon": "mdi:food-steak",
     "state_semantics": {
       "on": "hay",
       "off": "falta"
@@ -105,7 +105,7 @@
     "id": "panceta",
     "category": "carne",
     "display_name": "Panceta",
-    "entity_id": "input_boolean.stock_carne_panceta",
+    "entity_id": "input_select.stock_carne_panceta",
     "ean": "8008706026319",
     "ticket_description": "PANCETA FERRA 90GR",
     "quantity": "1,000",
@@ -115,10 +115,11 @@
       "panceta 90g",
       "panceta ferra"
     ],
-    "icon": "mdi:bacon",
+    "icon": "mdi:food-steak",
     "state_semantics": {
-      "on": "hay",
-      "off": "falta"
+      "Hay": "hay",
+      "Congelado": "hay",
+      "No hay": "falta"
     }
   },
   {
@@ -156,7 +157,7 @@
       "semid",
       "eco"
     ],
-    "icon": "mdi:milk",
+    "icon": "mdi:cup-water",
     "state_semantics": {
       "on": "hay",
       "off": "falta"
@@ -217,7 +218,7 @@
       "patat.julienn",
       "patata juliana 600g"
     ],
-    "icon": "mdi:potato",
+    "icon": "mdi:food-apple",
     "state_semantics": {
       "on": "hay",
       "off": "falta"
@@ -279,7 +280,7 @@
       "pulpa tom",
       "pulpa tom mutti400"
     ],
-    "icon": "mdi:tomato",
+    "icon": "mdi:food-apple",
     "state_semantics": {
       "on": "hay",
       "off": "falta"
@@ -300,7 +301,7 @@
       "apio bco",
       "carrf 500"
     ],
-    "icon": "mdi:celery",
+    "icon": "mdi:sprout",
     "state_semantics": {
       "on": "hay",
       "off": "falta"
@@ -330,7 +331,7 @@
     "id": "costilla_cerdo",
     "category": "carne",
     "display_name": "Costilla de cerdo",
-    "entity_id": "input_boolean.stock_carne_costilla_cerdo",
+    "entity_id": "input_select.stock_carne_costilla_cerdo",
     "ean": "2943460000006",
     "ticket_description": "CERDO COSTILLA",
     "quantity": "1,000",
@@ -342,8 +343,9 @@
     ],
     "icon": "mdi:food-steak",
     "state_semantics": {
-      "on": "hay",
-      "off": "falta"
+      "Hay": "hay",
+      "Congelado": "hay",
+      "No hay": "falta"
     }
   },
   {
@@ -366,28 +368,6 @@
     }
   },
   {
-    "id": "pechuga_pavo_fileteada",
-    "category": "carne",
-    "display_name": "Pechuga de pavo fileteada",
-    "entity_id": "input_boolean.stock_carne_pechuga_pavo_fileteada",
-    "ean": "8410320031325",
-    "ticket_description": "P.PAV F/L CAMP 165",
-    "quantity": "3,000",
-    "synonyms": [
-      "p.pav f/l camp 165",
-      "pavo",
-      "pechuga pavo",
-      "filetes pavo",
-      "p.pav f/l",
-      "camp 165"
-    ],
-    "icon": "mdi:food-turkey",
-    "state_semantics": {
-      "on": "hay",
-      "off": "falta"
-    }
-  },
-  {
     "id": "patata_lavada",
     "category": "verduras",
     "display_name": "Patata lavada",
@@ -401,47 +381,7 @@
       "patata",
       "crf"
     ],
-    "icon": "mdi:potato",
-    "state_semantics": {
-      "on": "hay",
-      "off": "falta"
-    }
-  },
-  {
-    "id": "preparado_carne_anojo",
-    "category": "carne",
-    "display_name": "Preparado de carne de añojo",
-    "entity_id": "input_boolean.stock_carne_preparado_carne_anojo",
-    "ean": "8431876273113",
-    "ticket_description": "PREP CARNE AÑOJO",
-    "quantity": "1,000",
-    "synonyms": [
-      "prep carne añojo",
-      "prep carne",
-      "añojo",
-      "preparado carne añojo"
-    ],
-    "icon": "mdi:food-steak",
-    "state_semantics": {
-      "on": "hay",
-      "off": "falta"
-    }
-  },
-  {
-    "id": "queso_tostado",
-    "category": "lacteos",
-    "display_name": "Queso tostado",
-    "entity_id": "input_boolean.stock_lacteos_queso_tostado",
-    "ean": "8412289006338",
-    "ticket_description": "QSO.TOST.YA C.200G",
-    "quantity": "1,000",
-    "synonyms": [
-      "qso.tost.ya c.200g",
-      "queso tostado",
-      "qso.tost",
-      "200g"
-    ],
-    "icon": "mdi:cheese",
+    "icon": "mdi:food-apple",
     "state_semantics": {
       "on": "hay",
       "off": "falta"
@@ -480,17 +420,17 @@
       "negro",
       "90"
     ],
-    "icon": "mdi:chocolate-bar",
+    "icon": "mdi:candy",
     "state_semantics": {
       "on": "hay",
       "off": "falta"
     }
   },
   {
-    "id": "alas_de_pollo",
+    "id": "alitas_de_pollo",
     "category": "carne",
-    "display_name": "Alas de pollo",
-    "entity_id": "input_boolean.stock_carne_alas_de_pollo",
+    "display_name": "Alitas de pollo",
+    "entity_id": "input_select.stock_carne_alitas_de_pollo",
     "ean": "2976931000007",
     "ticket_description": "POLLO ALAS CRF",
     "quantity": "1,000",
@@ -498,12 +438,14 @@
       "pollo alas crf",
       "pollo",
       "alas",
-      "pollo alas"
+      "pollo alas",
+      "alitas"
     ],
     "icon": "mdi:food-drumstick",
     "state_semantics": {
-      "on": "hay",
-      "off": "falta"
+      "Hay": "hay",
+      "Congelado": "hay",
+      "No hay": "falta"
     }
   },
   {
@@ -538,7 +480,415 @@
       "tomate concentrado",
       "mutti"
     ],
+    "icon": "mdi:food-apple",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "carne_picada_mixta",
+    "category": "carne",
+    "display_name": "Picada mixta",
+    "entity_id": "input_select.stock_carne_picada_mixta",
+    "ean": "0000000000000",
+    "ticket_description": "CARNE PICADA",
+    "quantity": "1,000",
+    "synonyms": [
+      "carne picada",
+      "picada mixta"
+    ],
+    "icon": "mdi:food-steak",
+    "state_semantics": {
+      "Hay": "hay",
+      "Congelado": "hay",
+      "No hay": "falta"
+    }
+  },
+  {},
+  {
+    "id": "preparado_de_cocido",
+    "category": "carne",
+    "display_name": "Preparado de cocido",
+    "entity_id": "input_select.stock_carne_preparado_de_cocido",
+    "ean": "0000000000000",
+    "ticket_description": "PREPARADO COCIDO",
+    "quantity": "1,000",
+    "synonyms": [
+      "preparado cocido",
+      "cocido"
+    ],
+    "icon": "mdi:food-steak",
+    "state_semantics": {
+      "Hay": "hay",
+      "Congelado": "hay",
+      "No hay": "falta"
+    }
+  },
+  {
+    "id": "salmon",
+    "category": "pescado",
+    "display_name": "Salmón",
+    "entity_id": "input_select.stock_pescado_salmón",
+    "ean": "0000000000000",
+    "ticket_description": "SALMON",
+    "quantity": "1,000",
+    "synonyms": [
+      "salmon"
+    ],
+    "icon": "mdi:fish",
+    "state_semantics": {
+      "Hay": "hay",
+      "Congelado": "hay",
+      "No hay": "falta"
+    }
+  },
+  {
+    "id": "lubina",
+    "category": "pescado",
+    "display_name": "Lubina",
+    "entity_id": "input_select.stock_pescado_lubina",
+    "ean": "0000000000000",
+    "ticket_description": "LUBINA",
+    "quantity": "1,000",
+    "synonyms": [
+      "lubina"
+    ],
+    "icon": "mdi:food-steak",
+    "state_semantics": {
+      "Hay": "hay",
+      "Congelado": "hay",
+      "No hay": "falta"
+    }
+  },
+  {
+    "id": "sepia",
+    "category": "pescado",
+    "display_name": "Sepia",
+    "entity_id": "input_select.stock_pescado_sepia",
+    "ean": "0000000000000",
+    "ticket_description": "SEPIA",
+    "quantity": "1,000",
+    "synonyms": [
+      "sepia"
+    ],
+    "icon": "mdi:fish",
+    "state_semantics": {
+      "Hay": "hay",
+      "Congelado": "hay",
+      "No hay": "falta"
+    }
+  },
+  {
+    "id": "jamon_serrano",
+    "category": "charcuteria",
+    "display_name": "Jamón Serrano",
+    "entity_id": "input_boolean.stock_charcuteria_jamon_serrano",
+    "ean": "0000000000000",
+    "ticket_description": "JAMON SERRANO",
+    "quantity": "1,000",
+    "synonyms": [
+      "jamon serrano"
+    ],
+    "icon": "mdi:food-steak",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "chorizo",
+    "category": "charcuteria",
+    "display_name": "Chorizo",
+    "entity_id": "input_boolean.stock_charcuteria_chorizo",
+    "ean": "0000000000000",
+    "ticket_description": "CHORIZO",
+    "quantity": "1,000",
+    "synonyms": [
+      "chorizo"
+    ],
+    "icon": "mdi:sausage",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "pavo",
+    "category": "charcuteria",
+    "display_name": "Pavo",
+    "entity_id": "input_boolean.stock_charcuteria_pavo",
+    "ean": "0000000000000",
+    "ticket_description": "PAVO",
+    "quantity": "1,000",
+    "synonyms": [
+      "pavo"
+    ],
+    "icon": "mdi:food-deli",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "arroz",
+    "category": "despensa",
+    "display_name": "Arroz",
+    "entity_id": "input_boolean.stock_despensa_arroz",
+    "ean": "0000000000000",
+    "ticket_description": "ARROZ",
+    "quantity": "1,000",
+    "synonyms": [
+      "arroz"
+    ],
+    "icon": "mdi:rice",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "aceite_oliva",
+    "category": "despensa",
+    "display_name": "Aceite de Oliva",
+    "entity_id": "input_boolean.stock_despensa_aceite_oliva",
+    "ean": "0000000000000",
+    "ticket_description": "ACEITE OLIVA",
+    "quantity": "1,000",
+    "synonyms": [
+      "aceite oliva",
+      "aceite"
+    ],
+    "icon": "mdi:oil",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "atun",
+    "category": "despensa",
+    "display_name": "Atún en lata",
+    "entity_id": "input_boolean.stock_despensa_atun",
+    "ean": "0000000000000",
+    "ticket_description": "ATUN",
+    "quantity": "1,000",
+    "synonyms": [
+      "atun",
+      "atun lata"
+    ],
+    "icon": "mdi:fish",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "harina",
+    "category": "despensa",
+    "display_name": "Harina de trigo",
+    "entity_id": "input_boolean.stock_despensa_harina",
+    "ean": "0000000000000",
+    "ticket_description": "HARINA",
+    "quantity": "1,000",
+    "synonyms": [
+      "harina",
+      "harina trigo"
+    ],
+    "icon": "mdi:barley",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "maiz",
+    "category": "despensa",
+    "display_name": "Maíz",
+    "entity_id": "input_boolean.stock_despensa_maiz",
+    "ean": "0000000000000",
+    "ticket_description": "MAIZ",
+    "quantity": "1,000",
+    "synonyms": [
+      "maiz"
+    ],
+    "icon": "mdi:corn",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "mantequilla",
+    "category": "lacteos",
+    "display_name": "Mantequilla",
+    "entity_id": "input_boolean.stock_lacteos_mantequilla",
+    "ean": "0000000000000",
+    "ticket_description": "MANTEQUILLA",
+    "quantity": "1,000",
+    "synonyms": [
+      "mantequilla"
+    ],
+    "icon": "mdi:butter",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "huevos",
+    "category": "lacteos",
+    "display_name": "Huevos",
+    "entity_id": "input_boolean.stock_lacteos_huevos",
+    "ean": "0000000000000",
+    "ticket_description": "HUEVOS",
+    "quantity": "1,000",
+    "synonyms": [
+      "huevos",
+      "docena huevos"
+    ],
+    "icon": "mdi:egg",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "pan_hamburguesa",
+    "category": "panaderia",
+    "display_name": "Pan de hamburguesa",
+    "entity_id": "input_boolean.stock_panaderia_pan_hamburguesa",
+    "ean": "0000000000000",
+    "ticket_description": "PAN HAMBURGUESA",
+    "quantity": "1,000",
+    "synonyms": [
+      "pan hamburguesa"
+    ],
+    "icon": "mdi:hamburger",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "pan_pita",
+    "category": "panaderia",
+    "display_name": "Pan de pita",
+    "entity_id": "input_boolean.stock_panaderia_pan_pita",
+    "ean": "0000000000000",
+    "ticket_description": "PAN PITA",
+    "quantity": "1,000",
+    "synonyms": [
+      "pan pita",
+      "pita"
+    ],
+    "icon": "mdi:bread-slice",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "cebolla",
+    "category": "verduras",
+    "display_name": "Cebollas",
+    "entity_id": "input_boolean.stock_verduras_cebolla",
+    "ean": "0000000000000",
+    "ticket_description": "CEROLLAS",
+    "quantity": "1,000",
+    "synonyms": [
+      "cebollas",
+      "cebolla"
+    ],
+    "icon": "mdi:onion",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "ajos",
+    "category": "verduras",
+    "display_name": "Ajos",
+    "entity_id": "input_boolean.stock_verduras_ajos",
+    "ean": "0000000000000",
+    "ticket_description": "AJOS",
+    "quantity": "1,000",
+    "synonyms": [
+      "ajos",
+      "ajo"
+    ],
+    "icon": "mdi:garlic",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "tomate",
+    "category": "verduras",
+    "display_name": "Tomate",
+    "entity_id": "input_boolean.stock_verduras_tomate",
+    "ean": "0000000000000",
+    "ticket_description": "TOMATES",
+    "quantity": "1,000",
+    "synonyms": [
+      "tomates",
+      "tomate"
+    ],
     "icon": "mdi:tomato",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "lechuga",
+    "category": "verduras",
+    "display_name": "Lechuga",
+    "entity_id": "input_boolean.stock_verduras_lechuga",
+    "ean": "0000000000000",
+    "ticket_description": "LECHUGA",
+    "quantity": "1,000",
+    "synonyms": [
+      "lechuga",
+      "ensalada"
+    ],
+    "icon": "mdi:leaf",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "pimiento_verde",
+    "category": "verduras",
+    "display_name": "Pimiento verde",
+    "entity_id": "input_boolean.stock_verduras_pimiento_verde",
+    "ean": "0000000000000",
+    "ticket_description": "PIMIENTO VERDE",
+    "quantity": "1,000",
+    "synonyms": [
+      "pimiento verde"
+    ],
+    "icon": "mdi:chili-pepper",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "pimiento_rojo",
+    "category": "verduras",
+    "display_name": "Pimiento rojo",
+    "entity_id": "input_boolean.stock_verduras_pimiento_rojo",
+    "ean": "0000000000000",
+    "ticket_description": "PIMIENTO ROJO",
+    "quantity": "1,000",
+    "synonyms": [
+      "pimiento rojo"
+    ],
+    "icon": "mdi:chili-pepper",
     "state_semantics": {
       "on": "hay",
       "off": "falta"

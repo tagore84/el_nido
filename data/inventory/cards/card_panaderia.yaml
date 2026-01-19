@@ -1,0 +1,41 @@
+type: custom:stack-in-card
+mode: vertical
+cards:
+- type: custom:mushroom-title-card
+  title: Panaderia
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_panaderia_pan_molde
+  primary: Pan de molde
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_panaderia_pan_molde'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:bread-slice
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_panaderia_pan_molde'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_panaderia_pan_hamburguesa
+  primary: Pan de hamburguesa
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_panaderia_pan_hamburguesa'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:hamburger
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_panaderia_pan_hamburguesa'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_panaderia_pan_pita
+  primary: Pan de pita
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_panaderia_pan_pita'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:bread-slice
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_panaderia_pan_pita'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
