@@ -1,0 +1,27 @@
+{
+    "type": "object",
+    "properties": {
+        "food": {
+            "type": "string",
+            "description": "What was eaten"
+        },
+        "type": {
+            "type": "string",
+            "enum": [
+                "comida",
+                "cena",
+                "other"
+            ],
+            "description": "Meal type: comida (lunch) or cena (dinner)"
+        },
+        "date": {
+            "type": "string",
+            "description": "ISO date YYYY-MM-DD"
+        }
+    },
+    "required": [
+        "food",
+        "type",
+        "date"
+    ]
+}

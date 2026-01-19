@@ -487,16 +487,15 @@
     }
   },
   {
-    "id": "carne_picada_mixta",
+    "id": "carne_picada",
     "category": "carne",
-    "display_name": "Picada mixta",
-    "entity_id": "input_select.stock_carne_picada_mixta",
+    "display_name": "Carne picada",
+    "entity_id": "input_select.stock_carne_carne_picada",
     "ean": "0000000000000",
     "ticket_description": "CARNE PICADA",
     "quantity": "1,000",
     "synonyms": [
-      "carne picada",
-      "picada mixta"
+      "carne picada"
     ],
     "icon": "mdi:food-steak",
     "state_semantics": {
@@ -529,7 +528,7 @@
     "id": "salmon",
     "category": "pescado",
     "display_name": "Salmón",
-    "entity_id": "input_select.stock_pescado_salmón",
+    "entity_id": "input_select.stock_pescado_salmon",
     "ean": "0000000000000",
     "ticket_description": "SALMON",
     "quantity": "1,000",

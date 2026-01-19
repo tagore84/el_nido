@@ -1,0 +1,130 @@
+{
+    "name": "nido.meals.tracker",
+    "nodes": [
+        {
+            "parameters": {},
+            "name": "Execute Workflow Trigger",
+            "type": "n8n-nodes-base.executeWorkflowTrigger",
+            "typeVersion": 1,
+            "position": [
+                256,
+                240
+            ],
+            "id": "trigger-node-id"
+        },
+        {
+            "parameters": {
+                "jsCode": "const json = $input.item.json;\nconst message_text = json.message ? json.message.text : json.input_text;\nconst chat_id = json.chat_id || (json.message && json.message.chat ? json.message.chat.id : null);\n\n// User Mapping\nconst chatMap = {\n    \"5785514136\": \"Alberto\",\n    \"-5223730192\": \"Alberto y Laura\",\n    \"-5234536185\": \"Alberto y Laura\",\n    \"PLACEHOLDER\": \"Laura\"\n};\nconst who = chatMap[String(chat_id)] || \"Desconocido\";\n\nconst prompt_id = 'meals.tracker';\nconst options = {};\n\nreturn {\n  json: {\n    prompt_id,\n    options,\n    chat_id,\n    who,\n    input: {\n        input_type: 'TEXT',\n        input_text: message_text\n    },\n    original_msg: message_text\n  }\n};"
+            },
+            "name": "Prepare LLM Input",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                480,
+                240
+            ],
+            "id": "prepare-node-id"
+        },
+        {
+            "parameters": {
+                "workflowId": "cIdjAXxgI1Z-LurEg16oO",
+                "mode": "each",
+                "options": {}
+            },
+            "name": "Extract Meal Data",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1,
+            "position": [
+                700,
+                240
+            ],
+            "id": "llm-node-id"
+        },
+        {
+            "parameters": {
+                "jsCode": "const fs = require('fs');\nconst item = $input.item.json;\n\n// LLM Output\n// Adapted for generic LLM response structure. Assuming the adapter returns parseable JSON in 'output' or properties directly.\nconst data = item.output || item;\n\nconst food = data.food || 'Desconocido';\nconst type = data.type || 'other';\nconst date_str = data.date || new Date().toISOString().split('T')[0];\nconst type_capitalized = type.charAt(0).toUpperCase() + type.slice(1);\n\n// Metadata\nconst prepareNode = $('Prepare LLM Input').first().json;\nconst who = prepareNode.who;\nconst source = 'telegram';\nconst timestamp = new Date().toISOString();\n\n// CSV Line\n// timestamp,date_str,who,type,food,source\nconst line = `${timestamp},${date_str},${who},${type},\"${food}\",${source}\\n`;\n\nconst csvPath = '/data/meals/meals.csv';\n// Use absolute path for safety if needed, assuming /data maps to repo root data\n// Since I am in /Users/alberto/src/nido, the path is /Users/alberto/src/nido/data/meals/meals.csv\n// But usually in n8n docker it's /data. I'll use the absolute path from my environment context or just the relative one if running locally.\n// Given n8n runs in docker usually mapping /data, but here I am editing local files.\n// The node code runs in n8n. I should use the path n8n sees.\n// I will use '/data/meals/meals.csv' assuming standard n8n setup, but wait, the user's environment has '/Users/alberto/src/nido'.\n// The router script used absolute path. I'll use absolute path for safety in the python script but here in JS node it runs inside n8n container presumably.\n// HOWEVER, looking at `nido.lib.llm_adapter` it uses `/data/infra/models.json` and fallback `/Users/alberto...`.\n// I will use the absolute path to be safe given the user's context.\nconst logFile = '/Users/alberto/src/nido/data/meals/meals.csv';\n\ntry {\n    if (!fs.existsSync(logFile)) {\n        // Header\n        fs.writeFileSync(logFile, 'timestamp,date_str,who,type,food,source\\n');\n    }\n    fs.appendFileSync(logFile, line);\n} catch (e) {\n    throw new Error(`Failed to write to CSV: ${e.message}`);\n}\n\nreturn {\n  json: {\n    ...item,\n    logged_food: food,\n    logged_type: type,\n    logged_date: date_str,\n    logged_who: who\n  }\n};"
+            },
+            "name": "Log to CSV",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                920,
+                240
+            ],
+            "id": "log-node-id"
+        },
+        {
+            "parameters": {
+                "chatId": "={{ $('Prepare LLM Input').item.json.chat_id }}",
+                "text": "=✅ Apuntado: {{ $json.logged_food }}\nTipo: {{ $json.logged_type }}\nFecha: {{ $json.logged_date }}\nQuién: {{ $json.logged_who }}",
+                "additionalFields": {}
+            },
+            "name": "Confirm to User",
+            "type": "n8n-nodes-base.telegram",
+            "typeVersion": 1,
+            "position": [
+                1140,
+                240
+            ],
+            "id": "telegram-reply-node-id",
+            "credentials": {
+                "telegramApi": {
+                    "id": "JLG33gMQcdi4JvQq",
+                    "name": "Telegram account"
+                }
+            }
+        }
+    ],
+    "pinData": {},
+    "connections": {
+        "Execute Workflow Trigger": {
+            "main": [
+                [
+                    {
+                        "node": "Prepare LLM Input",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Prepare LLM Input": {
+            "main": [
+                [
+                    {
+                        "node": "Extract Meal Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Extract Meal Data": {
+            "main": [
+                [
+                    {
+                        "node": "Log to CSV",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Log to CSV": {
+            "main": [
+                [
+                    {
+                        "node": "Confirm to User",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "active": true,
+    "settings": {
+        "executionOrder": "v1"
+    },
+    "id": "Mea1Track3rW0rkf10wID"
+}
