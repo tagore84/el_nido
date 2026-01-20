@@ -1,0 +1,109 @@
+{
+  "name": "nido.api.meals",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "nido/meals",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        928,
+        -304
+      ],
+      "webhookId": "nido-meals-api",
+      "id": "bd5950a3-fa7d-4cfa-9b3d-d23bb8899415"
+    },
+    {
+      "parameters": {
+        "filePath": "/data/meals/meals.csv"
+      },
+      "name": "Read Binary File",
+      "type": "n8n-nodes-base.readBinaryFile",
+      "typeVersion": 1,
+      "position": [
+        1136,
+        -304
+      ],
+      "id": "3d2409b1-0300-45d6-a5dd-e3461d13a496"
+    },
+    {
+      "parameters": {
+        "jsCode": "try {\n  function parseCsv(text) {\n    const lines = text.replace(/^\\uFEFF/, \"\").trim().split(/\\r?\\n/);\n    if (lines.length < 2) return [];\n\n    // Parser con comillas (soporta comas dentro de \"...\")\n    const parseLine = (line) => {\n      const out = [];\n      let cur = \"\";\n      let inQuotes = false;\n\n      for (let i = 0; i < line.length; i++) {\n        const ch = line[i];\n        if (ch === '\"') {\n          // Soporta escape \"\" dentro de comillas\n          if (inQuotes && line[i + 1] === '\"') {\n            cur += '\"';\n            i++;\n          } else {\n            inQuotes = !inQuotes;\n          }\n        } else if (ch === \",\" && !inQuotes) {\n          out.push(cur);\n          cur = \"\";\n        } else {\n          cur += ch;\n        }\n      }\n      out.push(cur);\n      return out.map(s => s.trim());\n    };\n\n    const headers = parseLine(lines[0]);\n    const rows = [];\n\n    for (let i = 1; i < lines.length; i++) {\n      const line = lines[i];\n      if (!line.trim()) continue;\n\n      const cols = parseLine(line);\n      const obj = {};\n      headers.forEach((h, idx) => obj[h] = cols[idx] ?? \"\");\n      rows.push(obj);\n    }\n    return rows;\n  }\n\n  // Lee binario (filesystem-v2 compatible)\n  const buf = await this.helpers.getBinaryDataBuffer(0, \"data\");\n  const csvText = buf.toString(\"utf8\");\n\n  const items = parseCsv(csvText);\n  items.sort((a, b) => (b.timestamp || \"\").localeCompare(a.timestamp || \"\"));\n\n  const maxItems = 50;\n  const lastItems = items.slice(0, maxItems);\n\n  return [\n    {\n      json: {\n        last: lastItems[0] ?? null,\n        items: lastItems,\n        total_rows: items.length,\n        generated_at: new Date().toISOString(),\n        error: null\n      },\n    },\n  ];\n} catch (error) {\n  return [\n    {\n      json: {\n        last: null,\n        items: [],\n        total_rows: 0,\n        generated_at: new Date().toISOString(),\n        error: error.message\n      }\n    }\n  ];\n}"
+      },
+      "name": "Parse CSV",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1328,
+        -304
+      ],
+      "id": "c1a4b484-739c-4746-8478-03be8cb51221"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1536,
+        -304
+      ],
+      "id": "7d0be421-643e-4190-adbd-8702148b6011"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Read Binary File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Binary File": {
+      "main": [
+        [
+          {
+            "node": "Parse CSV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse CSV": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "fc88b01a-fe85-4eb8-801b-f143903bceec",
+  "meta": {
+    "instanceId": "e1f8529dafc1c7b24188afd104b1a8e8824324405683593c80fc8bc56ba17881"
+  },
+  "id": "0twJdOR34NWJLf3Azlb2W",
+  "tags": []
+}

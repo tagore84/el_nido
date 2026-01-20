@@ -1,0 +1,65 @@
+type: custom:stack-in-card
+mode: vertical
+cards:
+- type: custom:mushroom-title-card
+  title: Congelados
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_congelados_patatas_fritas
+  primary: Patatas fritas
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_congelados_patatas_fritas'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:food
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_congelados_patatas_fritas'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_congelados_nagets_de_pollo
+  primary: Nagets de pollo
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_congelados_nagets_de_pollo'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:food-drumstick
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_congelados_nagets_de_pollo'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_congelados_san_jacobos
+  primary: San jacobos
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_congelados_san_jacobos'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:food
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_congelados_san_jacobos'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_congelados_empanadillas
+  primary: Empanadillas
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_congelados_empanadillas'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:food
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_congelados_empanadillas'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_congelados_fingers_de_pollo
+  primary: Fingers de pollo
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_congelados_fingers_de_pollo'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:food-drumstick
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_congelados_fingers_de_pollo'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info

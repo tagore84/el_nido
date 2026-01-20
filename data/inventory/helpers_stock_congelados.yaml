@@ -1,0 +1,19 @@
+stock_congelados_patatas_fritas:
+  name: "Patatas fritas"
+  icon: mdi:food
+
+stock_congelados_nagets_de_pollo:
+  name: "Nagets de pollo"
+  icon: mdi:food-drumstick
+
+stock_congelados_san_jacobos:
+  name: "San jacobos"
+  icon: mdi:food
+
+stock_congelados_empanadillas:
+  name: "Empanadillas"
+  icon: mdi:snack
+
+stock_congelados_fingers_de_pollo:
+  name: "Fingers de pollo"
+  icon: mdi:food-drumstick

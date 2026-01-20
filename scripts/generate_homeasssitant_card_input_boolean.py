@@ -93,7 +93,7 @@ def main():
     parser = argparse.ArgumentParser(
         description="Genera YAML Lovelace (stack-in-card + mushroom-template-card) desde un catálogo YAML."
     )
-    parser.add_argument("input", type=Path, help="Ruta al YAML de entrada (catálogo stock_*)")
+    parser.add_argument("--input", type=Path, help="Ruta al YAML de entrada (catálogo stock_*)")
     parser.add_argument(
         "--title",
         type=str,

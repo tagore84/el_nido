@@ -892,5 +892,92 @@
       "on": "hay",
       "off": "falta"
     }
+  },
+  {
+    "id": "patatas_fritas",
+    "category": "congelados",
+    "display_name": "Patatas fritas",
+    "entity_id": "input_boolean.stock_congelados_patatas_fritas",
+    "ean": "0000000000000",
+    "ticket_description": "PATATAS FRITAS",
+    "quantity": "1,000",
+    "synonyms": [
+      "patatas fritas"
+    ],
+    "icon": "mdi:food",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "nagets_de_pollo",
+    "category": "congelados",
+    "display_name": "Nagets de pollo",
+    "entity_id": "input_boolean.stock_congelados_nagets_de_pollo",
+    "ean": "0000000000000",
+    "ticket_description": "NAGETS POLLO",
+    "quantity": "1,000",
+    "synonyms": [
+      "nagets de pollo",
+      "nuggets"
+    ],
+    "icon": "mdi:food-drumstick",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "san_jacobos",
+    "category": "congelados",
+    "display_name": "San jacobos",
+    "entity_id": "input_boolean.stock_congelados_san_jacobos",
+    "ean": "0000000000000",
+    "ticket_description": "SAN JACOBOS",
+    "quantity": "1,000",
+    "synonyms": [
+      "san jacobos"
+    ],
+    "icon": "mdi:food",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "empanadillas",
+    "category": "congelados",
+    "display_name": "Empanadillas",
+    "entity_id": "input_boolean.stock_congelados_empanadillas",
+    "ean": "0000000000000",
+    "ticket_description": "EMPANADILLAS",
+    "quantity": "1,000",
+    "synonyms": [
+      "empanadillas"
+    ],
+    "icon": "mdi:snack",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "fingers_de_pollo",
+    "category": "congelados",
+    "display_name": "Fingers de pollo",
+    "entity_id": "input_boolean.stock_congelados_fingers_de_pollo",
+    "ean": "0000000000000",
+    "ticket_description": "FINGERS POLLO",
+    "quantity": "1,000",
+    "synonyms": [
+      "fingers de pollo",
+      "fingers"
+    ],
+    "icon": "mdi:food-drumstick",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
   }
 ]

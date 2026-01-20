@@ -6,9 +6,10 @@
             "enum": [
                 "whiteboard_calendar",
                 "whiteboard_notes",
+                "meal_tracker",
+                "event",
                 "receipt",
                 "document",
-                "screenshot",
                 "other"
             ]
         },

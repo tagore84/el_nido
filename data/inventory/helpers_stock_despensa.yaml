@@ -2,6 +2,10 @@ stock_despensa_pasta_helices:
   name: "Pasta hélices vegetales"
   icon: mdi:pasta
 
+stock_despensa_pasta_plumas:
+  name: "Pasta plumas"
+  icon: mdi:pasta
+
 stock_despensa_pulpa_tomate:
   name: "Pulpa de tomate"
   icon: mdi:food-apple
@@ -17,10 +21,6 @@ stock_despensa_tomate_concentrado:
 stock_despensa_salsa_pizza:
   name: "Salsa para pizza"
   icon: mdi:bottle-soda-classic-outline
-
-stock_despensa_pasta_plumas:
-  name: "Pasta plumas"
-  icon: mdi:pasta
 
 stock_despensa_arroz:
   name: "Arroz"

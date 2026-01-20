@@ -1,0 +1,29 @@
+{
+    "type": "object",
+    "properties": {
+        "ingredients": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "description": "List of product_ids from the catalog"
+        },
+        "ambiguous": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "description": "Ingredients that could match multiple catalog items"
+        },
+        "missing": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "description": "Ingredients not found in catalog"
+        }
+    },
+    "required": [
+        "ingredients"
+    ]
+}

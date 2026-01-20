@@ -32,7 +32,7 @@ Catálogo base versionado en Git con productos habituales, precios estimados y r
 ### 3.1 Estructura de Datos
 El sistema mantiene la coherencia entre los datos de backend y la interfaz de Home Assistant mediante dos ficheros principales:
 
-- **`data/inventory/catalog.json`**: Contiene la definición maestra de los productos (ID, categoría, EAN, sinónimos para OCR, etc.). Es la fuente de verdad para la lógica de negocio.
+- **`data/inventory/food_stock_catalog.json`**: Contiene la definición maestra de los productos (ID, categoría, EAN, sinónimos para OCR, etc.). Es la fuente de verdad para la lógica de negocio.
 - **`data/inventory/helpers_stock_*.yaml`**: Conjunto de ficheros (uno por categoría, ej: `helpers_stock_lacteos.yaml`) que definen los *Input Booleans* de Home Assistant. Estos ficheros son la **fuente de verdad para la representación visual** (iconos y nombres amigables) en el dashboard de HA.
 
 El campo `entity_id` en el catálogo vincula ambos mundos. Cualquier discrepancia visual (iconos) entre ambos ficheros debe resolverse priorizando lo definido en los ficheros yaml de helpers.

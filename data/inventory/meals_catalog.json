@@ -1,0 +1,24 @@
+[
+  {
+    "name": "Alitas de pollo con patatas",
+    "valid_for_lunch": true,
+    "valid_for_dinner": true,
+    "valid_for_alberto": true,
+    "valid_for_laura": true,
+    "ingredients": [
+      "alitas_de_pollo"
+    ]
+  },
+  {
+    "name": "Pasta con ajo y cayena",
+    "valid_for_lunch": true,
+    "valid_for_dinner": false,
+    "valid_for_alberto": true,
+    "valid_for_laura": false,
+    "ingredients": [
+      "stock_despensa_pasta_plumas",
+      "ajos",
+      "cayena"
+    ]
+  }
+]
