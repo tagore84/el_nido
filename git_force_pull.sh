@@ -2,10 +2,10 @@
 set -eu
 
 # --- CONFIGURA ESTO ---
-REPO_DIR="/volume1/docker/n8n"   # Ruta al repo en tu Synology
+REPO_DIR="/volume1/docker/nido"   # Ruta al repo en tu Synology
 REMOTE="origin"
 BRANCH="main"                   # o "master" o la rama que uses
-CLEAN_UNTRACKED="true"          # "true" borra también archivos no trackeados; "false" los conserva
+CLEAN_UNTRACKED="false"          # "true" borra también archivos no trackeados; "false" los conserva
 # ----------------------
 
 echo "[INFO] Repo: $REPO_DIR"
