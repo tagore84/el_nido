@@ -14,7 +14,7 @@
         },
         {
             "parameters": {
-                "jsCode": "const json = $input.item.json;\nconst message_text = json.message ? json.message.text : json.text;\nconst chat_id = json.chat_id || (json.message && json.message.chat ? json.message.chat.id : null);\n\n// User Mapping\nconst chatMap = {\n    \"5785514136\": \"Alberto\",\n    \"-5223730192\": \"Alberto y Laura\",\n    \"-5234536185\": \"Alberto y Laura\",\n    \"PLACEHOLDER\": \"Laura\"\n};\nconst who = chatMap[String(chat_id)] || \"Desconocido\";\n\nconst prompt_id = 'meals.tracker';\nconst options = {};\n\nreturn {\n  json: {\n    prompt_id,\n    options,\n    chat_id,\n    who,\n    input: {\n        input_type: 'TEXT',\n        input_text: message_text\n    },\n    original_msg: message_text\n  }\n};"
+                "jsCode": "const json = $input.item.json;\nconst message_text = json.message ? json.message.text : json.text;\nconst chat_id = json.chat_id || (json.message && json.message.chat ? json.message.chat.id : null);\nconst imagePath = json.imagePath || json.image_path || json._meta?.input_path || null;\n\n// User Mapping\nconst chatMap = {\n    \"5785514136\": \"Alberto\",\n    \"-5223730192\": \"Alberto y Laura\",\n    \"-5234536185\": \"Alberto y Laura\",\n    \"PLACEHOLDER\": \"Laura\"\n};\nconst who = chatMap[String(chat_id)] || \"Desconocido\";\n\nconst prompt_id = 'meals.tracker';\nconst options = {};\n\nlet inputType = 'TEXT';\nlet js_input = {\n    input_text: message_text\n};\n\nif (imagePath) {\n    inputType = 'IMAGE';\n    js_input.input_text = \"Analiza esta imagen y extrae la comida o cena.\";\n    js_input.input_path = imagePath;\n}\n\nreturn {\n  json: {\n    prompt_id,\n    options,\n    chat_id,\n    who,\n    input: {\n        input_type: inputType,\n        ...js_input\n    },\n    original_msg: message_text\n  }\n};"
             },
             "name": "Prepare LLM Input",
             "type": "n8n-nodes-base.code",
@@ -42,7 +42,7 @@
         },
         {
             "parameters": {
-                "jsCode": "const fs = require('fs');\nconst item = $input.item.json;\n\n// LLM Output\n// Adapted for generic LLM response structure. Assuming the adapter returns parseable JSON in 'output' or properties directly.\nconst data = item.output || item;\n\nconst food = data.food || 'Desconocido';\nconst type = data.type || 'other';\nconst date_str = data.date || new Date().toISOString().split('T')[0];\nconst type_capitalized = type.charAt(0).toUpperCase() + type.slice(1);\n\n// Metadata\nconst prepareNode = $('Prepare LLM Input').first().json;\nconst who = prepareNode.who;\nconst source = 'telegram';\nconst timestamp = new Date().toISOString();\n\n// CSV Line\n// timestamp,date_str,who,type,food,source\nconst line = `${timestamp},${date_str},${who},${type},\"${food}\",${source}\\n`;\n\nconst csvPath = '/data/meals/meals.csv';\n\ntry {\n    if (!fs.existsSync(csvPath)) {\n        // Header\n        fs.writeFileSync(csvPath, 'timestamp,date_str,who,type,food,source\\n');\n    }\n    fs.appendFileSync(csvPath, line);\n} catch (e) {\n    throw new Error(`Failed to write to CSV: ${e.message}`);\n}\n\n// Read Catalog for next step\nlet catalog = [];\ntry {\n    const catalogPath = '/data/inventory/food_stock_catalog.json';\n    if (fs.existsSync(catalogPath)) {\n        catalog = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));\n        if (catalog.products) catalog = catalog.products;\n    }\n} catch (e) {\n    // Ignore if fails, logic will proceed with empty catalog\n}\n\nreturn {\n  json: {\n    ...item,\n    logged_food: food,\n    logged_type: type,\n    logged_date: date_str,\n    logged_who: who,\n    catalog: catalog\n  }\n};\n"
+                "jsCode": "const fs = require('fs');\nconst item = $input.item.json;\n\n// LLM Output\n// Adapted for generic LLM response structure. Assuming the adapter returns parseable JSON in 'output' or properties directly.\nconst data = item.output || item;\n\nconst food = data.food || 'Desconocido';\nconst type = data.type || 'other';\nconst meal_source = data.source || 'casera'; // extracted from LLM\nconst date_str = data.date || new Date().toISOString().split('T')[0];\nconst type_capitalized = type.charAt(0).toUpperCase() + type.slice(1);\n\n// Metadata\nconst prepareNode = $('Prepare LLM Input').first().json;\nconst who = prepareNode.who;\nconst app_source = 'telegram';\nconst timestamp = new Date().toISOString();\n\n// CSV Line\n// timestamp,date_str,who,lunch,food,source,type\nconst line = `${timestamp},${date_str},${who},${type},\"${food}\",${app_source},${meal_source}\\n`;\n\nconst csvPath = '/data/meals/meals.csv';\n\ntry {\n    if (!fs.existsSync(csvPath)) {\n        // Header\n        fs.writeFileSync(csvPath, 'timestamp,date_str,who,lunch,food,source,type\\n');\n    }\n    fs.appendFileSync(csvPath, line);\n} catch (e) {\n    throw new Error(`Failed to write to CSV: ${e.message}`);\n}\n\n// Read Catalog for next step (ONLY if homemade)\nlet catalog = [];\nif (meal_source === 'casera') {\n    try {\n        const catalogPath = '/data/inventory/food_stock_catalog.json';\n        if (fs.existsSync(catalogPath)) {\n            catalog = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));\n            if (catalog.products) catalog = catalog.products;\n        }\n    } catch (e) {\n        // Ignore if fails, logic will proceed with empty catalog\n    }\n}\n\nreturn {\n  json: {\n    ...item,\n    logged_food: food,\n    logged_type: type,\n    logged_date: date_str,\n    logged_who: who,\n    logged_source: meal_source,\n    catalog: catalog\n  }\n};\n"
             },
             "name": "Log and Load Catalog",
             "type": "n8n-nodes-base.code",
@@ -55,13 +55,35 @@
         },
         {
             "parameters": {
-                "jsCode": "// Override Adapter Logic for Custom Replacements\n// This node is a hack to replace {{catalog_json}} before the adapter runs, if I was calling the adapter components directly.\n// But I am calling the adapter WORKFLOW.\n// The adapter workflow does NOT support arbitrary variable replacement.\n// SO, I must overwrite the prompt inputs in the node 'Prepare Ingredients' to just be compatible with a generic prompt:\n// \"Identify ingredients... Input: \n// Catalog: ... \n// Meal: ...\"\n// I will REWRITE the prompt file in a subsequent step to be standard context-based.\n// And here I return the full context string.\n\nconst catalog = $input.first().json.catalog || [];\nconst miniCatalog = catalog.map(p => ({\n    id: p.id,\n    name: p.display_name || p.name,\n    synonyms: p.synonyms\n}));\nconst meal = $input.first().json.logged_food;\n\nconst fullInput = `Catalog:\\n${JSON.stringify(miniCatalog, null, 2)}\\n\\nMeal:\\n\"${meal}\"`;\n\nreturn {\n  json: {\n    prompt_id: 'meals.ingredient_mapper',\n    input: {\n        input_type: 'TEXT',\n        input_text: fullInput\n    }\n  }\n};"
+                "dataType": "string",
+                "value1": "={{ $json.logged_source }}",
+                "rules": {
+                    "rules": [
+                        {
+                            "value2": "casera"
+                        }
+                    ]
+                },
+                "fallbackOutput": 1
+            },
+            "name": "Switch Source",
+            "type": "n8n-nodes-base.switch",
+            "typeVersion": 1,
+            "position": [
+                1140,
+                240
+            ],
+            "id": "switch-source-id"
+        },
+        {
+            "parameters": {
+                "jsCode": "const catalog = $input.first().json.catalog || [];\nconst miniCatalog = catalog.map(p => ({\n    id: p.id,\n    name: p.display_name || p.name,\n    synonyms: p.synonyms\n}));\nconst meal = $input.first().json.logged_food;\n// isCasera check is now redundant but keeping code valid\n\nconst fullInput = `Catalog:\\n${JSON.stringify(miniCatalog, null, 2)}\\n\\nMeal:\\n\"${meal}\"`;\n\nreturn {\n  json: {\n    prompt_id: 'meals.ingredient_mapper',\n    input: {\n        input_type: 'TEXT',\n        input_text: fullInput\n    }\n  }\n};"
             },
             "name": "Prepare Ingredients Input",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                1140,
+                1360,
                 240
             ],
             "id": "prepare-ingredients-input"
@@ -76,7 +98,7 @@
             "type": "n8n-nodes-base.executeWorkflow",
             "typeVersion": 1,
             "position": [
-                1360,
+                1580,
                 240
             ],
             "id": "extract-ingredients"
@@ -89,7 +111,7 @@
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                1580,
+                1800,
                 240
             ],
             "id": "update-catalog"
@@ -97,14 +119,14 @@
         {
             "parameters": {
                 "chatId": "={{ $('Prepare LLM Input').item.json.chat_id }}",
-                "text": "=✅ Apuntado: {{ $json.meal_name }}\nTipo: {{ $('Log and Load Catalog').item.json.logged_type }}\nFecha: {{ $('Log and Load Catalog').item.json.logged_date }}\nQuién: {{ $('Log and Load Catalog').item.json.logged_who }}\n\n{{ $json.is_new ? \"🆕 Nueva comida registrada\" : \"🔄 Comida actualizada\" }}\nIngredientes detectados: {{ $json.updated_entry.ingredients.join(', ') || 'Ninguno' }}",
+                "text": "=✅ Apuntado: {{ $json.meal_name || $json.logged_food }}\nTipo: {{ $('Log and Load Catalog').item.json.logged_type }}\nFecha: {{ $('Log and Load Catalog').item.json.logged_date }}\nQuién: {{ $('Log and Load Catalog').item.json.logged_who }}\nFuente: {{ $('Log and Load Catalog').item.json.logged_source === 'casera' ? '🏠 Casera' : ($('Log and Load Catalog').item.json.logged_source === 'domicilio' ? '🛵 Domicilio' : '🍽️ Fuera') }}\n\n{{ $json.is_new ? \"🆕 Nueva comida registrada\" : $json.updated_entry ? \"🔄 Comida actualizada\" : \"\" }}\n{{ $json.updated_entry ? ('Ingredientes detectados: ' + ($json.updated_entry.ingredients.join(', ') || 'Ninguno')) : '' }}",
                 "additionalFields": {}
             },
             "name": "Confirm to User",
             "type": "n8n-nodes-base.telegram",
             "typeVersion": 1,
             "position": [
-                1800,
+                2020,
                 240
             ],
             "id": "telegram-reply-node-id",
@@ -155,7 +177,25 @@
             "main": [
                 [
                     {
+                        "node": "Switch Source",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Switch Source": {
+            "main": [
+                [
+                    {
                         "node": "Prepare Ingredients Input",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Confirm to User",
                         "type": "main",
                         "index": 0
                     }

@@ -41,3 +41,11 @@ stock_verduras_pimiento_verde:
 stock_verduras_pimiento_rojo:
   name: "Pimiento rojo"
   icon: mdi:chili-hot
+
+stock_verduras_garrofon:
+  name: "Garrofón"
+  icon: mdi:seed
+
+stock_verduras_judia_verde:
+  name: "Judía verde"
+  icon: mdi:sprout

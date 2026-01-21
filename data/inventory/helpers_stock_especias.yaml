@@ -1,0 +1,15 @@
+stock_especias_romero:
+  name: "Romero"
+  icon: mdi:leaf
+
+stock_especias_azafran:
+  name: "Azafrán"
+  icon: mdi:flower
+
+stock_especias_colorante:
+  name: "Colorante"
+  icon: mdi:palette-swatch-outline
+
+stock_especias_sal:
+  name: "Sal"
+  icon: mdi:shaker-outline

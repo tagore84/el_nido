@@ -1,2 +1,3 @@
-timestamp,date_str,who,type,food,source
-2026-01-20T00:00:39.985Z,2026-01-19,Alberto y Laura,cena,"alitas de pollo con patatas",telegram
+timestamp,date_str,who,lunch,food,source,type
+2026-01-20T00:00:39.985Z,2026-01-19,Alberto y Laura,cena,"alitas de pollo con patatas",telegram,casera
+2026-01-21T12:59:47.068Z,2026-01-17,Alberto y Laura,comida,"Burger Khaleesi con patatas fritas",telegram,domicilio

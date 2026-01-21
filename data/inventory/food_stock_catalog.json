@@ -979,5 +979,170 @@
       "on": "hay",
       "off": "falta"
     }
+  },
+  {
+    "id": "pollo",
+    "category": "carne",
+    "display_name": "Pollo troceado",
+    "entity_id": "input_select.stock_carne_pollo",
+    "ean": "0000000000000",
+    "ticket_description": "POLLO TROCEADO",
+    "quantity": "1,000",
+    "synonyms": [
+      "pollo troceado",
+      "pollo paella",
+      "pollo"
+    ],
+    "icon": "mdi:food-drumstick",
+    "state_semantics": {
+      "Hay": "hay",
+      "Congelado": "hay",
+      "No hay": "falta"
+    }
+  },
+  {
+    "id": "conejo",
+    "category": "carne",
+    "display_name": "Conejo",
+    "entity_id": "input_select.stock_carne_conejo",
+    "ean": "0000000000000",
+    "ticket_description": "CONEJO",
+    "quantity": "1,000",
+    "synonyms": [
+      "conejo",
+      "conejo troceado"
+    ],
+    "icon": "mdi:rabbit",
+    "state_semantics": {
+      "Hay": "hay",
+      "Congelado": "hay",
+      "No hay": "falta"
+    }
+  },
+  {
+    "id": "judia_verde",
+    "category": "verduras",
+    "display_name": "Judía verde plana",
+    "entity_id": "input_boolean.stock_verduras_judia_verde",
+    "ean": "0000000000000",
+    "ticket_description": "JUDIA VERDE",
+    "quantity": "1,000",
+    "synonyms": [
+      "judia verde",
+      "bajoqueta",
+      "ferradura",
+      "judia plana"
+    ],
+    "icon": "mdi:sprout",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "garrofon",
+    "category": "verduras",
+    "display_name": "Garrofón",
+    "entity_id": "input_boolean.stock_verduras_garrofon",
+    "ean": "0000000000000",
+    "ticket_description": "GARROFON",
+    "quantity": "1,000",
+    "synonyms": [
+      "garrofon"
+    ],
+    "icon": "mdi:seed",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "azafran",
+    "category": "especias",
+    "display_name": "Azafrán",
+    "entity_id": "input_boolean.stock_especias_azafran",
+    "ean": "0000000000000",
+    "ticket_description": "AZAFRAN",
+    "quantity": "1,000",
+    "synonyms": [
+      "azafran",
+      "azafran hebra"
+    ],
+    "icon": "mdi:flower",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "pimenton_dulce",
+    "category": "despensa",
+    "display_name": "Pimentón dulce",
+    "entity_id": "input_boolean.stock_despensa_pimenton_dulce",
+    "ean": "0000000000000",
+    "ticket_description": "PIMENTON DULCE",
+    "quantity": "1,000",
+    "synonyms": [
+      "pimenton",
+      "pimenton dulce"
+    ],
+    "icon": "mdi:shaker",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "romero",
+    "category": "especias",
+    "display_name": "Romero",
+    "entity_id": "input_boolean.stock_especias_romero",
+    "ean": "0000000000000",
+    "ticket_description": "ROMERO",
+    "quantity": "1,000",
+    "synonyms": [
+      "romero"
+    ],
+    "icon": "mdi:leaf",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "sal",
+    "category": "especias",
+    "display_name": "Sal",
+    "entity_id": "input_boolean.stock_especias_sal",
+    "ean": "0000000000000",
+    "ticket_description": "SAL",
+    "quantity": "1,000",
+    "synonyms": [
+      "sal",
+      "sal fina",
+      "sal gorda"
+    ],
+    "icon": "mdi:shaker-outline",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "colorante",
+    "category": "especias",
+    "display_name": "Colorante alimentario",
+    "entity_id": "input_boolean.stock_especias_colorante",
+    "ean": "0000000000000",
+    "ticket_description": "COLORANTE",
+    "quantity": "1,000",
+    "synonyms": [
+      "colorante"
+    ],
+    "icon": "mdi:palette-swatch-outline",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
   }
 ]

@@ -20,5 +20,22 @@
       "ajos",
       "cayena"
     ]
+  },
+  {
+    "name": "Paella",
+    "valid_for_lunch": true,
+    "valid_for_dinner": false,
+    "valid_for_alberto": true,
+    "valid_for_laura": true,
+    "ingredients": [
+      "alitas_de_pollo",
+      "judia_verde",
+      "garrofon",
+      "azafran",
+      "romero",
+      "colorante",
+      "arroz",
+      "aceite_oliva"
+    ]
   }
 ]
