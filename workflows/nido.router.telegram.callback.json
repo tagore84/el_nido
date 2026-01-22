@@ -14,7 +14,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const callback = $input.item.json.callback_query;\nconst data = callback.data || '';\n// standard format: action|session_id|...\nconst parts = data.split('|');\n\nreturn {\n    json: {\n        type: 'callback',\n        action: parts[0] || 'unknown',\n        session_id: parts[1] || null,\n        payload: parts.slice(2),\n        raw_data: data,\n        chat_id: callback.message.chat.id,\n        message_id: callback.message.message_id,\n        user: callback.from\n    }\n};"
+        "jsCode": "const callback = $input.item.json.callback_query;\nconst data = callback.data || '';\n// standard format: action|session_id|...\nconst parts = data.split('|');\n\nreturn {\n    json: {\n        type: 'callback',\n        action: parts[0] || 'unknown',\n        session_id: parts[1] || null,\n        payload: parts.slice(2),\n        raw_data: data,\n        chat_id: callback.message.chat.id,\n        message_id: callback.message.message_id,\n        user: callback.from,\n        text: callback.message.text // Include potential message text\n    }\n};"
       },
       "name": "Parse Callback",
       "type": "n8n-nodes-base.code",

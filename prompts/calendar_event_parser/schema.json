@@ -12,6 +12,13 @@
             ],
             "description": "Time in HH:MM format (24h), or null if not specified"
         },
+        "end_date": {
+            "type": [
+                "string",
+                "null"
+            ],
+            "description": "End date in ISO format (YYYY-MM-DD) for multi-day events. Null if single day."
+        },
         "description": {
             "type": "string",
             "description": "Concise description of the event"

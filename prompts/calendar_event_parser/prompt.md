@@ -4,7 +4,8 @@ Your task is to analyze the incoming text message or image and extract calendar 
 Today's date is: {{current_date}}
 
 Extract the following:
-1. **date** (required): The date of the event in ISO format (YYYY-MM-DD). Interpret relative dates like "mañana", "el viernes", "próximo lunes" relative to today.
+1. **date** (required): The date of the event in ISO format (YYYY-MM-DD). Interpret relative dates like "mañana", "el viernes", "próximo lunes" relative to today. For multi-day events, this is the start date.
+2. **end_date** (optional): The end date of the event (YYYY-MM-DD) if it spans multiple days.
 2. **time** (optional): The time of the event in HH:MM format (24h). Only include if explicitly mentioned.
 3. **description** (required): A concise description of the event.
 
