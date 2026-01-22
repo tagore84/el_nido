@@ -49,3 +49,7 @@ stock_verduras_garrofon:
 stock_verduras_judia_verde:
   name: "Judía verde"
   icon: mdi:sprout
+
+stock_verduras_tomates_cherry:
+  name: "Tomates Cherry"
+  icon: mdi:tomato

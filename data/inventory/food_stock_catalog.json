@@ -1144,5 +1144,40 @@
       "on": "hay",
       "off": "falta"
     }
+  },
+  {
+    "id": "aguacate",
+    "category": "fruta",
+    "display_name": "Aguacate",
+    "entity_id": "input_boolean.stock_fruta_aguacate",
+    "ean": "0000000000000",
+    "ticket_description": "AGUACATE",
+    "quantity": "1,000",
+    "synonyms": [
+      "aguacate"
+    ],
+    "icon": "mdi:fruit-avocado",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "tomates_cherry",
+    "category": "verduras",
+    "display_name": "Tomates Cherry",
+    "entity_id": "input_boolean.stock_verduras_tomates_cherry",
+    "ean": "0000000000000",
+    "ticket_description": "TOMATES CHERRY",
+    "quantity": "1,000",
+    "synonyms": [
+      "tomates cherry",
+      "cherry"
+    ],
+    "icon": "mdi:tomato",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
   }
 ]

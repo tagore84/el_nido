@@ -1,0 +1,6 @@
+stock_fruta_aguacate:
+  name: "Aguacate"
+  icon: mdi:fruit-avocado
+stock_fruta_manzana:
+  name: "Manzana"
+  icon: mdi:apple

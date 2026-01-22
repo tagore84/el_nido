@@ -1,0 +1,29 @@
+type: custom:stack-in-card
+mode: vertical
+cards:
+- type: custom:mushroom-title-card
+  title: Frutas
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_fruta_aguacate
+  primary: Aguacate
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_fruta_aguacate'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:fruit-pear
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_fruta_aguacate'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_fruta_manzana
+  primary: Manzana
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_fruta_manzana'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:apple
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_fruta_manzana'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info

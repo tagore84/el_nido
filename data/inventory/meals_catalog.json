@@ -37,5 +37,19 @@
       "arroz",
       "aceite_oliva"
     ]
+  },
+  {
+    "name": "Poke",
+    "valid_for_lunch": false,
+    "valid_for_dinner": true,
+    "valid_for_alberto": true,
+    "valid_for_laura": true,
+    "ingredients": [
+      "salmon",
+      "arroz",
+      "maiz",
+      "aguacate",
+      "tomates_cherry"
+    ]
   }
 ]
