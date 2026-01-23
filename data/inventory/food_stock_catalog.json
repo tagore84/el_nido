@@ -266,10 +266,10 @@
     }
   },
   {
-    "id": "pulpa_tomate",
+    "id": "tomate_triturado",
     "category": "despensa",
-    "display_name": "Pulpa de tomate",
-    "entity_id": "input_boolean.stock_despensa_pulpa_tomate",
+    "display_name": "Tomate triturado",
+    "entity_id": "input_boolean.stock_despensa_tomate_triturado",
     "ean": "0000080042556",
     "ticket_description": "PULPA TOM.MUTTI400",
     "quantity": "3,000",
@@ -278,7 +278,8 @@
       "pulpa tomate",
       "mutti",
       "pulpa tom",
-      "pulpa tom mutti400"
+      "pulpa tom mutti400",
+      "tomate triturado"
     ],
     "icon": "mdi:food-apple",
     "state_semantics": {

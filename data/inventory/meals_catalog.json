@@ -51,5 +51,19 @@
       "aguacate",
       "tomates_cherry"
     ]
+  },
+  {
+    "name": "Macarrones con chorizo y cebolla",
+    "valid_for_lunch": true,
+    "valid_for_dinner": false,
+    "valid_for_alberto": true,
+    "valid_for_laura": false,
+    "ingredients": [
+      "pasta_plumas",
+      "chorizo",
+      "cebolla",
+      "tomate_triturado",
+      "aceite_oliva"
+    ]
   }
 ]

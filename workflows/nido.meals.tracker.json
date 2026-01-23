@@ -120,7 +120,9 @@
             "parameters": {
                 "chatId": "={{ $('Prepare LLM Input').item.json.chat_id }}",
                 "text": "=✅ Apuntado: {{ $json.meal_name || $json.logged_food }}\nTipo: {{ $('Log and Load Catalog').item.json.logged_type }}\nFecha: {{ $('Log and Load Catalog').item.json.logged_date }}\nQuién: {{ $('Log and Load Catalog').item.json.logged_who }}\nFuente: {{ $('Log and Load Catalog').item.json.logged_source === 'casera' ? '🏠 Casera' : ($('Log and Load Catalog').item.json.logged_source === 'domicilio' ? '🛵 Domicilio' : '🍽️ Fuera') }}\n\n{{ $json.is_new ? \"🆕 Nueva comida registrada\" : $json.updated_entry ? \"🔄 Comida actualizada\" : \"\" }}\n{{ $json.updated_entry ? ('Ingredientes detectados: ' + ($json.updated_entry.ingredients.join(', ') || 'Ninguno')) : '' }}",
-                "additionalFields": {}
+                "additionalFields": {
+                    "parse_mode": "HTML"
+                }
             },
             "name": "Confirm to User",
             "type": "n8n-nodes-base.telegram",
