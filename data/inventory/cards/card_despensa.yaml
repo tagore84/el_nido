@@ -16,6 +16,18 @@ cards:
   hold_action:
     action: more-info
 - type: custom:mushroom-template-card
+  entity: input_boolean.stock_despensa_pasta_plumas
+  primary: Pasta plumas
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_despensa_pasta_plumas'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:pasta
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_despensa_pasta_plumas'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
   entity: input_boolean.stock_despensa_pulpa_tomate
   primary: Pulpa de tomate
   secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_despensa_pulpa_tomate'',''on'')
@@ -40,12 +52,12 @@ cards:
   hold_action:
     action: more-info
 - type: custom:mushroom-template-card
-  entity: input_boolean.stock_despensa_tomate_concentrado
-  primary: Tomate concentrado
-  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_despensa_tomate_concentrado'',''on'')
+  entity: input_boolean.stock_despensa_tomate_triturado
+  primary: Tomate triturado
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_despensa_tomate_triturado'',''on'')
     else ''Falta'' }}'
   icon: mdi:food-apple
-  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_despensa_tomate_concentrado'',''on'')
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_despensa_tomate_triturado'',''on'')
     else ''red'' }}'
   tap_action:
     action: toggle
@@ -58,18 +70,6 @@ cards:
     else ''Falta'' }}'
   icon: mdi:bottle-soda-classic-outline
   icon_color: '{{ ''green'' if is_state(''input_boolean.stock_despensa_salsa_pizza'',''on'')
-    else ''red'' }}'
-  tap_action:
-    action: toggle
-  hold_action:
-    action: more-info
-- type: custom:mushroom-template-card
-  entity: input_boolean.stock_despensa_pasta_plumas
-  primary: Pasta plumas
-  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_despensa_pasta_plumas'',''on'')
-    else ''Falta'' }}'
-  icon: mdi:pasta
-  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_despensa_pasta_plumas'',''on'')
     else ''red'' }}'
   tap_action:
     action: toggle

@@ -14,8 +14,8 @@ stock_despensa_masa_pizza_fina:
   name: "Masa de pizza fina"
   icon: mdi:pizza
 
-stock_despensa_tomate_concentrado:
-  name: "Tomate concentrado"
+stock_despensa_tomate_triturado:
+  name: "Tomate triturado"
   icon: mdi:food-apple
 
 stock_despensa_salsa_pizza:

@@ -1,0 +1,20 @@
+{
+  "type": "object",
+  "properties": {
+    "product_id": {
+      "type": "string",
+      "description": "The exact ID of the product from the catalog that matches the user input. Null if no match found."
+    },
+    "product_name": {
+      "type": "string",
+      "description": "The display name of the matched product for confirmation."
+    },
+    "confidence": {
+      "type": "number",
+      "description": "Confidence matching score (0-1)"
+    }
+  },
+  "required": [
+    "product_id"
+  ]
+}

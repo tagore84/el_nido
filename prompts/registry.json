@@ -19,5 +19,8 @@
     },
     "meals.planner": {
         "path": "meals.planner"
+    },
+    "pantry.product_matcher": {
+        "path": "pantry.product_matcher"
     }
 }
