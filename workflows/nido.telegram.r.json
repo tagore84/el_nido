@@ -1,0 +1,475 @@
+{
+  "name": "nido.telegram.r",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        544,
+        224
+      ],
+      "id": "6316d4a1-1f1b-4118-8a03-12f5901ca51f"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const now = new Date();\n\n// Format helper\nconst formatDate = (date) => {\n  const d = new Date(date);\n  const year = d.getFullYear();\n  const month = String(d.getMonth() + 1).padStart(2, '0');\n  const day = String(d.getDate()).padStart(2, '0');\n  return `${year}-${month}-${day}`;\n};\n\nconst todayStr = formatDate(now);\n\n// 12 months ago\nconst minDateObj = new Date(now);\nminDateObj.setMonth(minDateObj.getMonth() - 12);\nconst minDateStr = formatDate(minDateObj);\n\n// 30 days future\nconst maxFutureObj = new Date(now);\nmaxFutureObj.setDate(maxFutureObj.getDate() + 30);\nconst maxFutureStr = formatDate(maxFutureObj);\n\n// 1 week ago (for R deletion check)\nconst oneWeekAgoObj = new Date(now);\noneWeekAgoObj.setDate(oneWeekAgoObj.getDate() - 7);\n// We want strictly events from last week including today. Let's use 7 days window.\n// Actually user said \"last week (including today)\".\n// Any R event with date >= today - 6 days\n\nreturn {\n  json: {\n    today: todayStr,\n    minDate: minDateStr,\n    maxFuture: maxFutureStr,\n    chat_id: $input.item.json.chat_id // Pass through chat_id\n  }\n};\n"
+      },
+      "name": "Date Constants",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        768,
+        224
+      ],
+      "id": "1c2cb478-3de5-413f-8afe-8d15b915d35d"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": "albertolau@pozoesteban.es"
+        },
+        "returnAll": true,
+        "options": {
+          "timeMin": "={{ $json.minDate }}T00:00:00Z",
+          "timeMax": "={{ $json.today }}T23:59:59Z",
+          "singleEvents": true,
+          "orderBy": "startTime",
+          "query": "R"
+        }
+      },
+      "name": "Get Past Rs",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [
+        976,
+        224
+      ],
+      "id": "2d0d091e-b7b1-42a5-a3d5-879130bc83fe",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "bB5cLTUIh2iApkRb",
+          "name": "Google Calendar account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst config = $node[\"Date Constants\"].json;\nconst today = new Date(config.today);\nconst sevenDaysAgo = new Date(today);\nsevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6); \n// Range: [today-6, today]\n\nlet eventsToDelete = [];\nlet rDates = [];\n\nitems.forEach(item => {\n  const json = item.json;\n  if (json.start && (json.summary === 'R' || json.summary === 'r')) {\n    const eventDate = new Date(json.start.date || json.start.dateTime);\n    const dateStr = eventDate.toISOString().split('T')[0];\n    \n    // Check for deletion\n    // Normalize times for comparison\n    eventDate.setHours(0,0,0,0);\n    const todayNorm = new Date(today);\n    todayNorm.setHours(0,0,0,0);\n\n    // If event is within the last week (inclusive of today)\n    if (eventDate >= sevenDaysAgo && eventDate <= todayNorm) {\n      eventsToDelete.push(json.id);\n    } else {\n       // Only keep old dates for calculation if NOT deleting them\n       // Wait, if we delete a recent one, we should probably NOT include it in calculation as a historical point, \n       // OR we assume the new one we create replaces it. \n       // Simpler: Collect all valid historical dates, assume the one we delete is invalid.\n       rDates.push(dateStr);\n    }\n  }\n});\n\n// Add \"Today\" to rDates for calculation (since we will create it)\nrDates.push(config.today);\n\n// Remove duplicates and sort\nrDates = [...new Set(rDates)].sort();\n\nreturn {\n  json: {\n    eventsToDelete,\n    rDates,\n    chat_id: config.chat_id,\n    today: config.today,\n    maxFuture: config.maxFuture\n  }\n};\n"
+      },
+      "name": "Analyze Rs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        224
+      ],
+      "id": "291bbe3a-e4a3-4dc2-a664-58621f2089df"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": "albertolau@pozoesteban.es"
+        },
+        "eventId": "={{ $json.deleteId }}",
+        "options": {}
+      },
+      "name": "Delete Recent Rs",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [
+        1888,
+        -112
+      ],
+      "id": "d4a9d2bc-a763-4c6a-8200-fe5b8794d710",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "bB5cLTUIh2iApkRb",
+          "name": "Google Calendar account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "eventsToDelete",
+        "options": {}
+      },
+      "name": "Split Deletions",
+      "type": "n8n-nodes-base.itemLists",
+      "typeVersion": 3,
+      "position": [
+        1440,
+        -112
+      ],
+      "id": "a11f235a-50f0-4ea6-9517-7791b3ce65c2"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return { json: { ...$input.item.json, deleteId: $input.item.json.eventsToDelete } };"
+      },
+      "name": "Prepare Deletion",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1664,
+        -112
+      ],
+      "id": "5eb06ad9-5aa2-4899-8a2a-1f84d0a34f74"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": "albertolau@pozoesteban.es"
+        },
+        "start": "={{ $node[\"Date Constants\"].json.today }}",
+        "end": "={{ $node[\"Date Constants\"].json.today }}",
+        "useDefaultReminders": false,
+        "additionalFields": {
+          "allday": "yes",
+          "summary": "R"
+        }
+      },
+      "name": "Create Today R",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [
+        1648,
+        224
+      ],
+      "id": "4c4c2236-157e-44a6-9d05-764baba7ed36",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "bB5cLTUIh2iApkRb",
+          "name": "Google Calendar account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": "albertolau@pozoesteban.es"
+        },
+        "returnAll": true,
+        "options": {
+          "timeMin": "={{ $node[\"Date Constants\"].json.today }}T00:00:00Z",
+          "timeMax": "={{ $node[\"Date Constants\"].json.maxFuture }}T23:59:59Z",
+          "singleEvents": true,
+          "query": "F"
+        }
+      },
+      "name": "Get Future Fs",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [
+        1872,
+        224
+      ],
+      "id": "58f68fc9-7be9-4ca0-ad6f-ab66867db96e",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "bB5cLTUIh2iApkRb",
+          "name": "Google Calendar account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst ids = items.filter(i => i.json.id && (i.json.summary === 'F' || i.json.summary === 'f')).map(i => i.json.id);\nreturn { json: { idsToDelete: ids } };"
+      },
+      "name": "Identify Fs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2096,
+        224
+      ],
+      "id": "820818ab-f17d-4fa1-b3f4-668576cdcf26"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "idsToDelete",
+        "options": {}
+      },
+      "name": "Split F Deletions",
+      "type": "n8n-nodes-base.itemLists",
+      "typeVersion": 3,
+      "position": [
+        2240,
+        -112
+      ],
+      "id": "7c97b22b-262c-4cb5-935e-291793f41871"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": "albertolau@pozoesteban.es"
+        },
+        "eventId": "={{ $json.idsToDelete }}",
+        "options": {}
+      },
+      "name": "Delete Fs",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [
+        2448,
+        -112
+      ],
+      "id": "7663ccbe-03e9-421a-a0d5-d15dcc0abef1",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "bB5cLTUIh2iApkRb",
+          "name": "Google Calendar account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const rDates = $node[\"Analyze Rs\"].json.rDates;\n\n// Calculate intervals\nlet intervals = [];\n// rDates is sorted ascending\nfor (let i = 0; i < rDates.length - 1; i++) {\n  const d1 = new Date(rDates[i]);\n  const d2 = new Date(rDates[i+1]);\n  const diffTime = Math.abs(d2 - d1);\n  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));\n  if (diffDays > 0) {\n    intervals.push(diffDays);\n  }\n}\n\nlet avgInterval = 28; // Default\n\nif (intervals.length > 0) {\n  let totalWeight = 0;\n  let weightedSum = 0;\n  \n  intervals.forEach((interval, index) => {\n    const weight = index + 1; // 1, 2, 3... (higher index = more recent = higher weight)\n    weightedSum += interval * weight;\n    totalWeight += weight;\n  });\n  \n  avgInterval = weightedSum / totalWeight;\n}\n\n// 2b: result - 14\nconst daysToAdd = avgInterval - 14;\n\n// 2c: Today + result\nconst today = new Date($node[\"Date Constants\"].json.today);\nconst nextF = new Date(today);\nnextF.setDate(nextF.getDate() + Math.round(daysToAdd));\n\nconst nextFStr = nextF.toISOString().split('T')[0];\n\n// Format for display\nconst displayDate = nextF.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });\n\nreturn {\n  json: {\n    nextFDate: nextFStr,\n    displayDate,\n    avgInterval,\n    daysToAdd,\n    chat_id: $node[\"Analyze Rs\"].json.chat_id\n  }\n};\n"
+      },
+      "name": "Calculate Next F",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2656,
+        224
+      ],
+      "id": "447540e2-fef9-4229-bab4-1fa54cedd1cd"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": "albertolau@pozoesteban.es"
+        },
+        "start": "={{ $json.nextFDate }}",
+        "end": "={{ $json.nextFDate }}",
+        "useDefaultReminders": false,
+        "additionalFields": {
+          "allday": "yes",
+          "attendees": [],
+          "summary": "F"
+        },
+        "remindersUi": {
+          "remindersValues": [
+            {
+              "method": "popup",
+              "minutes": 2280
+            }
+          ]
+        }
+      },
+      "name": "Create Next F",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [
+        2864,
+        224
+      ],
+      "id": "2f90cd22-64e0-45d4-9b4b-02afd5f085d8",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "bB5cLTUIh2iApkRb",
+          "name": "Google Calendar account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Execute Workflow Trigger').first().json.message.from.id }}",
+        "text": "=✅ Apuntado \"R\" hoy.\n📅 Próxima \"F\" calculada para el {{ $json.start.date }}",
+        "additionalFields": {}
+      },
+      "name": "Notify User",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        3088,
+        224
+      ],
+      "id": "8566eae2-6445-4c3a-abf3-11c02d90b493",
+      "webhookId": "389ef99e-fbd5-48d6-9eff-3dcd537a2e43",
+      "credentials": {
+        "telegramApi": {
+          "id": "JLG33gMQcdi4JvQq",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Date Constants",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date Constants": {
+      "main": [
+        [
+          {
+            "node": "Get Past Rs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Past Rs": {
+      "main": [
+        [
+          {
+            "node": "Analyze Rs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Rs": {
+      "main": [
+        [
+          {
+            "node": "Split Deletions",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create Today R",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Deletions": {
+      "main": [
+        [
+          {
+            "node": "Prepare Deletion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Deletion": {
+      "main": [
+        [
+          {
+            "node": "Delete Recent Rs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Today R": {
+      "main": [
+        [
+          {
+            "node": "Get Future Fs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Future Fs": {
+      "main": [
+        [
+          {
+            "node": "Identify Fs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Identify Fs": {
+      "main": [
+        [
+          {
+            "node": "Split F Deletions",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Calculate Next F",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split F Deletions": {
+      "main": [
+        [
+          {
+            "node": "Delete Fs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Next F": {
+      "main": [
+        [
+          {
+            "node": "Create Next F",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Next F": {
+      "main": [
+        [
+          {
+            "node": "Notify User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "de8f93ac-9ebf-4d2a-a357-6b65cc8363e3",
+  "meta": {
+    "instanceId": "e1f8529dafc1c7b24188afd104b1a8e8824324405683593c80fc8bc56ba17881"
+  },
+  "id": "_dA1MLN1DRs_rD4LkW2et",
+  "tags": []
+}
