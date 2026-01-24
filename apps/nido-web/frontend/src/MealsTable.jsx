@@ -43,20 +43,20 @@ function MealsTable() {
         fetchMeals();
     }, []);
 
-    if (loading) return <div style={{ textAlign: 'center', padding: '2rem' }}>Loading meals...</div>;
-    if (error) return <div style={{ textAlign: 'center', color: '#f87171', padding: '2rem' }}>Error loading meals: {error}</div>;
+    if (loading) return <div style={{ textAlign: 'center', padding: '2rem' }}>Cargando comidas...</div>;
+    if (error) return <div style={{ textAlign: 'center', color: '#f87171', padding: '2rem' }}>Error cargando comidas: {error}</div>;
 
     return (
         <div className="card" style={{ marginTop: '2rem' }}>
-            <h2 style={{ marginTop: 0, marginBottom: '1.5rem' }}>Recent Meals</h2>
+            <h2 style={{ marginTop: 0, marginBottom: '1.5rem' }}>Comidas Recientes</h2>
             <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                     <thead>
                         <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--glass-border)' }}>
-                            <th style={{ padding: '0.75rem' }}>Date</th>
-                            <th style={{ padding: '0.75rem' }}>Meal</th>
-                            <th style={{ padding: '0.75rem' }}>Type</th>
-                            <th style={{ padding: '0.75rem' }}>Calories</th>
+                            <th style={{ padding: '0.75rem' }}>Fecha</th>
+                            <th style={{ padding: '0.75rem' }}>Comida</th>
+                            <th style={{ padding: '0.75rem' }}>Tipo</th>
+                            <th style={{ padding: '0.75rem' }}>Calorías</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -81,7 +81,7 @@ function MealsTable() {
                         {meals.length === 0 && (
                             <tr>
                                 <td colSpan="4" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)' }}>
-                                    No meals found.
+                                    No hay comidas registradas.
                                 </td>
                             </tr>
                         )}

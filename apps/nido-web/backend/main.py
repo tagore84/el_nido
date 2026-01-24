@@ -1,8 +1,55 @@
-from fastapi import FastAPI, WebSocket
+from fastapi import FastAPI, WebSocket, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+import asyncio
+import httpx
+from datetime import datetime
 
 app = FastAPI(root_path="/nido_api")
+
+# --- In-Memory Cache ---
+calendar_cache = {"data": [], "last_updated": None}
+
+async def fetch_calendar_data():
+    """Fetches calendar data from n8n and updates the cache."""
+    # Calculate dates: 1 month back, 3 months forward
+    now = datetime.now()
+    # Simple approximation for months, or use relativedelta if available (not standard lib)
+    # Using 30 days and 90 days for simplicity and robustness without extra deps
+    from datetime import timedelta
+    start_date = (now - timedelta(days=30)).strftime("%Y-%m-%d")
+    end_date = (now + timedelta(days=90)).strftime("%Y-%m-%d")
+    
+    base_url = "https://synology.tail69424a.ts.net/webhook/calendar"
+    url = f"{base_url}?start={start_date}&end={end_date}"
+    
+    print(f"Fetching calendar data from {url}...")
+    async with httpx.AsyncClient() as client:
+        try:
+            # Calendar processing might take a few seconds, or minutes with LLM
+            response = await client.get(url, timeout=300.0)
+            response.raise_for_status()
+            data = response.json()
+            
+            # Update cache
+            calendar_cache["data"] = data
+            calendar_cache["last_updated"] = datetime.now().isoformat()
+            print(f"Calendar updated successfully at {calendar_cache['last_updated']}")
+        except Exception as e:
+            print(f"Error updating calendar: {e}")
+
+async def calendar_refresher():
+    """Background task to refresh calendar every hour."""
+    while True:
+        # Initial wait to let server start up
+        await asyncio.sleep(10) 
+        await fetch_calendar_data()
+        await asyncio.sleep(3600)
+
+@app.on_event("startup")
+async def startup_event():
+    # Start the background refresher
+    asyncio.create_task(calendar_refresher())
 
 app.add_middleware(
     CORSMiddleware,
@@ -18,7 +65,6 @@ def read_root():
 
 @app.get("/meals")
 async def get_meals():
-    import httpx
     url = "https://synology.tail69424a.ts.net/webhook/nido/meals"
     async with httpx.AsyncClient() as client:
         try:
@@ -27,6 +73,20 @@ async def get_meals():
             return response.json()
         except Exception as e:
             return {"error": str(e)}
+
+@app.get("/calendar")
+async def get_calendar():
+    """Returns cached calendar events. Triggers fetch if cache is empty."""
+    if not calendar_cache["data"] and not calendar_cache["last_updated"]:
+        # If empty, fetch immediately (blocking for the first user)
+        await fetch_calendar_data()
+    return calendar_cache
+
+@app.post("/calendar/sync")
+async def sync_calendar(background_tasks: BackgroundTasks):
+    """Triggers an immediate background refresh of the calendar."""
+    background_tasks.add_task(fetch_calendar_data)
+    return {"status": "sync_started", "message": "Calendar refresh triggered in background"}
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
