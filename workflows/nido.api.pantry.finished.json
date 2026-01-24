@@ -1,152 +1,211 @@
 {
-    "name": "nido.api.pantry.finished",
-    "nodes": [
-        {
-            "parameters": {
-                "path": "pantry/finished",
-                "responseMode": "lastNode",
-                "options": {}
-            },
-            "name": "Webhook",
-            "type": "n8n-nodes-base.webhook",
-            "typeVersion": 1,
-            "position": [
-                460,
-                460
-            ],
-            "webhookId": "pantry-finished-webhook",
-            "id": "webhook-node-uuid"
-        },
-        {
-            "parameters": {
-                "jsCode": "const fs = require('fs');\n\n// 1. Read Catalog\nlet catalog = [];\ntry {\n  const catalogPath = '/data/inventory/food_stock_catalog.json';\n  if (fs.existsSync(catalogPath)) {\n    catalog = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));\n    // Handle if it's wrapped in products or just array\n    if (catalog.products) catalog = catalog.products;\n  }\n} catch (e) {\n  throw new Error('Failed to read catalog: ' + e.message);\n}\n\n// 2. Process Input\nconst inputData = $input.first().json;\n// Workflow input expects \"product\" field\nconst productInput = inputData.product || '';\n\n// Construct Context\nconst catalogContext = JSON.stringify(catalog, null, 2);\n\nreturn {\n  json: {\n    prompt_id: 'pantry.product_matcher',\n    input: {\n        catalog: catalogContext,\n        input: productInput\n    },\n    catalog: catalog\n  }\n};"
-            },
-            "name": "Prepare Input",
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [
-                680,
-                460
-            ],
-            "id": "prepare-input-node"
-        },
-        {
-            "parameters": {
-                "workflowId": "cIdjAXxgI1Z-LurEg16oO"
-            },
-            "name": "Identify Product",
-            "type": "n8n-nodes-base.executeWorkflow",
-            "typeVersion": 1,
-            "position": [
-                900,
-                460
-            ],
-            "id": "call-llm-node"
-        },
-        {
-            "parameters": {
-                "jsCode": "const llmResult = $input.first().json;\nconst catalog = $('Prepare Input').first().json.catalog;\n\nif (!llmResult.product_id) {\n    return [{ json: { success: false, message: 'Could not identify product.' } }];\n}\n\nconst matchedProduct = catalog.find(p => p.id === llmResult.product_id);\n\nif (!matchedProduct || !matchedProduct.entity_id) {\n    return [{ json: { success: false, message: `Product identified (${llmResult.product_name}) but checking configuration failed.` } }];\n}\n\nreturn [{\n    json: {\n        success: true,\n        entity_id: matchedProduct.entity_id,\n        product_name: matchedProduct.display_name,\n        message: `Marked ${matchedProduct.display_name} as finished.`\n    }\n}];"
-            },
-            "name": "Process Match",
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [
-                1120,
-                460
-            ],
-            "id": "process-match-node"
-        },
-        {
-            "parameters": {
-                "operation": "upsert",
-                "entityId": "={{ $json.entity_id }}",
-                "resource": "state",
-                "state": "off"
-            },
-            "name": "Update Home Assistant",
-            "type": "n8n-nodes-base.homeAssistant",
-            "typeVersion": 1,
-            "position": [
-                1340,
-                460
-            ],
-            "id": "ha-set-state",
-            "credentials": {
-                "homeAssistantApi": {
-                    "id": "I3MbDcoMCh6VZ8R1",
-                    "name": "Home Assistant account"
-                }
+  "name": "nido.api.pantry.finished",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "pantry/finished",
+        "authentication": "headerAuth",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        592,
+        -624
+      ],
+      "webhookId": "pantry-finished-webhook",
+      "id": "c4ff837f-1b89-41fb-8679-d318cbfecee4",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "K9Y0M0XJHPiBhIFW",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs = require('fs');\n\n// 1. Read Catalog\nlet catalog = [];\ntry {\n  const catalogPath = '/data/inventory/food_stock_catalog.json';\n  if (fs.existsSync(catalogPath)) {\n    catalog = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));\n    // Handle if it's wrapped in products or just array\n    if (catalog.products) catalog = catalog.products;\n  }\n} catch (e) {\n  throw new Error('Failed to read catalog: ' + e.message);\n}\n\n// 2. Process Input\nconst inputItem = $input.first().json;\n// Support product in Headers (user request), Query (GET standard), or Body (POST standard)\n// n8n headers are usually lowercased\nconst productInput = (inputItem.headers && inputItem.headers.product) || \n                     (inputItem.query && inputItem.query.product) || \n                     inputItem.product || '';\n\n// Construct Context\n// User requested ONLY IDs list to save tokens/complexity\nconst catalogIds = catalog.map(p => p.id).join('\\n');\nconst fullInputText = `CATALOG_IDS:\\n${catalogIds}\\n\\nINPUT:\\n${productInput}`;\n\nreturn {\n  json: {\n    prompt_id: 'pantry.product_matcher',\n    input: {\n        input_type: 'TEXT',\n        input_text: fullInputText\n    },\n    catalog: catalog\n  }\n};"
+      },
+      "name": "Prepare Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        -624
+      ],
+      "id": "04ff2ec8-bb25-4bed-bff0-889d9cea38d1"
+    },
+    {
+      "parameters": {
+        "workflowId": "cIdjAXxgI1Z-LurEg16oO",
+        "options": {}
+      },
+      "name": "Identify Product",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        1024,
+        -624
+      ],
+      "id": "f84b1e91-9f8a-47b8-a708-43a8e668b426"
+    },
+    {
+      "parameters": {
+        "jsCode": "const llmResult = $input.first().json;\nconst catalog = $('Prepare Input').first().json.catalog;\n\nif (!llmResult.product_id) {\n    return [{ json: { success: false, message: 'Could not identify product.' } }];\n}\n\nconst matchedProduct = catalog.find(p => p.id === llmResult.product_id);\n\nif (!matchedProduct || !matchedProduct.entity_id) {\n    return [{ json: { success: false, message: `Product identified (${llmResult.product_name}) but checking configuration failed.` } }];\n}\n\nreturn [{\n    json: {\n        success: true,\n        entity_id: matchedProduct.entity_id,\n        product_name: matchedProduct.display_name,\n        message: `Marked ${matchedProduct.display_name} as finished.`\n    }\n}];"
+      },
+      "name": "Process Match",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1248,
+        -624
+      ],
+      "id": "5e237d45-a25d-4893-9930-d16c0c647b84"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.success }}",
+              "value2": true
             }
-        },
-        {
-            "parameters": {
-                "options": {}
-            },
-            "name": "Respond",
-            "type": "n8n-nodes-base.respondToWebhook",
-            "typeVersion": 1,
-            "position": [
-                1560,
-                460
-            ],
-            "id": "respond-node"
+          ]
         }
-    ],
-    "connections": {
-        "Webhook": {
-            "main": [
-                [
-                    {
-                        "node": "Prepare Input",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Prepare Input": {
-            "main": [
-                [
-                    {
-                        "node": "Identify Product",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Identify Product": {
-            "main": [
-                [
-                    {
-                        "node": "Process Match",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Process Match": {
-            "main": [
-                [
-                    {
-                        "node": "Update Home Assistant",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Update Home Assistant": {
-            "main": [
-                [
-                    {
-                        "node": "Respond",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
+      },
+      "name": "Check Success",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1472,
+        -624
+      ],
+      "id": "73fc8768-498e-4c38-afe6-0da015a50f8f"
+    },
+    {
+      "parameters": {
+        "resource": "state",
+        "operation": "upsert",
+        "entityId": "={{ $json.entity_id }}",
+        "state": "off"
+      },
+      "name": "Update Home Assistant",
+      "type": "n8n-nodes-base.homeAssistant",
+      "typeVersion": 1,
+      "position": [
+        1680,
+        -720
+      ],
+      "id": "7da7340a-ae4b-4ad3-a80c-76cfe2fdf0b3",
+      "credentials": {
+        "homeAssistantApi": {
+          "id": "I3MbDcoMCh6VZ8R1",
+          "name": "Home Assistant account"
         }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1904,
+        -624
+      ],
+      "id": "a77daa7d-e537-498a-ba04-c6af34691371"
     }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Prepare Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Input": {
+      "main": [
+        [
+          {
+            "node": "Identify Product",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Identify Product": {
+      "main": [
+        [
+          {
+            "node": "Process Match",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Match": {
+      "main": [
+        [
+          {
+            "node": "Check Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Success": {
+      "main": [
+        [
+          {
+            "node": "Update Home Assistant",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Home Assistant": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "5ab1cce8-8eee-4e50-a7ce-16a6b3272f61",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e1f8529dafc1c7b24188afd104b1a8e8824324405683593c80fc8bc56ba17881"
+  },
+  "id": "h7bCQ7wLwqZ2Es92liRWz",
+  "tags": []
 }
