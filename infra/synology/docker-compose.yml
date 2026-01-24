@@ -32,3 +32,14 @@ services:
       - ../../prompts:/prompts:ro
     # Network configuration to be adjusted based on Synology setup
     # network_mode: bridge
+
+  dashboard:
+    image: nginx:alpine
+    container_name: nido-dashboard
+    restart: always
+    ports:
+      - "8888:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./www/calendar:/usr/share/nginx/html/calendar:ro
+      - ../../data/calendar:/usr/share/nginx/html/data:ro
