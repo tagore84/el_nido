@@ -1,468 +1,450 @@
 {
-    "name": "nido.api.calendar",
-    "nodes": [
-        {
-            "parameters": {
-                "path": "calendar",
-                "responseMode": "lastNode",
-                "responseData": "allEntries",
-                "options": {}
-            },
-            "type": "n8n-nodes-base.webhook",
-            "typeVersion": 1,
-            "position": [
-                720,
-                -192
-            ],
-            "id": "e2406d6b-ae7b-4855-9524-e233ef431643",
-            "name": "Webhook",
-            "webhookId": "e509491d-1cbc-43b4-a2f5-742d36e6b247"
+  "name": "nido.api.calendar",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "calendar",
+        "responseMode": "lastNode",
+        "responseData": "allEntries",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        2896,
+        -480
+      ],
+      "id": "8ed5802b-3cd0-4b96-adca-4cf24d5d8fa8",
+      "name": "Webhook",
+      "webhookId": "e509491d-1cbc-43b4-a2f5-742d36e6b247"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "primary",
+          "mode": "list"
         },
-        {
-            "parameters": {
-                "operation": "getAll",
-                "calendar": {
-                    "__rl": true,
-                    "value": "primary",
-                    "mode": "list"
-                },
-                "returnAll": true,
-                "options": {
-                    "timeMin": "={{ $json.query?.start || $today.minus({months: 1}).toISO() }}",
-                    "timeMax": "={{ $json.query?.end || $today.plus({months: 3}).toISO() }}",
-                    "singleEvents": true,
-                    "orderBy": "startTime"
-                }
-            },
-            "type": "n8n-nodes-base.googleCalendar",
-            "typeVersion": 1,
-            "position": [
-                1200,
-                -336
-            ],
-            "id": "659f53f9-faf9-4d17-a249-887e29b382c1",
-            "name": "Get Alberto",
-            "credentials": {
-                "googleCalendarOAuth2Api": {
-                    "id": "FrzV2bMzBnHfLNY2",
-                    "name": "Google Calendar account"
-                }
-            }
-        },
-        {
-            "parameters": {
-                "operation": "getAll",
-                "calendar": {
-                    "__rl": true,
-                    "value": "primary",
-                    "mode": "list"
-                },
-                "returnAll": true,
-                "options": {
-                    "timeMin": "={{ $json.query?.start || $today.minus({months: 1}).toISO() }}",
-                    "timeMax": "={{ $json.query?.end || $today.plus({months: 3}).toISO() }}",
-                    "singleEvents": true,
-                    "orderBy": "startTime"
-                }
-            },
-            "type": "n8n-nodes-base.googleCalendar",
-            "typeVersion": 1,
-            "position": [
-                1200,
-                -144
-            ],
-            "id": "a664f820-0f4d-4f23-8ef8-4a2b9ec28fec",
-            "name": "Get Laura",
-            "credentials": {
-                "googleCalendarOAuth2Api": {
-                    "id": "evOHCOtVk0ErCJk7",
-                    "name": "Google Calendar account 3"
-                }
-            }
-        },
-        {
-            "parameters": {
-                "operation": "getAll",
-                "calendar": {
-                    "__rl": true,
-                    "value": "albertolau@pozoesteban.es",
-                    "mode": "list"
-                },
-                "returnAll": true,
-                "options": {
-                    "timeMin": "={{ $json.query?.start || $today.minus({months: 1}).toISO() }}",
-                    "timeMax": "={{ $json.query?.end || $today.plus({months: 3}).toISO() }}",
-                    "singleEvents": true,
-                    "orderBy": "startTime"
-                }
-            },
-            "type": "n8n-nodes-base.googleCalendar",
-            "typeVersion": 1,
-            "position": [
-                1200,
-                64
-            ],
-            "id": "741d8bad-b2a9-426b-bfe0-33af08143915",
-            "name": "Get Shared",
-            "credentials": {
-                "googleCalendarOAuth2Api": {
-                    "id": "bB5cLTUIh2iApkRb",
-                    "name": "Google Calendar account 2"
-                }
-            }
-        },
-        {
-            "parameters": {
-                "jsCode": "return $input.all().map(item => {\n  return {\n    json: {\n      ...item.json,\n      source: 'Alberto',\n      color: 'red'\n    }\n  }\n});"
-            },
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [
-                1408,
-                -336
-            ],
-            "id": "e5052475-1209-4452-806e-5ca5d308616b",
-            "name": "Tag Alberto"
-        },
-        {
-            "parameters": {
-                "jsCode": "return $input.all().map(item => {\n  return {\n    json: {\n      ...item.json,\n      source: 'Laura',\n      color: 'yellow'\n    }\n  }\n});"
-            },
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [
-                1408,
-                -144
-            ],
-            "id": "5875ca12-e6ae-4065-a409-38e9d0e53788",
-            "name": "Tag Laura"
-        },
-        {
-            "parameters": {
-                "jsCode": "return $input.all().map(item => {\n  return {\n    json: {\n      ...item.json,\n      source: 'Shared',\n      color: 'blue'\n    }\n  }\n});"
-            },
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [
-                1408,
-                64
-            ],
-            "id": "3e86e7df-7e4e-47ea-9b9d-5211683c055a",
-            "name": "Tag Shared"
-        },
-        {
-            "parameters": {
-                "keepOnlySet": true,
-                "values": {
-                    "string": [
-                        {
-                            "name": "id",
-                            "value": "={{ $json.id }}"
-                        },
-                        {
-                            "name": "summary",
-                            "value": "={{ $json.summary }}"
-                        },
-                        {
-                            "name": "start",
-                            "value": "={{ $json.start.dateTime || $json.start.date }}"
-                        },
-                        {
-                            "name": "end",
-                            "value": "={{ $json.end.dateTime || $json.end.date }}"
-                        },
-                        {
-                            "name": "source",
-                            "value": "={{ $json.source }}"
-                        },
-                        {
-                            "name": "color",
-                            "value": "={{ $json.color }}"
-                        },
-                        {
-                            "name": "allDay",
-                            "value": "={{ $json.start.date ? true : false }}"
-                        }
-                    ]
-                },
-                "options": {}
-            },
-            "type": "n8n-nodes-base.set",
-            "typeVersion": 1,
-            "position": [
-                2000,
-                -160
-            ],
-            "id": "84a2e1ad-9008-41da-812a-a0a6a2cff83b",
-            "name": "Format Output"
-        },
-        {
-            "parameters": {
-                "jsCode": "// Cleanup erroneous events\nreturn $input.all().filter(item => {\n  const evt = item.json;\n  // Check for \"Ácido Fólico\" with duration > 24h\n  if (evt.summary === 'Ácido Fólico') {\n      const start = new Date(evt.start);\n      const end = new Date(evt.end);\n      const durationMs = end - start;\n      // 24 hours in milliseconds = 86400000\n      if (durationMs > 5184000000) return false;\n  }\n  return true;\n});"
-            },
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [
-                2240,
-                -160
-            ],
-            "id": "8ed3c983-3384-42c1-ad27-b322c229aba0",
-            "name": "Cleanup Events"
-        },
-        {
-            "parameters": {},
-            "type": "n8n-nodes-base.merge",
-            "typeVersion": 2.1,
-            "position": [
-                1632,
-                -256
-            ],
-            "id": "8f90eb26-227f-4aa8-8a31-4699b5892bf5",
-            "name": "PreMerge",
-            "mode": "append"
-        },
-        {
-            "parameters": {},
-            "type": "n8n-nodes-base.merge",
-            "typeVersion": 2.1,
-            "position": [
-                1808,
-                -64
-            ],
-            "id": "3e289c92-3488-4dbf-9d23-2a45cb90477c",
-            "name": "PreMerge1",
-            "mode": "append"
-        },
-        {
-            "parameters": {
-                "jsCode": "const events = $input.all().map(i => i.json);\n// Prepare minimal input for LLM\nconst llmInput = events.map(e => ({\n    id: e.id,\n    summary: e.summary\n}));\n\nreturn {\n    json: {\n        prompt_id: 'calendar.critical_analysis',\n        input: {\n            input_type: 'TEXT',\n            input_text: JSON.stringify(llmInput)\n        }\n    }\n};"
-            },
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [
-                2440,
-                -160
-            ],
-            "id": "prepare-llm",
-            "name": "Prepare LLM Input"
-        },
-        {
-            "parameters": {
-                "workflowId": "cIdjAXxgI1Z-LurEg16oO"
-            },
-            "type": "n8n-nodes-base.executeWorkflow",
-            "typeVersion": 1,
-            "position": [
-                2640,
-                -160
-            ],
-            "id": "analyze-critical",
-            "name": "Analyze Critical Events"
-        },
-        {
-            "parameters": {
-                "jsCode": "const llmResult = $input.first().json.events || [];\nconst originalEvents = $('Cleanup Events').all().map(i => i.json);\n\n// Create a map for fast lookup\nconst priorityMap = new Map();\nllmResult.forEach(item => {\n    if (item.id) priorityMap.set(item.id, item.priority);\n});\n\n// Merge\nreturn originalEvents.map(evt => ({\n    json: {\n        ...evt,\n        priority: priorityMap.get(evt.id) || 'low'\n    }\n}));"
-            },
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [
-                2840,
-                -160
-            ],
-            "id": "process-llm-output",
-            "name": "Process LLM Output"
-        },
-        {
-            "parameters": {
-                "jsCode": "const allEvents = $input.all().map(i => i.json);\nreturn [\n  {\n    json: {\n      data: allEvents\n    }\n  }\n];"
-            },
-            "type": "n8n-nodes-base.code",
-            "typeVersion": 2,
-            "position": [
-                3040,
-                -160
-            ],
-            "id": "aggregate-results",
-            "name": "Aggregate Results"
+        "returnAll": true,
+        "options": {
+          "timeMin": "={{ $json.query?.start || $today.minus({months: 1}).toISO() }}",
+          "timeMax": "={{ $json.query?.end || $today.plus({months: 3}).toISO() }}",
+          "singleEvents": true,
+          "orderBy": "startTime"
         }
-    ],
-    "pinData": {},
-    "connections": {
-        "Webhook": {
-            "main": [
-                [
-                    {
-                        "node": "Get Alberto",
-                        "type": "main",
-                        "index": 0
-                    },
-                    {
-                        "node": "Get Laura",
-                        "type": "main",
-                        "index": 0
-                    },
-                    {
-                        "node": "Get Shared",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Get Alberto": {
-            "main": [
-                [
-                    {
-                        "node": "Tag Alberto",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Get Laura": {
-            "main": [
-                [
-                    {
-                        "node": "Tag Laura",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Get Shared": {
-            "main": [
-                [
-                    {
-                        "node": "Tag Shared",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Tag Alberto": {
-            "main": [
-                [
-                    {
-                        "node": "PreMerge",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Tag Laura": {
-            "main": [
-                [
-                    {
-                        "node": "PreMerge",
-                        "type": "main",
-                        "index": 1
-                    }
-                ]
-            ]
-        },
-        "Format Output": {
-            "main": [
-                [
-                    {
-                        "node": "Cleanup Events",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Cleanup Events": {
-            "main": [
-                [
-                    {
-                        "node": "Prepare LLM Input",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Prepare LLM Input": {
-            "main": [
-                [
-                    {
-                        "node": "Analyze Critical Events",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Analyze Critical Events": {
-            "main": [
-                [
-                    {
-                        "node": "Process LLM Output",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Process LLM Output": {
-            "main": [
-                [
-                    {
-                        "node": "Aggregate Results",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "PreMerge": {
-            "main": [
-                [
-                    {
-                        "node": "PreMerge1",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Tag Shared": {
-            "main": [
-                [
-                    {
-                        "node": "PreMerge1",
-                        "type": "main",
-                        "index": 1
-                    }
-                ]
-            ]
-        },
-        "PreMerge1": {
-            "main": [
-                [
-                    {
-                        "node": "Format Output",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [
+        3376,
+        -624
+      ],
+      "id": "9be6e17d-3b88-41d8-b4c7-54619b62a14f",
+      "name": "Get Alberto",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "FrzV2bMzBnHfLNY2",
+          "name": "Google Calendar account"
         }
+      }
     },
-    "active": true,
-    "settings": {
-        "executionOrder": "v1",
-        "availableInMCP": false
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "primary",
+          "mode": "list"
+        },
+        "returnAll": true,
+        "options": {
+          "timeMin": "={{ $json.query?.start || $today.minus({months: 1}).toISO() }}",
+          "timeMax": "={{ $json.query?.end || $today.plus({months: 3}).toISO() }}",
+          "singleEvents": true,
+          "orderBy": "startTime"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [
+        3376,
+        -432
+      ],
+      "id": "14a885fa-8a54-47f1-99cc-d7d8e8662676",
+      "name": "Get Laura",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "evOHCOtVk0ErCJk7",
+          "name": "Google Calendar account 3"
+        }
+      }
     },
-    "versionId": "cffb8bde-440e-443a-80d7-32d6e57cc02f",
-    "meta": {
-        "templateCredsSetupCompleted": true,
-        "instanceId": "e1f8529dafc1c7b24188afd104b1a8e8824324405683593c80fc8bc56ba17881"
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "albertolau@pozoesteban.es",
+          "mode": "list"
+        },
+        "returnAll": true,
+        "options": {
+          "timeMin": "={{ $json.query?.start || $today.minus({months: 1}).toISO() }}",
+          "timeMax": "={{ $json.query?.end || $today.plus({months: 3}).toISO() }}",
+          "singleEvents": true,
+          "orderBy": "startTime"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [
+        3376,
+        -224
+      ],
+      "id": "43301b0d-3f49-445a-be78-4a95e6d2162e",
+      "name": "Get Shared",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "bB5cLTUIh2iApkRb",
+          "name": "Google Calendar account 2"
+        }
+      }
     },
-    "id": "8-sG704-49t9SK4dL_ihA",
-    "tags": []
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map(item => {\n  return {\n    json: {\n      ...item.json,\n      source: 'Alberto',\n      color: 'red'\n    }\n  }\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3584,
+        -624
+      ],
+      "id": "12e46188-81d8-4264-99f5-d5af13813034",
+      "name": "Tag Alberto"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map(item => {\n  return {\n    json: {\n      ...item.json,\n      source: 'Laura',\n      color: 'yellow'\n    }\n  }\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3584,
+        -432
+      ],
+      "id": "b409c1ad-2b40-435c-8b18-500e55f76809",
+      "name": "Tag Laura"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map(item => {\n  return {\n    json: {\n      ...item.json,\n      source: 'Shared',\n      color: 'blue'\n    }\n  }\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3584,
+        -224
+      ],
+      "id": "ee8dce18-9526-463d-99db-06c2e83d239d",
+      "name": "Tag Shared"
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "id",
+              "value": "={{ $json.id }}"
+            },
+            {
+              "name": "summary",
+              "value": "={{ $json.summary }}"
+            },
+            {
+              "name": "start",
+              "value": "={{ $json.start.dateTime || $json.start.date }}"
+            },
+            {
+              "name": "end",
+              "value": "={{ $json.end.dateTime || $json.end.date }}"
+            },
+            {
+              "name": "source",
+              "value": "={{ $json.source }}"
+            },
+            {
+              "name": "color",
+              "value": "={{ $json.color }}"
+            },
+            {
+              "name": "allDay",
+              "value": "={{ $json.start.date ? true : false }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        4176,
+        -448
+      ],
+      "id": "5d4a42cb-7bca-46ff-844a-becc25f59c83",
+      "name": "Format Output"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Cleanup erroneous events\nreturn $input.all().filter(item => {\n  const evt = item.json;\n  // Check for \"Ácido Fólico\" with duration > 24h\n  if (evt.summary === 'Ácido Fólico') {\n      const start = new Date(evt.start);\n      const end = new Date(evt.end);\n      const durationMs = end - start;\n      // 24 hours in milliseconds = 86400000\n      if (durationMs > 5184000000) return false;\n  }\n  return true;\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4416,
+        -448
+      ],
+      "id": "0b2794b9-9e7e-4cd3-904f-6f7c94dd3695",
+      "name": "Cleanup Events"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        3808,
+        -544
+      ],
+      "id": "4d413bee-545e-4b01-b06f-0593ac1ec293",
+      "name": "PreMerge",
+      "mode": "append"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        3984,
+        -352
+      ],
+      "id": "d551d5b7-9ef3-4c75-92a0-68baecf36e41",
+      "name": "PreMerge1",
+      "mode": "append"
+    },
+    {
+      "parameters": {
+        "jsCode": "const events = $input.all().map(i => i.json);\n// Prepare minimal input for LLM\nconst llmInput = events.map(e => ({\n    id: e.id,\n    summary: e.summary\n}));\n\nreturn {\n    json: {\n        prompt_id: 'calendar.critical_analysis',\n        input: {\n            input_type: 'TEXT',\n            input_text: JSON.stringify(llmInput)\n        }\n    }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4624,
+        -448
+      ],
+      "id": "086da010-6b24-4bb6-8834-4c953f249d97",
+      "name": "Prepare LLM Input"
+    },
+    {
+      "parameters": {
+        "workflowId": "cIdjAXxgI1Z-LurEg16oO",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        4816,
+        -448
+      ],
+      "id": "87d9e17d-de60-4f06-b7cc-4e06c9b4e0be",
+      "name": "Analyze Critical Events"
+    },
+    {
+      "parameters": {
+        "jsCode": "const llmResult = $input.first().json.events || [];\nconst originalEvents = $('Cleanup Events').all().map(i => i.json);\n\n// Create a map for fast lookup\nconst priorityMap = new Map();\nllmResult.forEach(item => {\n    if (item.id) priorityMap.set(item.id, item.priority);\n});\n\n// Merge\nreturn originalEvents.map(evt => ({\n    json: {\n        ...evt,\n        priority: priorityMap.get(evt.id) || 'low'\n    }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5024,
+        -448
+      ],
+      "id": "3137a36b-a458-4731-8a45-92180ccafd0d",
+      "name": "Process LLM Output"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get Alberto",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Laura",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Shared",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Alberto": {
+      "main": [
+        [
+          {
+            "node": "Tag Alberto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Laura": {
+      "main": [
+        [
+          {
+            "node": "Tag Laura",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Shared": {
+      "main": [
+        [
+          {
+            "node": "Tag Shared",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tag Alberto": {
+      "main": [
+        [
+          {
+            "node": "PreMerge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tag Laura": {
+      "main": [
+        [
+          {
+            "node": "PreMerge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Format Output": {
+      "main": [
+        [
+          {
+            "node": "Cleanup Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cleanup Events": {
+      "main": [
+        [
+          {
+            "node": "Prepare LLM Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare LLM Input": {
+      "main": [
+        [
+          {
+            "node": "Analyze Critical Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Critical Events": {
+      "main": [
+        [
+          {
+            "node": "Process LLM Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process LLM Output": {
+      "main": [
+        []
+      ]
+    },
+    "PreMerge": {
+      "main": [
+        [
+          {
+            "node": "PreMerge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tag Shared": {
+      "main": [
+        [
+          {
+            "node": "PreMerge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "PreMerge1": {
+      "main": [
+        [
+          {
+            "node": "Format Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "a8b30e3e-9428-492b-a64a-3fa423e8d086",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e1f8529dafc1c7b24188afd104b1a8e8824324405683593c80fc8bc56ba17881"
+  },
+  "id": "8-sG704-49t9SK4dL_ihA",
+  "tags": []
 }

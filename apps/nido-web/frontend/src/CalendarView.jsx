@@ -105,7 +105,29 @@ function CalendarView() {
     });
 
     return (
-        <div className="card" style={{ marginTop: '2rem', minHeight: '600px', maxWidth: '100%' }}>
+        <div className="card" style={{ marginTop: '2rem', minHeight: '600px', maxWidth: '100%', position: 'relative' }}>
+            {loading && (
+                <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(15, 23, 42, 0.85)',
+                    backdropFilter: 'blur(4px)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 10,
+                    borderRadius: '20px'
+                }}>
+                    <div className="spinner"></div>
+                    <p style={{ marginTop: '1rem', color: 'var(--text-primary)', fontWeight: 500 }}>Cargando calendario...</p>
+                    <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Esto puede tardar unos minutos si es la primera vez.</p>
+                </div>
+            )}
+
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
                 <h2 style={{ margin: 0, fontSize: '1.2rem' }}>Calendario</h2>
 
@@ -180,6 +202,17 @@ function CalendarView() {
 
             {/* Minimal override styles for FullCalendar dark mode compatibility */}
             <style>{`
+                .spinner {
+                    width: 40px;
+                    height: 40px;
+                    border: 4px solid rgba(255, 255, 255, 0.1);
+                    border-left-color: var(--accent-color);
+                    border-radius: 50%;
+                    animation: spin 1s linear infinite;
+                }
+                @keyframes spin {
+                    to { transform: rotate(360deg); }
+                }
                 .fc {
                     --fc-border-color: rgba(255,255,255,0.1);
                     --fc-page-bg-color: transparent;
