@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  frontend:
+    build: ./frontend
+    container_name: nido-web-frontend
+    ports:
+      - "3005:3005"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    restart: always
+
+  backend:
+    build: ./backend
+    container_name: nido-web-backend
+    ports:
+      - "8008:8008"
+    volumes:
+      - ./backend:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: always
