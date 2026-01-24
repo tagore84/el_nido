@@ -8,23 +8,23 @@ function MealsTable() {
     useEffect(() => {
         const fetchMeals = async () => {
             try {
-                const response = await fetch('/bga/bga_api/meals');
+                const response = await fetch('/nido_api/meals');
                 // Note: We need to handle the URL correctly. 
                 // In local dev (port 3005), we need to proxy to backend (8008). 
                 // Or call absolute URL if CORS allows. App.jsx uses specific logic.
                 // Let's use the same logic as App.jsx or rely on Vite proxy.
                 // For simplicity in this demo, let's assume direct call for now if simpler
 
-                let url = '/bga_api/meals';
+                let url = '/nido_api/meals';
                 // If dependent on Vite proxy or Nginx.
                 // If local dev without Nginx: http://localhost:8008/meals
 
                 if (import.meta.env.DEV) {
                     url = 'http://localhost:8008/meals';
                 } else {
-                    // Production/Nginx structure: /bga_api/
-                    // But our page is at /bga/, so ../bga_api/ or absolute /bga_api/
-                    url = `${window.location.protocol}//${window.location.host}/bga_api/meals`;
+                    // Production/Nginx structure: /nido_api/
+                    // But our page is at /nido/, so ../nido_api/ or absolute /nido_api/
+                    url = `${window.location.protocol}//${window.location.host}/nido_api/meals`;
                 }
 
                 const res = await fetch(url);

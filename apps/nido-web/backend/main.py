@@ -2,7 +2,7 @@ from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
-app = FastAPI(root_path="/bga_api")
+app = FastAPI(root_path="/nido_api")
 
 app.add_middleware(
     CORSMiddleware,

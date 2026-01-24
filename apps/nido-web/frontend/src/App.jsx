@@ -13,11 +13,11 @@ function App() {
     // Determine WebSocket URL
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     // Use window.location.host to automatically adapt to port/domain
-    // Using current host means we connect to /bga_api/ws on the same origin (handled by Nginx)
+    // Using current host means we connect to /nido_api/ws on the same origin (handled by Nginx)
     // Or if running locally on port 3001, we might need to point to 8000?
     // In dev: window.location.host is localhost:3001. 
-    // If we use /bga_api/ws, vite proxy or nginx must handle it. 
-    // We didn't configure vite proxy for /bga_api (only nginx).
+    // If we use /nido_api/ws, vite proxy or nginx must handle it. 
+    // We didn't configure vite proxy for /nido_api (only nginx).
     // So for local dev without nginx, this might fail unless we point to localhost:8000.
 
     let wsUrl;
@@ -25,22 +25,22 @@ function App() {
       // In local development, assuming simple setup
       // If bypassing nginx:
       wsUrl = 'ws://localhost:8008/ws';
-      // Note: The Nginx config uses /bga_api/ => 8000/. So /bga_api/ws => 8000/ws.
-      // If we access via Nginx (localhost:80/bga/), then relative path works.
+      // Note: The Nginx config uses /nido_api/ => 8008/. So /nido_api/ws => 8008/ws.
+      // If we access via Nginx (localhost:80/nido/), then relative path works.
       // Let's try to detect if we are on the proxied path.
     } else {
       // Production / Nginx
-      wsUrl = `${protocol}//${window.location.host}/bga_api/ws`;
+      wsUrl = `${protocol}//${window.location.host}/nido_api/ws`;
     }
 
     // Override for flexible testing: prefer relative if served from same origin structure
-    // But since local dev on 3001 doesn't have the bga_api proxy unless we configure vite...
+    // But since local dev on 3001 doesn't have the nido_api proxy unless we configure vite...
     // Let's configure vite proxy later if needed. For now simpler:
 
     // Better logic:
-    // If path starts with /bga, we assume we are behind the proxy structure.
-    if (window.location.pathname.startsWith('/bga')) {
-      wsUrl = `${protocol}//${window.location.host}/bga_api/ws`;
+    // If path starts with /nido, we assume we are behind the proxy structure.
+    if (window.location.pathname.startsWith('/nido')) {
+      wsUrl = `${protocol}//${window.location.host}/nido_api/ws`;
     } else {
       wsUrl = 'ws://localhost:8008/ws';
     }
