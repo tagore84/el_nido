@@ -15,17 +15,8 @@ function MealsTable() {
                 // Let's use the same logic as App.jsx or rely on Vite proxy.
                 // For simplicity in this demo, let's assume direct call for now if simpler
 
+                // Use relative path relying on Proxy (Dev) or Nginx (Prod)
                 let url = '/nido_api/meals';
-                // If dependent on Vite proxy or Nginx.
-                // If local dev without Nginx: http://localhost:8008/meals
-
-                if (import.meta.env.DEV) {
-                    url = 'http://localhost:8008/meals';
-                } else {
-                    // Production/Nginx structure: /nido_api/
-                    // But our page is at /nido/, so ../nido_api/ or absolute /nido_api/
-                    url = `${window.location.protocol}//${window.location.host}/nido_api/meals`;
-                }
 
                 const res = await fetch(url);
                 if (!res.ok) {

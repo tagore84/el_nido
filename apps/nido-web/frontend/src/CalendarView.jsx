@@ -22,17 +22,13 @@ function CalendarView() {
 
     const [priorityFilter, setPriorityFilter] = useState('all'); // all, high, important
 
-    const getApiUrl = (path) => {
-        if (import.meta.env.DEV) {
-            return `http://localhost:8008${path}`;
-        }
-        return `${window.location.protocol}//${window.location.host}/nido_api${path}`;
-    };
+    // We now rely on Vite proxy or Nginx proxy to handle /nido_api requests correctly. 
+    // No need for explicit host detection.
 
     const fetchEvents = async () => {
         setLoading(true);
         try {
-            const res = await fetch(getApiUrl('/calendar'));
+            const res = await fetch('/nido_api/calendar');
             if (!res.ok) throw new Error('Failed to fetch calendar');
             const data = await res.json();
             console.log('Calendar API Data:', data);
@@ -80,7 +76,7 @@ function CalendarView() {
     const handleSync = async () => {
         setSyncing(true);
         try {
-            await fetch(getApiUrl('/calendar/sync'), { method: 'POST' });
+            await fetch('/nido_api/calendar/sync', { method: 'POST' });
             // Poll for completion or just wait a bit and re-fetch?
             // Since backend is async background task, immediate re-fetch might get old data.
             // But for this MVP let's wait 3s then re-fetch.

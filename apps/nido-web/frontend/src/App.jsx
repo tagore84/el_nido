@@ -13,20 +13,20 @@ function App() {
   const logEndRef = useRef(null);
 
   useEffect(() => {
-    // Determine WebSocket URL
+    // Determine WebSocket URL relative to current host
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    // Use relative path which works with Nginx proxying
+    // In dev, Vite proxy needs to handle WS too, or we use explicit port if proxy fails WS
+    // For now, let's assume /nido_api/ws is correct path if proxied
+    const wsUrl = `${protocol}//${window.location.host}/nido_api/ws`;
 
-    let wsUrl;
-    if (import.meta.env.DEV) {
-      wsUrl = 'ws://localhost:8008/ws';
-    } else {
-      wsUrl = `${protocol}//${window.location.host}/nido_api/ws`;
-    }
+    // If we are strictly in dev without proxy working for WS (common issue), fallback to direct
+    // But we are trying to fix "synology" deployment, so relative is safer.
 
-    // Override for flexible testing:
-    if (window.location.pathname.startsWith('/nido')) {
-      wsUrl = `${protocol}//${window.location.host}/nido_api/ws`;
-    }
+    // To support Vite HMR proxying WS:
+    // If we use /nido_api/ws, vite proxy needs ws: true. Let's check vite config.
+    // If we didn't enable ws: true in proxy, we might need to.
+    // Let's stick to relative for now.
 
     const ws = new WebSocket(wsUrl);
 
