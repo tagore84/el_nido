@@ -1,9 +1,10 @@
-from fastapi import FastAPI, WebSocket, BackgroundTasks
+from fastapi import FastAPI, WebSocket, BackgroundTasks, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import asyncio
 import httpx
 from datetime import datetime
+import json
 
 app = FastAPI(root_path="/nido_api")
 
@@ -91,13 +92,42 @@ async def sync_calendar(background_tasks: BackgroundTasks):
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
-    await websocket.send_text("Connected to Nido-web Backend")
+    await websocket.send_text("Connected to Nido Brain")
     try:
         while True:
             data = await websocket.receive_text()
-            await websocket.send_text(f"Message text was: {data}")
+            print(f"Received from WS: {data}")
+            
+            # Forward to n8n nido.api.chat
+            n8n_url = "https://synology.tail69424a.ts.net/webhook/nido/chat"
+            async with httpx.AsyncClient() as client:
+                try:
+                    # Send text to n8n
+                    response = await client.post(n8n_url, json={"text": data}, timeout=60.0)
+                    response.raise_for_status()
+                    
+                    # n8n returns { text: "...", data: {...} }
+                    result = response.json()
+                    
+                    # Send text back to frontend (or strict JSON if frontend handles it)
+                    # For MVP, send string message. Frontend logs it.
+                    # Or send JSON string to be parsed.
+                    
+                    # Sending just the text for now as existing frontend expects text messages
+                    # But we can enhance frontend to parse JSON.
+                    if isinstance(result, dict) and "text" in result:
+                        await websocket.send_text(result["text"])
+                    else:
+                        await websocket.send_text(str(result))
+                        
+                except Exception as e:
+                    print(f"Error calling n8n: {e}")
+                    await websocket.send_text(f"Error processing command: {str(e)}")
+                    
+    except WebSocketDisconnect:
+        print("WebSocket disconnected")
     except Exception as e:
-        print(f"WebSocket disconnected: {e}")
+        print(f"WebSocket error: {e}")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8008)

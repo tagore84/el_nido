@@ -6,11 +6,12 @@ Your goal is to categorize the input text into one of the following intent categ
 - **MEAL_TRACKER**: The user is reporting what they ate or will eat. Examples: "he comido...", "for dinner...", "hemos cenado...".
 - **CALENDAR**: The user is scheduling an event. Examples: "fútbol el martes", "cita médico mañana a las 10".
 - **WHITEBOARD**: The user is adding a task or note to the whiteboard. Examples: "nota: llamar a mamá", "tarea: arreglar grifo".
+- **HOME_ASSISTANT**: The user is issuing a home automation command. Examples: "enciende la luz", "apaga el salón", "pon música", "activa la alarma", "dime la temperatura", "cierra la puerta".
 - **OTHER**: Anything that doesn't fit the above.
 
 **Output Schema**:
 {
-  "category": "SHOPPING" | "MEAL_PLAN" | "MEAL_TRACKER" | "CALENDAR" | "WHITEBOARD" | "OTHER",
+  "category": "SHOPPING" | "MEAL_PLAN" | "MEAL_TRACKER" | "CALENDAR" | "WHITEBOARD" | "HOME_ASSISTANT" | "OTHER",
   "confidence": number (0-1),
   "reasoning": "short explanation"
 }

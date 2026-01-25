@@ -1,0 +1,422 @@
+{
+    "name": "nido.home_assistant.command",
+    "id": "nido-ha-command",
+    "nodes": [
+        {
+            "parameters": {},
+            "name": "Execute Workflow Trigger",
+            "type": "n8n-nodes-base.executeWorkflowTrigger",
+            "typeVersion": 1,
+            "position": [
+                256,
+                304
+            ],
+            "id": "trigger"
+        },
+        {
+            "parameters": {
+                "command": "if [ -f /data/infra/ha_entities_cache.json ]; then\n  # Check if file is older than 24 hours (1440 minutes)\n  find /data/infra/ha_entities_cache.json -mmin +1440 -exec echo \"expired\" \\;\nelse\n  echo \"missing\"\nfi"
+            },
+            "name": "Check Cache Status",
+            "type": "n8n-nodes-base.executeCommand",
+            "typeVersion": 1,
+            "position": [
+                480,
+                304
+            ],
+            "id": "check-cache"
+        },
+        {
+            "parameters": {
+                "dataType": "string",
+                "value1": "={{ $json.stdout.trim() }}",
+                "rules": {
+                    "rules": [
+                        {
+                            "value2": "missing"
+                        },
+                        {
+                            "value2": "expired"
+                        }
+                    ]
+                },
+                "fallbackOutput": 1
+            },
+            "name": "Switch Cache",
+            "type": "n8n-nodes-base.switch",
+            "typeVersion": 1,
+            "position": [
+                700,
+                304
+            ],
+            "id": "switch-cache"
+        },
+        {
+            "parameters": {
+                "resource": "state",
+                "operation": "getAll"
+            },
+            "name": "Get HA States",
+            "type": "n8n-nodes-base.homeAssistant",
+            "typeVersion": 1,
+            "position": [
+                920,
+                200
+            ],
+            "id": "get-states",
+            "credentials": {
+                "homeAssistantApi": {
+                    "id": "Home Assistant account",
+                    "name": "Home Assistant account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "// Filter and simplify entities\nconst allStates = $input.all().map(i => i.json);\nconst domains = ['light', 'switch', 'climate', 'media_player', 'cover', 'lock', 'script', 'scene'];\n\nconst entities = allStates\n  .filter(s => domains.includes(s.entity_id.split('.')[0]))\n  .map(s => `${s.entity_id} (${s.attributes.friendly_name || ''})`);\n\nreturn { json: { entities } };"
+            },
+            "name": "Filter Entities",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1140,
+                200
+            ],
+            "id": "filter-entities"
+        },
+        {
+            "parameters": {
+                "fileSelector": "/data/infra/ha_entities_cache.json",
+                "options": {}
+            },
+            "name": "Read Cache",
+            "type": "n8n-nodes-base.readBinaryFile",
+            "typeVersion": 1,
+            "position": [
+                920,
+                450
+            ],
+            "id": "read-cache"
+        },
+        {
+            "parameters": {
+                "jsCode": "return { json: JSON.parse($input.item.binary.data.getText()) };"
+            },
+            "name": "Parse Cache",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1140,
+                450
+            ],
+            "id": "parse-cache"
+        },
+        {
+            "parameters": {
+                "fileName": "/data/infra/ha_entities_cache.json",
+                "options": {}
+            },
+            "name": "Write Cache",
+            "type": "n8n-nodes-base.writeBinaryFile",
+            "typeVersion": 1,
+            "position": [
+                1360,
+                200
+            ],
+            "id": "write-cache"
+        },
+        {
+            "parameters": {
+                "jsCode": "const entities = $input.item.json.entities;\nconst prompt_id = 'ha_command_interpreter';\nconst trigger = $('Execute Workflow Trigger').item.json;\nconst user_input = trigger.content || trigger.text || trigger.message.text;\n\nreturn {\n  json: {\n    prompt_id,\n    options: {},\n    input: {\n        request: user_input,\n        available_entities: entities\n    }\n  }\n};"
+            },
+            "name": "Prepare LLM",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1600,
+                304
+            ],
+            "id": "prepare-llm"
+        },
+        {
+            "parameters": {
+                "workflowId": "cIdjAXxgI1Z-LurEg16oO",
+                "mode": "each",
+                "options": {}
+            },
+            "name": "Interpret Command",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1,
+            "position": [
+                1820,
+                304
+            ],
+            "id": "interpret"
+        },
+        {
+            "parameters": {
+                "mode": "runOnceForEachItem",
+                "jsCode": "const result = $input.item.json;\nreturn { json: result }; "
+            },
+            "name": "Parse Interpretation",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                2040,
+                304
+            ],
+            "id": "parse-interpretation"
+        },
+        {
+            "parameters": {
+                "dataType": "string",
+                "value1": "={{ $json.action }}",
+                "rules": {
+                    "rules": [
+                        {
+                            "value2": "call_service"
+                        },
+                        {
+                            "value2": "fallback",
+                            "output": 1
+                        }
+                    ]
+                }
+            },
+            "name": "Switch Action",
+            "type": "n8n-nodes-base.switch",
+            "typeVersion": 1,
+            "position": [
+                2260,
+                304
+            ],
+            "id": "switch-action"
+        },
+        {
+            "parameters": {
+                "resource": "service",
+                "domain": "={{ $json.domain }}",
+                "service": "={{ $json.service }}",
+                "entityId": "={{ $json.entity_id }}",
+                "data": "={{ JSON.stringify($json.service_data || {}) }}"
+            },
+            "name": "Execute HA Service",
+            "type": "n8n-nodes-base.homeAssistant",
+            "typeVersion": 1,
+            "position": [
+                2500,
+                200
+            ],
+            "id": "execute-ha",
+            "credentials": {
+                "homeAssistantApi": {
+                    "id": "Home Assistant account",
+                    "name": "Home Assistant account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "method": "process",
+                "text": "={{ $('Execute Workflow Trigger').item.json.content || $('Execute Workflow Trigger').item.json.text }}"
+            },
+            "name": "HA Assist Fallback",
+            "type": "n8n-nodes-base.homeAssistant",
+            "typeVersion": 1,
+            "position": [
+                2500,
+                450
+            ],
+            "id": "ha-fallback",
+            "credentials": {
+                "homeAssistantApi": {
+                    "id": "Home Assistant account",
+                    "name": "Home Assistant account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "return { json: { \n  result_text: $input.item.json.speech ? $input.item.json.speech.plain.speech : \"Comando ejecutado.\",\n  ha_response: $input.item.json\n} };"
+            },
+            "name": "Format Response",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                2750,
+                304
+            ],
+            "id": "format-response"
+        }
+    ],
+    "connections": {
+        "Execute Workflow Trigger": {
+            "main": [
+                [
+                    {
+                        "node": "Check Cache Status",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Check Cache Status": {
+            "main": [
+                [
+                    {
+                        "node": "Switch Cache",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Switch Cache": {
+            "main": [
+                [
+                    {
+                        "node": "Get HA States",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Read Cache",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Get HA States": {
+            "main": [
+                [
+                    {
+                        "node": "Filter Entities",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Filter Entities": {
+            "main": [
+                [
+                    {
+                        "node": "Write Cache",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Write Cache": {
+            "main": [
+                [
+                    {
+                        "node": "Prepare LLM",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Read Cache": {
+            "main": [
+                [
+                    {
+                        "node": "Parse Cache",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Parse Cache": {
+            "main": [
+                [
+                    {
+                        "node": "Prepare LLM",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Prepare LLM": {
+            "main": [
+                [
+                    {
+                        "node": "Interpret Command",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Interpret Command": {
+            "main": [
+                [
+                    {
+                        "node": "Parse Interpretation",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Parse Interpretation": {
+            "main": [
+                [
+                    {
+                        "node": "Switch Action",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Switch Action": {
+            "main": [
+                [
+                    {
+                        "node": "Execute HA Service",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "HA Assist Fallback",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Execute HA Service": {
+            "main": [
+                [
+                    {
+                        "node": "Format Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "HA Assist Fallback": {
+            "main": [
+                [
+                    {
+                        "node": "Format Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}

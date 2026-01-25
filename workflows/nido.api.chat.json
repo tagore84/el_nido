@@ -1,0 +1,215 @@
+{
+    "name": "nido.api.chat",
+    "id": "nido-api-chat",
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "nido/chat",
+                "options": {}
+            },
+            "name": "Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                256,
+                304
+            ],
+            "id": "webhook",
+            "webhookId": "nido-chat-webhook"
+        },
+        {
+            "parameters": {
+                "jsCode": "const body = $input.item.json.body;\nreturn { json: {\n  type: 'text',\n  content: body.text,\n  chat_id: 'nido-web'\n}};"
+            },
+            "name": "Prepare Router",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                480,
+                304
+            ],
+            "id": "prepare-router"
+        },
+        {
+            "parameters": {
+                "workflowId": "nido-lib-router",
+                "mode": "each",
+                "options": {}
+            },
+            "name": "Execute Router",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1,
+            "position": [
+                700,
+                304
+            ],
+            "id": "execute-router"
+        },
+        {
+            "parameters": {
+                "dataType": "string",
+                "value1": "={{ $json.category }}",
+                "rules": {
+                    "rules": [
+                        {
+                            "value2": "HOME_ASSISTANT"
+                        }
+                    ]
+                },
+                "fallbackOutput": 1
+            },
+            "name": "Switch Category",
+            "type": "n8n-nodes-base.switch",
+            "typeVersion": 1,
+            "position": [
+                920,
+                304
+            ],
+            "id": "switch-category"
+        },
+        {
+            "parameters": {
+                "workflowId": "nido-ha-command",
+                "mode": "each",
+                "options": {}
+            },
+            "name": "Execute HA Command",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1,
+            "position": [
+                1140,
+                200
+            ],
+            "id": "execute-ha"
+        },
+        {
+            "parameters": {
+                "jsCode": "return { json: { result: \"Intent identified: \" + $input.item.json.category + \". Logic for web not yet implemented.\" } };"
+            },
+            "name": "Format Generic",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1140,
+                450
+            ],
+            "id": "format-generic"
+        },
+        {
+            "parameters": {
+                "mode": "runOnceForEachItem",
+                "jsCode": "const result = $input.item.json;\nreturn { json: { \n  text: result.result_text || result.result || \"Comando procesado.\",\n  data: result \n} };"
+            },
+            "name": "Format Final Response",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1400,
+                304
+            ],
+            "id": "format-final"
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ JSON.stringify($json) }}",
+                "options": {}
+            },
+            "name": "Respond to Webhook",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1620,
+                304
+            ],
+            "id": "respond-webhook"
+        }
+    ],
+    "connections": {
+        "Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Prepare Router",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Prepare Router": {
+            "main": [
+                [
+                    {
+                        "node": "Execute Router",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Execute Router": {
+            "main": [
+                [
+                    {
+                        "node": "Switch Category",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Switch Category": {
+            "main": [
+                [
+                    {
+                        "node": "Execute HA Command",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Format Generic",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Execute HA Command": {
+            "main": [
+                [
+                    {
+                        "node": "Format Final Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Format Generic": {
+            "main": [
+                [
+                    {
+                        "node": "Format Final Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Format Final Response": {
+            "main": [
+                [
+                    {
+                        "node": "Respond to Webhook",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}

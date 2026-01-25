@@ -1,0 +1,187 @@
+{
+    "name": "nido.lib.router",
+    "id": "nido-lib-router",
+    "nodes": [
+        {
+            "parameters": {},
+            "name": "Execute Workflow Trigger",
+            "type": "n8n-nodes-base.executeWorkflowTrigger",
+            "typeVersion": 1,
+            "position": [
+                256,
+                304
+            ],
+            "id": "trigger-node"
+        },
+        {
+            "parameters": {
+                "dataType": "string",
+                "value1": "={{ $json.type }}",
+                "rules": {
+                    "rules": [
+                        {
+                            "value2": "text"
+                        },
+                        {
+                            "value2": "image",
+                            "output": 1
+                        }
+                    ]
+                }
+            },
+            "name": "Switch Input Type",
+            "type": "n8n-nodes-base.switch",
+            "typeVersion": 1,
+            "position": [
+                480,
+                304
+            ],
+            "id": "switch-type"
+        },
+        {
+            "parameters": {
+                "jsCode": "const prompt_id = 'router_text_classification';\nconst options = {};\n\nreturn $input.all().map(item => {\n  const json = item.json;\n  return {\n    json: {\n      prompt_id,\n      options,\n      chat_id: json.chat_id,\n      input: {\n          input_type: 'TEXT',\n          input_text: json.content\n      }\n    }\n  };\n});"
+            },
+            "name": "Prepare Text Input",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                700,
+                200
+            ],
+            "id": "prepare-text"
+        },
+        {
+            "parameters": {
+                "jsCode": "const prompt_id = 'router_photo_classification';\nconst options = {};\n\nreturn $input.all().map(item => {\n  const json = item.json;\n  return {\n    json: {\n      prompt_id,\n      options,\n      chat_id: json.chat_id,\n      input: {\n          input_type: 'IMAGE',\n          input_path: json.content\n      }\n    }\n  };\n});"
+            },
+            "name": "Prepare Image Input",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                700,
+                400
+            ],
+            "id": "prepare-image"
+        },
+        {
+            "parameters": {
+                "workflowId": "cIdjAXxgI1Z-LurEg16oO",
+                "mode": "each",
+                "options": {}
+            },
+            "name": "Classify Text",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1,
+            "position": [
+                900,
+                200
+            ],
+            "id": "classify-text"
+        },
+        {
+            "parameters": {
+                "workflowId": "cIdjAXxgI1Z-LurEg16oO",
+                "mode": "each",
+                "options": {}
+            },
+            "name": "Classify Image",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1,
+            "position": [
+                900,
+                400
+            ],
+            "id": "classify-image"
+        },
+        {
+            "parameters": {
+                "mode": "runOnceForEachItem",
+                "jsCode": "const json = $input.item.json;\nconst original = $('Execute Workflow Trigger').item.json;\n// Unified output format\nreturn {\n  json: {\n    category: json.category || json.classification, // Prompt consistency check: text uses category, photo might use classification?\n    confidence: json.confidence,\n    reasoning: json.reasoning || json.reason,\n    chat_id: original.chat_id,\n    ...original // Spread all original input fields (type, content, etc)\n  }\n};"
+            },
+            "name": "Parse Result",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1150,
+                304
+            ],
+            "id": "parse-result"
+        }
+    ],
+    "connections": {
+        "Execute Workflow Trigger": {
+            "main": [
+                [
+                    {
+                        "node": "Switch Input Type",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Switch Input Type": {
+            "main": [
+                [
+                    {
+                        "node": "Prepare Text Input",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Prepare Image Input",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Prepare Text Input": {
+            "main": [
+                [
+                    {
+                        "node": "Classify Text",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Classify Text": {
+            "main": [
+                [
+                    {
+                        "node": "Parse Result",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Prepare Image Input": {
+            "main": [
+                [
+                    {
+                        "node": "Classify Image",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Classify Image": {
+            "main": [
+                [
+                    {
+                        "node": "Parse Result",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}

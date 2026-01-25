@@ -73,33 +73,131 @@
     },
     {
       "parameters": {
-        "workflowId": "fk7A5h2ySSny8G3L_luha",
-        "mode": "each",
-        "options": {}
+        "jsCode": "const msg = $input.item.json;\nreturn { json: {\n  type: 'text',\n  content: msg.message.text,\n  chat_id: msg.message.chat.id,\n  ...msg\n}};"
       },
-      "name": "Classify Text",
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1,
+      "name": "Setup Text",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [
-        3376,
-        -752
+        3400,
+        -800
       ],
-      "id": "b15010eb-bd08-4bc3-abc9-e1cafe193ad3"
+      "id": "setup-text-node"
     },
     {
       "parameters": {
-        "workflowId": "i27XoV9nJmU0TkfZ39Jk0",
+        "resource": "file",
+        "fileId": "={{ $json.message.photo[$json.message.photo.length - 1].file_id }}",
+        "additionalFields": {}
+      },
+      "name": "Get Photo",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        3400,
+        -560
+      ],
+      "id": "22b4085b-ae42-48dc-a095-0c82cc1cdd8c",
+      "credentials": {
+        "telegramApi": {
+          "id": "JLG33gMQcdi4JvQq",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "folder",
+              "value": "=/storage/inbox_photos/{{ new Date().getFullYear() }}/{{ (new Date().getMonth() + 1).toString().padStart(2, '0') }}/{{ new Date().getDate().toString().padStart(2, '0') }}"
+            },
+            {
+              "name": "filename",
+              "value": "={{ $json.result.file_path.split('/').pop() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Set Path",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        3600,
+        -560
+      ],
+      "id": "86b4b126-cb4a-4d95-82a2-1e68c8e1005d"
+    },
+    {
+      "parameters": {
+        "command": "=mkdir -p {{ $json.folder }}"
+      },
+      "name": "Create Folder",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        3800,
+        -600
+      ],
+      "id": "ff9f134e-b9a4-4f0a-9cf4-86612ca31810"
+    },
+    {
+      "parameters": {
+        "mode": "mergeByIndex",
+        "join": "outer"
+      },
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 1,
+      "position": [
+        4000,
+        -560
+      ],
+      "id": "75813296-bb59-4adc-8b21-c3bd4d3e8e8c"
+    },
+    {
+      "parameters": {
+        "fileName": "={{ $node[\"Set Path\"].json.folder }}/{{ $node[\"Set Path\"].json.filename }}",
+        "options": {}
+      },
+      "name": "Save to Disk",
+      "type": "n8n-nodes-base.writeBinaryFile",
+      "typeVersion": 1,
+      "position": [
+        4200,
+        -560
+      ],
+      "id": "80822fdd-7942-4368-a44b-ace8c59652cc"
+    },
+    {
+      "parameters": {
+        "jsCode": "const folder = $('Set Path').item.json.folder;\nconst filename = $('Set Path').item.json.filename;\nconst path = `${folder}/${filename}`;\nconst msg = $('Telegram Trigger').item.json;\n\nreturn { json: {\n  type: 'image',\n  content: path,\n  chat_id: msg.message.chat.id,\n  ...msg\n}};"
+      },
+      "name": "Setup Photo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4400,
+        -560
+      ],
+      "id": "setup-photo-node"
+    },
+    {
+      "parameters": {
+        "workflowId": "n2NjfVeSxgmSE_G_w6YSA",
         "mode": "each",
         "options": {}
       },
-      "name": "Classify Photo",
+      "name": "Execute Router",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1,
       "position": [
-        3376,
-        -560
+        4700,
+        -700
       ],
-      "id": "f62d67c0-d6cd-4037-b74c-2a2c58b34978"
+      "id": "execute-router-node"
     },
     {
       "parameters": {
@@ -111,20 +209,20 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1,
       "position": [
-        3376,
+        3400,
         -384
       ],
       "id": "f6c8ac16-c935-4354-872a-e39bba0aec60"
     },
     {
       "parameters": {
-        "jsCode": "const chatMap = {\n    \"Nido-Alberto\": \"5785514136\",\n    \"Nido-Alberto-Laura\": \"-5223730192\",\n    \"Nido-Alberto-Laura-Testing\": \"-5234536185\",\n    \"Nido-Laura\": \"PLACEHOLDER\"\n};\nconst idToName = Object.fromEntries(Object.entries(chatMap).map(([k,v]) => [v, k]));\n\nconst item = $input.item.json;\nconst chatId = item.chat_id;\nconst chatName = idToName[String(chatId)] || 'Unknown';\n\nlet workflow_id = null;\nconst WORKFLOWS = {\n    WHITEBOARD_INGEST: 't3IsM1h5-xaYeegf0PpyK',\n    WHITEBOARD_REVIEW: 'gSnUtg5YnaLgjyYN2sKno',\n    TELEGRAM_CALENDAR: 'rnr5kvlbBNvVA9wXvJGAE',\n    SOCCER_EVENT: 'l-0lymHED94CrXwOsRH98',\n    MEALS_INVENTORY: 'ApXo7C4Qijyz1gEK5D30F',\n    MEALS_PLANNER: 'qFxG__hwtGSAfLK6Q83SR',\n    MEALS_TRACKER: 'YCbLT5N1oGa3LKEa6xE2j',\n    TELEGRAM_R: '_dA1MLN1DRs_rD4LkW2et'\n};\n\n// Global Rule: Text is exactly \"r\" or \"R\" -> nido.telegram.r\nif (item.type === 'R') {\n    workflow_id = WORKFLOWS.TELEGRAM_R;\n}\n\n// Global Rule: Shopping -> nido.meals.inventory\nif (item.category === 'SHOPPING') {\n    workflow_id = WORKFLOWS.MEALS_INVENTORY;\n}\n\n// Global Rule: Meal Plan -> nido.meals.planner\nif (item.category === 'MEAL_PLAN') {\n    workflow_id = WORKFLOWS.MEALS_PLANNER;\n}\n\n// Global Rule: Meal Tracker -> nido.meals.tracker\nif (item.category === 'MEAL_TRACKER' || item.category === 'meal_tracker') {\n    workflow_id = WORKFLOWS.MEALS_TRACKER;\n}\n\n// Global Rule: Image Type Event -> nido.telegram.calendar\nif (item.image_type === 'event') {\n    workflow_id = WORKFLOWS.TELEGRAM_CALENDAR;\n}\n\n// Global Rule: Image Type Meal Tracker -> nido.meals.tracker\nif (item.image_type === 'meal_tracker') {\n    workflow_id = WORKFLOWS.MEALS_TRACKER;\n}\n\n// Rule 1: Foto + Category: whiteboard_calendar + Chat: \"Nido-Alberto\" -> nido.whiteboard.ingest\nif (chatName === 'Nido-Alberto') {\n    if (item.image_type === 'whiteboard_calendar') {\n        workflow_id = WORKFLOWS.WHITEBOARD_INGEST;\n    }\n    // Rule 2: Tipo: Callback + Chat: \"Nido-Alberto\" -> nido.whiteboard.review\n    if (item.type === 'callback') {\n        workflow_id = WORKFLOWS.WHITEBOARD_REVIEW;\n    }\n}\n\n// Rule 3: Chat \"Nido-Alberto-Laura-Testing\" rules\nif (chatName === 'Nido-Alberto-Laura-Testing') {\n    // Texto + Category: calendar -> nido.telegram.calendar\n    if (item.category === 'calendar') {\n        workflow_id = WORKFLOWS.TELEGRAM_CALENDAR;\n    }\n    // Callback: cal_save or cal_cancel -> nido.telegram.calendar\n    if (item.type === 'callback' && item.action && (item.action.startsWith('cal_'))) {\n        workflow_id = WORKFLOWS.TELEGRAM_CALENDAR;\n    }\n}\n\n// Global Rule: Calendar Callbacks (cal_*) always go to calendar workflow\nif (item.type === 'callback' && item.action && String(item.action).startsWith('cal_')) {\n    workflow_id = WORKFLOWS.TELEGRAM_CALENDAR;\n}\n\n// Global Rule: Soccer Callbacks (yes/no_football)\nif (item.type === 'callback' && item.action && (String(item.action) === 'yes_football' || String(item.action) === 'no_football')) {\n    workflow_id = WORKFLOWS.SOCCER_EVENT;\n}\n\nreturn { json: { workflow_id, ...item, chatName } };"
+        "jsCode": "const chatMap = {\n    \"Nido-Alberto\": \"5785514136\",\n    \"Nido-Alberto-Laura\": \"-5223730192\",\n    \"Nido-Alberto-Laura-Testing\": \"-5234536185\",\n    \"Nido-Laura\": \"PLACEHOLDER\"\n};\nconst idToName = Object.fromEntries(Object.entries(chatMap).map(([k,v]) => [v, k]));\n\nconst item = $input.item.json;\nconst chatId = item.chat_id;\nconst chatName = idToName[String(chatId)] || 'Unknown';\n\nlet workflow_id = null;\nconst WORKFLOWS = {\n    WHITEBOARD_INGEST: 't3IsM1h5-xaYeegf0PpyK',\n    WHITEBOARD_REVIEW: 'gSnUtg5YnaLgjyYN2sKno',\n    TELEGRAM_CALENDAR: 'rnr5kvlbBNvVA9wXvJGAE',\n    SOCCER_EVENT: 'l-0lymHED94CrXwOsRH98',\n    MEALS_INVENTORY: 'ApXo7C4Qijyz1gEK5D30F',\n    MEALS_PLANNER: 'qFxG__hwtGSAfLK6Q83SR',\n    MEALS_TRACKER: 'YCbLT5N1oGa3LKEa6xE2j',\n    TELEGRAM_R: '_dA1MLN1DRs_rD4LkW2et',\n    HOME_ASSISTANT: 'PLACEHOLDER_HA_WORKFLOW_ID'  // Update this after creating the HA workflow\n};\n\n// Global Rule: Text is exactly \"r\" or \"R\" -> nido.telegram.r\nif (item.type === 'R') {\n    workflow_id = WORKFLOWS.TELEGRAM_R;\n}\n\n// Global Rule: Shopping -> nido.meals.inventory\nif (item.category === 'SHOPPING') {\n    workflow_id = WORKFLOWS.MEALS_INVENTORY;\n}\n\n// Global Rule: Meal Plan -> nido.meals.planner\nif (item.category === 'MEAL_PLAN') {\n    workflow_id = WORKFLOWS.MEALS_PLANNER;\n}\n\n// Global Rule: Meal Tracker -> nido.meals.tracker\nif (item.category === 'MEAL_TRACKER' || item.category === 'meal_tracker') {\n    workflow_id = WORKFLOWS.MEALS_TRACKER;\n}\n\n// Global Rule: Home Assistant\nif (item.category === 'HOME_ASSISTANT') {\n    workflow_id = WORKFLOWS.HOME_ASSISTANT;\n}\n\n// Global Rule: Image Type Event -> nido.telegram.calendar\n// Updated to check category 'CALENDAR' or similar logic if prompt changed, \n// but prompt router_photo_classification schema was not checked. Assuming it returns 'image_type' or 'category'.\n// nido.lib.router unifies to 'category'. Photo prompt likely returns category too?\n// Let's assume photo prompt returns category matching schemas.\nif (item.category === 'CALENDAR' || item.image_type === 'event') {\n    workflow_id = WORKFLOWS.TELEGRAM_CALENDAR;\n}\n\n// Global Rule: Image Type Meal Tracker\nif (item.category === 'MEAL_TRACKER' || item.image_type === 'meal_tracker') {\n    workflow_id = WORKFLOWS.MEALS_TRACKER;\n}\n\n// Rule 1: Foto + Category: whiteboard_calendar + Chat: \"Nido-Alberto\" -> nido.whiteboard.ingest\nif (chatName === 'Nido-Alberto') {\n    if (item.category === 'WHITEBOARD' || item.image_type === 'whiteboard_calendar') {\n        workflow_id = WORKFLOWS.WHITEBOARD_INGEST;\n    }\n    // Rule 2: Tipo: Callback + Chat: \"Nido-Alberto\" -> nido.whiteboard.review\n    if (item.type === 'callback') {\n        workflow_id = WORKFLOWS.WHITEBOARD_REVIEW;\n    }\n}\n\n// Rule 3: Chat \"Nido-Alberto-Laura-Testing\" rules\nif (chatName === 'Nido-Alberto-Laura-Testing') {\n    // Texto + Category: calendar -> nido.telegram.calendar\n    if (item.category === 'CALENDAR' || item.category === 'calendar') {\n        workflow_id = WORKFLOWS.TELEGRAM_CALENDAR;\n    }\n    // Callback: cal_save or cal_cancel -> nido.telegram.calendar\n    if (item.type === 'callback' && item.action && (item.action.startsWith('cal_'))) {\n        workflow_id = WORKFLOWS.TELEGRAM_CALENDAR;\n    }\n}\n\n// Global Rule: Calendar Callbacks (cal_*) always go to calendar workflow\nif (item.type === 'callback' && item.action && String(item.action).startsWith('cal_')) {\n    workflow_id = WORKFLOWS.TELEGRAM_CALENDAR;\n}\n\n// Global Rule: Soccer Callbacks (yes/no_football)\nif (item.type === 'callback' && item.action && (String(item.action) === 'yes_football' || String(item.action) === 'no_football')) {\n    workflow_id = WORKFLOWS.SOCCER_EVENT;\n}\n\nreturn { json: { workflow_id, ...item, chatName } };"
       },
       "name": "Route Logic",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3600,
+        5000,
         -224
       ],
       "id": "dbe53b2c-82c2-46c0-91af-367ad28bc103"
@@ -146,7 +244,7 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 1,
       "position": [
-        3824,
+        5224,
         -352
       ],
       "id": "461ff771-ae7f-4e11-838d-b5107be19906"
@@ -161,7 +259,7 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1,
       "position": [
-        4048,
+        5448,
         -416
       ],
       "id": "c8142d0e-2673-48ea-a38b-4029473f31d1"
@@ -176,7 +274,7 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1,
       "position": [
-        4048,
+        5448,
         -224
       ],
       "id": "dc5a95ca-aec0-4148-9472-7c20c189f28d",
@@ -210,7 +308,6 @@
       }
     }
   ],
-  "pinData": {},
   "connections": {
     "Telegram Trigger": {
       "main": [
@@ -238,14 +335,14 @@
       "main": [
         [
           {
-            "node": "Classify Text",
+            "node": "Setup Text",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Classify Photo",
+            "node": "Get Photo",
             "type": "main",
             "index": 0
           }
@@ -266,18 +363,89 @@
         ]
       ]
     },
-    "Classify Text": {
+    "Setup Text": {
       "main": [
         [
           {
-            "node": "Route Logic",
+            "node": "Execute Router",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Classify Photo": {
+    "Get Photo": {
+      "main": [
+        [
+          {
+            "node": "Set Path",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Path": {
+      "main": [
+        [
+          {
+            "node": "Create Folder",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Create Folder": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Save to Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to Disk": {
+      "main": [
+        [
+          {
+            "node": "Setup Photo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Setup Photo": {
+      "main": [
+        [
+          {
+            "node": "Execute Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Router": {
       "main": [
         [
           {
@@ -340,16 +508,5 @@
       ]
     }
   },
-  "active": true,
-  "settings": {
-    "executionOrder": "v1",
-    "availableInMCP": false
-  },
-  "versionId": "58d871e9-6cef-4151-b4ee-900b2d72d449",
-  "meta": {
-    "templateCredsSetupCompleted": true,
-    "instanceId": "e1f8529dafc1c7b24188afd104b1a8e8824324405683593c80fc8bc56ba17881"
-  },
-  "id": "Idwsbwewlp1-aUO7NZrsg",
-  "tags": []
+  "active": true
 }
