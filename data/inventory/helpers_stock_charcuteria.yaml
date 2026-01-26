@@ -2,6 +2,10 @@ stock_charcuteria_jamon_cocido:
   name: "Jamón cocido"
   icon: mdi:food-steak
 
+stock_charcuteria_guanciale:
+  name: "Guanciale"
+  icon: mdi:food-steak
+
 stock_charcuteria_morcilla_cebolla:
   name: "Morcilla de cebolla"
   icon: mdi:sausage
@@ -16,4 +20,4 @@ stock_charcuteria_chorizo:
 
 stock_charcuteria_pavo:
   name: "Pavo"
-  icon: mdi:food-deli
+  icon: mdi:food-drumstick

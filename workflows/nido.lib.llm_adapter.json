@@ -31,7 +31,7 @@
         "conditions": {
           "boolean": [
             {
-              "value1": "={{ !!$json.chat_id }}",
+              "value1": "={{ !!$json.chat_id && $json.chat_id !== 'nido-web' }}",
               "value2": true
             }
           ]

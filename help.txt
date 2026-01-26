@@ -1,0 +1,1 @@
+python3 scripts/generate_homeasssitant_card_input_boolean.py --input data/inventory/helpers_stock_charcuteria.yaml --title Charcuteria --output data/inventory/cards/card_charcuteria.yaml

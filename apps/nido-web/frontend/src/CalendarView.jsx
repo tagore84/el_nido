@@ -13,20 +13,19 @@ const CALENDAR_COLORS = {
 
 const DEFAULT_COLOR = '#64748b';
 
-function CalendarView() {
+function CalendarView(props) {
+
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [syncing, setSyncing] = useState(false);
     const [error, setError] = useState(null);
     const calendarRef = useRef(null);
 
-    const [priorityFilter, setPriorityFilter] = useState('all'); // all, high, important
-
     // We now rely on Vite proxy or Nginx proxy to handle /nido_api requests correctly. 
     // No need for explicit host detection.
 
-    const fetchEvents = async () => {
-        setLoading(true);
+    const fetchEvents = async (silent = false) => {
+        if (!silent) setLoading(true);
         try {
             const res = await fetch('/nido_api/calendar');
             if (!res.ok) throw new Error('Failed to fetch calendar');
@@ -69,7 +68,7 @@ function CalendarView() {
             console.error(err);
             setError(err.message);
         } finally {
-            setLoading(false);
+            if (!silent) setLoading(false);
         }
     };
 
@@ -90,15 +89,9 @@ function CalendarView() {
     };
 
     useEffect(() => {
+        // Initial fetch
         fetchEvents();
     }, []);
-
-    const filteredEvents = events.filter(evt => {
-        if (priorityFilter === 'all') return true;
-        if (priorityFilter === 'high') return evt.extendedProps.priority === 'high';
-        if (priorityFilter === 'important') return ['high', 'medium'].includes(evt.extendedProps.priority);
-        return true;
-    });
 
     return (
         <div className="card" style={{ marginTop: '2rem', minHeight: '600px', maxWidth: '100%', position: 'relative' }}>
@@ -126,27 +119,6 @@ function CalendarView() {
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
                 <h2 style={{ margin: 0, fontSize: '1.2rem' }}>Calendario</h2>
-
-                <div style={{ display: 'flex', gap: '0.5rem', background: 'rgba(0,0,0,0.2)', padding: '0.2rem', borderRadius: '8px' }}>
-                    {['all', 'important', 'high'].map((filter) => (
-                        <button
-                            key={filter}
-                            onClick={() => setPriorityFilter(filter)}
-                            style={{
-                                background: priorityFilter === filter ? 'var(--accent-color)' : 'transparent',
-                                border: 'none',
-                                padding: '0.3rem 0.8rem',
-                                borderRadius: '6px',
-                                fontSize: '0.8rem',
-                                color: priorityFilter === filter ? '#fff' : 'var(--text-secondary)',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s'
-                            }}
-                        >
-                            {filter === 'all' ? 'Todos' : (filter === 'important' ? 'Importantes' : 'Urgentes')}
-                        </button>
-                    ))}
-                </div>
 
                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                     <div style={{ display: 'flex', gap: '0.5rem', fontSize: '0.8rem' }}>
@@ -188,7 +160,7 @@ function CalendarView() {
                         center: 'title',
                         right: 'dayGridMonth,timeGridWeek,timeGridDay'
                     }}
-                    events={filteredEvents}
+                    events={events}
                     height="auto"
                     dayMaxEvents={true}
                     slotMinTime="08:00:00"

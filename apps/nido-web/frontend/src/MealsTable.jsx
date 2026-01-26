@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 
-function MealsTable() {
+function MealsTable(props) {
+
     const [meals, setMeals] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);

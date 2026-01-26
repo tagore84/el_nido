@@ -1,0 +1,38 @@
+{
+    "iphone_alberto": {
+        "type": "mobile",
+        "owner": "alberto",
+        "label": "iPhone de Alberto",
+        "theme": "light",
+        "visibleComponents": [
+            "system_register"
+        ]
+    },
+    "iphone_laura": {
+        "type": "mobile",
+        "owner": "laura",
+        "label": "iPhone de Laura",
+        "theme": "light",
+        "visibleComponents": [
+            "system_register"
+        ]
+    },
+    "ds_first_floor": {
+        "type": "dashboard",
+        "location": "first_floor",
+        "label": "Dashboard Primera Planta",
+        "theme": "dark",
+        "visibleComponents": [
+            "calendar"
+        ]
+    },
+    "ds_zero_floor": {
+        "type": "dashboard",
+        "location": "zero_floor",
+        "label": "Dashboard Planta Baja",
+        "theme": "dark",
+        "visibleComponents": [
+            "calendar"
+        ]
+    }
+}

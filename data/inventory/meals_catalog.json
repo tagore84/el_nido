@@ -40,7 +40,7 @@
   },
   {
     "name": "Poke",
-    "valid_for_lunch": false,
+    "valid_for_lunch": true,
     "valid_for_dinner": true,
     "valid_for_alberto": true,
     "valid_for_laura": true,
@@ -49,13 +49,14 @@
       "arroz",
       "maiz",
       "aguacate",
-      "tomates_cherry"
+      "tomates_cherry",
+      "furikake"
     ]
   },
   {
     "name": "Macarrones con chorizo y cebolla",
     "valid_for_lunch": true,
-    "valid_for_dinner": false,
+    "valid_for_dinner": true,
     "valid_for_alberto": true,
     "valid_for_laura": false,
     "ingredients": [
@@ -64,6 +65,19 @@
       "cebolla",
       "tomate_triturado",
       "aceite_oliva"
+    ]
+  },
+  {
+    "name": "Pizza de jamón cocido, guanciale y maíz",
+    "valid_for_lunch": false,
+    "valid_for_dinner": true,
+    "valid_for_alberto": true,
+    "valid_for_laura": true,
+    "ingredients": [
+      "masa_pizza_fina", 
+      "jamon_cocido",
+      "maiz",
+      "guanciale"
     ]
   }
 ]

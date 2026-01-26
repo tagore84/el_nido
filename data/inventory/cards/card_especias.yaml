@@ -1,0 +1,65 @@
+type: custom:stack-in-card
+mode: vertical
+cards:
+- type: custom:mushroom-title-card
+  title: Especias
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_especias_romero
+  primary: Romero
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_especias_romero'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:leaf
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_especias_romero'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_especias_azafran
+  primary: Azafrán
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_especias_azafran'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:flower
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_especias_azafran'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_especias_colorante
+  primary: Colorante
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_especias_colorante'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:palette-swatch-outline
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_especias_colorante'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_especias_sal
+  primary: Sal
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_especias_sal'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:shaker-outline
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_especias_sal'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_especias_furikake
+  primary: Furikake
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_especias_furikake'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:shaker-outline
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_especias_furikake'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info

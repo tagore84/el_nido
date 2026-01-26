@@ -13,11 +13,11 @@
       "type": "n8n-nodes-base.telegramTrigger",
       "typeVersion": 1,
       "position": [
-        2480,
-        -320
+        6320,
+        -1104
       ],
       "webhookId": "nido-router-telegram",
-      "id": "36a0c177-6289-4e3e-9920-ff011e5da980",
+      "id": "1cdfd0f5-81ff-4628-b970-ccc240863239",
       "credentials": {
         "telegramApi": {
           "id": "JLG33gMQcdi4JvQq",
@@ -33,10 +33,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2928,
-        -320
+        6768,
+        -1104
       ],
-      "id": "45679643-405b-474f-bfe5-00501b49416e"
+      "id": "0bea7979-66a7-4b28-8d05-e578c827be43"
     },
     {
       "parameters": {
@@ -66,10 +66,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 1,
       "position": [
-        3152,
-        -352
+        6992,
+        -1136
       ],
-      "id": "3d1363a7-6080-4fd2-a1eb-9061a1cc5570"
+      "id": "cfe8761c-1cc4-4550-b074-6380840d29ac"
     },
     {
       "parameters": {
@@ -79,10 +79,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3400,
-        -800
+        7232,
+        -1584
       ],
-      "id": "setup-text-node"
+      "id": "3e6c8615-7ddc-404c-8f24-a8b30ca85ebb"
     },
     {
       "parameters": {
@@ -94,10 +94,11 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1,
       "position": [
-        3400,
-        -560
+        7232,
+        -1344
       ],
-      "id": "22b4085b-ae42-48dc-a095-0c82cc1cdd8c",
+      "id": "7c7efa7d-e835-4dbe-aa50-ced2a8b752e9",
+      "webhookId": "db8a6826-e1a3-4994-87b0-725acb76ed05",
       "credentials": {
         "telegramApi": {
           "id": "JLG33gMQcdi4JvQq",
@@ -125,10 +126,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 1,
       "position": [
-        3600,
-        -560
+        7440,
+        -1344
       ],
-      "id": "86b4b126-cb4a-4d95-82a2-1e68c8e1005d"
+      "id": "ae20e2f0-8631-423d-b283-ff96e14c3964"
     },
     {
       "parameters": {
@@ -138,10 +139,10 @@
       "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
       "position": [
-        3800,
-        -600
+        7632,
+        -1392
       ],
-      "id": "ff9f134e-b9a4-4f0a-9cf4-86612ca31810"
+      "id": "cbd144b5-a6aa-4fc1-b803-6af5635ef502"
     },
     {
       "parameters": {
@@ -152,10 +153,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 1,
       "position": [
-        4000,
-        -560
+        7840,
+        -1344
       ],
-      "id": "75813296-bb59-4adc-8b21-c3bd4d3e8e8c"
+      "id": "58b57eaf-a48c-4911-973c-fa10aed38e69"
     },
     {
       "parameters": {
@@ -166,10 +167,10 @@
       "type": "n8n-nodes-base.writeBinaryFile",
       "typeVersion": 1,
       "position": [
-        4200,
-        -560
+        8032,
+        -1344
       ],
-      "id": "80822fdd-7942-4368-a44b-ace8c59652cc"
+      "id": "ef61470c-62ff-4b34-a6ac-c607d73b9109"
     },
     {
       "parameters": {
@@ -179,10 +180,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        4400,
-        -560
+        8240,
+        -1344
       ],
-      "id": "setup-photo-node"
+      "id": "eaa3d338-33e1-4e75-b915-e295ea9e3807"
     },
     {
       "parameters": {
@@ -194,10 +195,10 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1,
       "position": [
-        4700,
-        -700
+        8544,
+        -1488
       ],
-      "id": "execute-router-node"
+      "id": "bfc02705-5776-4e9a-9b2e-16886e10f407"
     },
     {
       "parameters": {
@@ -209,23 +210,23 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1,
       "position": [
-        3400,
-        -384
+        7232,
+        -1168
       ],
-      "id": "f6c8ac16-c935-4354-872a-e39bba0aec60"
+      "id": "09ca79e2-5f70-4312-b0b3-d3cfb550555d"
     },
     {
       "parameters": {
-        "jsCode": "const chatMap = {\n    \"Nido-Alberto\": \"5785514136\",\n    \"Nido-Alberto-Laura\": \"-5223730192\",\n    \"Nido-Alberto-Laura-Testing\": \"-5234536185\",\n    \"Nido-Laura\": \"PLACEHOLDER\"\n};\nconst idToName = Object.fromEntries(Object.entries(chatMap).map(([k,v]) => [v, k]));\n\nconst item = $input.item.json;\nconst chatId = item.chat_id;\nconst chatName = idToName[String(chatId)] || 'Unknown';\n\nlet workflow_id = null;\nconst WORKFLOWS = {\n    WHITEBOARD_INGEST: 't3IsM1h5-xaYeegf0PpyK',\n    WHITEBOARD_REVIEW: 'gSnUtg5YnaLgjyYN2sKno',\n    TELEGRAM_CALENDAR: 'rnr5kvlbBNvVA9wXvJGAE',\n    SOCCER_EVENT: 'l-0lymHED94CrXwOsRH98',\n    MEALS_INVENTORY: 'ApXo7C4Qijyz1gEK5D30F',\n    MEALS_PLANNER: 'qFxG__hwtGSAfLK6Q83SR',\n    MEALS_TRACKER: 'YCbLT5N1oGa3LKEa6xE2j',\n    TELEGRAM_R: '_dA1MLN1DRs_rD4LkW2et',\n    HOME_ASSISTANT: 'PLACEHOLDER_HA_WORKFLOW_ID'  // Update this after creating the HA workflow\n};\n\n// Global Rule: Text is exactly \"r\" or \"R\" -> nido.telegram.r\nif (item.type === 'R') {\n    workflow_id = WORKFLOWS.TELEGRAM_R;\n}\n\n// Global Rule: Shopping -> nido.meals.inventory\nif (item.category === 'SHOPPING') {\n    workflow_id = WORKFLOWS.MEALS_INVENTORY;\n}\n\n// Global Rule: Meal Plan -> nido.meals.planner\nif (item.category === 'MEAL_PLAN') {\n    workflow_id = WORKFLOWS.MEALS_PLANNER;\n}\n\n// Global Rule: Meal Tracker -> nido.meals.tracker\nif (item.category === 'MEAL_TRACKER' || item.category === 'meal_tracker') {\n    workflow_id = WORKFLOWS.MEALS_TRACKER;\n}\n\n// Global Rule: Home Assistant\nif (item.category === 'HOME_ASSISTANT') {\n    workflow_id = WORKFLOWS.HOME_ASSISTANT;\n}\n\n// Global Rule: Image Type Event -> nido.telegram.calendar\n// Updated to check category 'CALENDAR' or similar logic if prompt changed, \n// but prompt router_photo_classification schema was not checked. Assuming it returns 'image_type' or 'category'.\n// nido.lib.router unifies to 'category'. Photo prompt likely returns category too?\n// Let's assume photo prompt returns category matching schemas.\nif (item.category === 'CALENDAR' || item.image_type === 'event') {\n    workflow_id = WORKFLOWS.TELEGRAM_CALENDAR;\n}\n\n// Global Rule: Image Type Meal Tracker\nif (item.category === 'MEAL_TRACKER' || item.image_type === 'meal_tracker') {\n    workflow_id = WORKFLOWS.MEALS_TRACKER;\n}\n\n// Rule 1: Foto + Category: whiteboard_calendar + Chat: \"Nido-Alberto\" -> nido.whiteboard.ingest\nif (chatName === 'Nido-Alberto') {\n    if (item.category === 'WHITEBOARD' || item.image_type === 'whiteboard_calendar') {\n        workflow_id = WORKFLOWS.WHITEBOARD_INGEST;\n    }\n    // Rule 2: Tipo: Callback + Chat: \"Nido-Alberto\" -> nido.whiteboard.review\n    if (item.type === 'callback') {\n        workflow_id = WORKFLOWS.WHITEBOARD_REVIEW;\n    }\n}\n\n// Rule 3: Chat \"Nido-Alberto-Laura-Testing\" rules\nif (chatName === 'Nido-Alberto-Laura-Testing') {\n    // Texto + Category: calendar -> nido.telegram.calendar\n    if (item.category === 'CALENDAR' || item.category === 'calendar') {\n        workflow_id = WORKFLOWS.TELEGRAM_CALENDAR;\n    }\n    // Callback: cal_save or cal_cancel -> nido.telegram.calendar\n    if (item.type === 'callback' && item.action && (item.action.startsWith('cal_'))) {\n        workflow_id = WORKFLOWS.TELEGRAM_CALENDAR;\n    }\n}\n\n// Global Rule: Calendar Callbacks (cal_*) always go to calendar workflow\nif (item.type === 'callback' && item.action && String(item.action).startsWith('cal_')) {\n    workflow_id = WORKFLOWS.TELEGRAM_CALENDAR;\n}\n\n// Global Rule: Soccer Callbacks (yes/no_football)\nif (item.type === 'callback' && item.action && (String(item.action) === 'yes_football' || String(item.action) === 'no_football')) {\n    workflow_id = WORKFLOWS.SOCCER_EVENT;\n}\n\nreturn { json: { workflow_id, ...item, chatName } };"
+        "jsCode": "const chatMap = {\n    \"Nido-Alberto\": \"5785514136\",\n    \"Nido-Alberto-Laura\": \"-5223730192\",\n    \"Nido-Alberto-Laura-Testing\": \"-5234536185\",\n    \"Nido-Laura\": \"PLACEHOLDER\"\n};\nconst idToName = Object.fromEntries(Object.entries(chatMap).map(([k,v]) => [v, k]));\n\nconst item = $input.item.json;\nconst chatId = item.chat_id;\nconst chatName = idToName[String(chatId)] || 'Unknown';\n\nlet workflow_id = null;\nconst WORKFLOWS = {\n    WHITEBOARD_INGEST: 't3IsM1h5-xaYeegf0PpyK',\n    WHITEBOARD_REVIEW: 'gSnUtg5YnaLgjyYN2sKno',\n    TELEGRAM_CALENDAR: 'rnr5kvlbBNvVA9wXvJGAE',\n    SOCCER_EVENT: 'l-0lymHED94CrXwOsRH98',\n    MEALS_INVENTORY: 'ApXo7C4Qijyz1gEK5D30F',\n    MEALS_PLANNER: 'qFxG__hwtGSAfLK6Q83SR',\n    MEALS_TRACKER: 'YCbLT5N1oGa3LKEa6xE2j',\n    TELEGRAM_R: '_dA1MLN1DRs_rD4LkW2et',\n    HOME_ASSISTANT: 'wniItdCFjqMEss-D7LST6'\n};\n\n// Global Rule: Text is exactly \"r\" or \"R\" -> nido.telegram.r\nif (item.type === 'R') {\n    workflow_id = WORKFLOWS.TELEGRAM_R;\n}\n\n// Global Rule: Shopping -> nido.meals.inventory\nif (item.category === 'SHOPPING') {\n    workflow_id = WORKFLOWS.MEALS_INVENTORY;\n}\n\n// Global Rule: Meal Plan -> nido.meals.planner\nif (item.category === 'MEAL_PLAN') {\n    workflow_id = WORKFLOWS.MEALS_PLANNER;\n}\n\n// Global Rule: Meal Tracker -> nido.meals.tracker\nif (item.category === 'MEAL_TRACKER' || item.category === 'meal_tracker') {\n    workflow_id = WORKFLOWS.MEALS_TRACKER;\n}\n\n// Global Rule: Home Assistant\nif (item.category === 'HOME_ASSISTANT') {\n    workflow_id = WORKFLOWS.HOME_ASSISTANT;\n}\n\n// Global Rule: Image Type Event -> nido.telegram.calendar\n// Updated to check category 'CALENDAR' or 'event' (mapped from image_type)\nif (item.category === 'CALENDAR' || item.category === 'event' || item.image_type === 'event') {\n    workflow_id = WORKFLOWS.TELEGRAM_CALENDAR;\n}\n\n// Global Rule: Image Type Meal Tracker\nif (item.category === 'MEAL_TRACKER' || item.category === 'meal_tracker' || item.image_type === 'meal_tracker') {\n    workflow_id = WORKFLOWS.MEALS_TRACKER;\n}\n\n// Rule 1: Foto + Category: whiteboard_calendar + Chat: \"Nido-Alberto\" -> nido.whiteboard.ingest\n\nif (item.category === 'WHITEBOARD' || item.category === 'whiteboard_calendar' || item.image_type === 'whiteboard_calendar') {\n    workflow_id = WORKFLOWS.WHITEBOARD_INGEST;\n}\n// Rule 2: Tipo: Callback + Chat: \"Nido-Alberto\" -> nido.whiteboard.review\nif (item.type === 'callback') {\n    workflow_id = WORKFLOWS.WHITEBOARD_REVIEW;\n}\n\n\n// Rule 3: Chat \"Nido-Alberto-Laura-Testing\" rules\nif (chatName === 'Nido-Alberto-Laura-Testing') {\n    // Texto + Category: calendar -> nido.telegram.calendar\n    if (item.category === 'CALENDAR' || item.category === 'calendar') {\n        workflow_id = WORKFLOWS.TELEGRAM_CALENDAR;\n    }\n    // Callback: cal_save or cal_cancel -> nido.telegram.calendar\n    if (item.type === 'callback' && item.action && (item.action.startsWith('cal_'))) {\n        workflow_id = WORKFLOWS.TELEGRAM_CALENDAR;\n    }\n}\n\n// Global Rule: Calendar Callbacks (cal_*) always go to calendar workflow\nif (item.type === 'callback' && item.action && String(item.action).startsWith('cal_')) {\n    workflow_id = WORKFLOWS.TELEGRAM_CALENDAR;\n}\n\n// Global Rule: Soccer Callbacks (yes/no_football)\nif (item.type === 'callback' && item.action && (String(item.action) === 'yes_football' || String(item.action) === 'no_football')) {\n    workflow_id = WORKFLOWS.SOCCER_EVENT;\n}\n\n// Define image_path if item is an image (content holds the path logic from earlier node)\nlet image_path = undefined;\nif (item.type === 'image' && item.content) {\n    image_path = item.content;\n}\n\nreturn { json: { workflow_id, ...item, chatName, image_path } };"
       },
       "name": "Route Logic",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        5000,
-        -224
+        8832,
+        -1008
       ],
-      "id": "dbe53b2c-82c2-46c0-91af-367ad28bc103"
+      "id": "caa20d65-7408-4b81-9e20-a42ea397fc9e"
     },
     {
       "parameters": {
@@ -244,10 +245,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 1,
       "position": [
-        5224,
-        -352
+        9056,
+        -1136
       ],
-      "id": "461ff771-ae7f-4e11-838d-b5107be19906"
+      "id": "5974c0db-7e12-48ee-b4b4-2529567e28bb"
     },
     {
       "parameters": {
@@ -259,10 +260,10 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1,
       "position": [
-        5448,
-        -416
+        9280,
+        -1200
       ],
-      "id": "c8142d0e-2673-48ea-a38b-4029473f31d1"
+      "id": "4adcc952-b1c7-4f1e-885d-e5af7d94ffdc"
     },
     {
       "parameters": {
@@ -274,10 +275,10 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1,
       "position": [
-        5448,
-        -224
+        9280,
+        -1008
       ],
-      "id": "dc5a95ca-aec0-4148-9472-7c20c189f28d",
+      "id": "4f3cbb3f-7412-405b-b09d-14244c443a3c",
       "webhookId": "reply-unknown-webhook",
       "credentials": {
         "telegramApi": {
@@ -294,10 +295,10 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        2704,
-        -320
+        6544,
+        -1104
       ],
-      "id": "bff15221-92f7-4db9-9668-849da7fc432b",
+      "id": "7f72ebbd-9d5e-4af9-a282-e5ffae037f76",
       "name": "Typing",
       "webhookId": "949906f6-4925-4058-a705-0071ae91fa64",
       "credentials": {
@@ -308,6 +309,7 @@
       }
     }
   ],
+  "pinData": {},
   "connections": {
     "Telegram Trigger": {
       "main": [
@@ -508,5 +510,16 @@
       ]
     }
   },
-  "active": true
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "cfdfd8c7-f282-4d21-a953-2d6f7a28eca3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e1f8529dafc1c7b24188afd104b1a8e8824324405683593c80fc8bc56ba17881"
+  },
+  "id": "Idwsbwewlp1-aUO7NZrsg",
+  "tags": []
 }

@@ -21,6 +21,24 @@
     }
   },
   {
+    "id": "guanciale",
+    "category": "charcuteria",
+    "display_name": "Guanciale",
+    "entity_id": "input_boolean.stock_charcuteria_guanciale",
+    "ean": "",
+    "ticket_description": "GUANCA",
+    "quantity": "3,000",
+    "synonyms": [
+      "guanciale",
+      "guancale"
+    ],
+    "icon": "mdi:food-steak",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
     "id": "morcilla_cebolla",
     "category": "charcuteria",
     "display_name": "Morcilla de cebolla",
@@ -1147,17 +1165,34 @@
     }
   },
   {
-    "id": "aguacate",
-    "category": "fruta",
-    "display_name": "Aguacate",
-    "entity_id": "input_boolean.stock_fruta_aguacate",
+    "id": "colorante",
+    "category": "especias",
+    "display_name": "Colorante alimentario",
+    "entity_id": "input_boolean.stock_especias_colorante",
     "ean": "0000000000000",
-    "ticket_description": "AGUACATE",
+    "ticket_description": "COLORANTE",
     "quantity": "1,000",
     "synonyms": [
-      "aguacate"
+      "colorante"
     ],
-    "icon": "mdi:fruit-avocado",
+    "icon": "mdi:palette-swatch-outline",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "furikake",
+    "category": "especias",
+    "display_name": "Furikake",
+    "entity_id": "input_boolean.stock_especias_furikake",
+    "ean": "0000000000000",
+    "ticket_description": "FURIKAKE",
+    "quantity": "1,000",
+    "synonyms": [
+      "furikake"
+    ],
+    "icon": "mdi:palette-swatch-outline",
     "state_semantics": {
       "on": "hay",
       "off": "falta"

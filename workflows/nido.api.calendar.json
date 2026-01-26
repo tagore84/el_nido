@@ -272,6 +272,39 @@
       ],
       "id": "3137a36b-a458-4731-8a45-92180ccafd0d",
       "name": "Process LLM Output"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $('Webhook').first().json.query.analyze_critical }}",
+              "value2": "true"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        4624,
+        -448
+      ],
+      "id": "check-analysis",
+      "name": "Check Analysis Param"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map(item => ({\n    json: {\n        ...item.json,\n        priority: 'low'\n    }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4850,
+        -250
+      ],
+      "id": "add-default-priority",
+      "name": "Add Default Priority"
     }
   ],
   "pinData": {},
@@ -367,11 +400,34 @@
       "main": [
         [
           {
-            "node": "Prepare LLM Input",
+            "node": "Check Analysis Param",
             "type": "main",
             "index": 0
           }
         ]
+      ]
+    },
+    "Check Analysis Param": {
+      "main": [
+        [
+          {
+            "node": "Prepare LLM Input",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add Default Priority",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Default Priority": {
+      "main": [
+        []
       ]
     },
     "Prepare LLM Input": {

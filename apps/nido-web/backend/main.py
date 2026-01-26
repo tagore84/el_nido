@@ -22,13 +22,13 @@ async def fetch_calendar_data():
     end_date = (now + timedelta(days=90)).strftime("%Y-%m-%d")
     
     base_url = "https://synology.tail69424a.ts.net/webhook/calendar"
-    url = f"{base_url}?start={start_date}&end={end_date}"
+    url = f"{base_url}?start={start_date}&end={end_date}&analyze_critical=false"
     
     print(f"Fetching calendar data from {url}...")
     async with httpx.AsyncClient() as client:
         try:
-            # Calendar processing might take a few seconds, or minutes with LLM
-            response = await client.get(url, timeout=300.0)
+            timeout = 30.0
+            response = await client.get(url, timeout=timeout)
             response.raise_for_status()
             data = response.json()
             
@@ -76,11 +76,13 @@ async def get_meals():
             return {"error": str(e)}
 
 @app.get("/calendar")
-async def get_calendar():
+async def get_calendar(background_tasks: BackgroundTasks):
     """Returns cached calendar events. Triggers fetch if cache is empty."""
+    # If cache is completely empty, fetch immediately to unblock UI
     if not calendar_cache["data"] and not calendar_cache["last_updated"]:
-        # If empty, fetch immediately (blocking for the first user)
+        print("Cache empty, performing synchronous fetch...")
         await fetch_calendar_data()
+        
     return calendar_cache
 
 @app.post("/calendar/sync")

@@ -2,7 +2,7 @@ type: custom:stack-in-card
 mode: vertical
 cards:
 - type: custom:mushroom-title-card
-  title: Charcutería
+  title: Charcuteria
 - type: custom:mushroom-template-card
   entity: input_boolean.stock_charcuteria_jamon_cocido
   primary: Jamón cocido
@@ -10,6 +10,18 @@ cards:
     else ''Falta'' }}'
   icon: mdi:food-steak
   icon_color: '{{ ''green'' if is_state(''input_boolean.stock_charcuteria_jamon_cocido'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_charcuteria_guanciale
+  primary: Guanciale
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_charcuteria_guanciale'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:food-steak
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_charcuteria_guanciale'',''on'')
     else ''red'' }}'
   tap_action:
     action: toggle

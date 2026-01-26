@@ -13,3 +13,8 @@ stock_especias_colorante:
 stock_especias_sal:
   name: "Sal"
   icon: mdi:shaker-outline
+
+stock_especias_furikake:
+  name: "Furikake"
+  icon: mdi:shaker-outline
+
