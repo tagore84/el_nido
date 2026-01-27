@@ -1,6 +1,9 @@
 version: '3.8'
 
 services:
+  # ===================
+  # n8n - Automatización
+  # ===================
   n8n:
     image: n8nio/n8n:latest
     container_name: n8n-prod
@@ -32,5 +35,23 @@ services:
       - ../../data:/data
       - ../../storage:/storage
       - ../../prompts:/prompts:ro
-    # Network configuration to be adjusted based on Synology setup
-    # network_mode: bridge
+
+  # ===================
+  # Nido Web - Frontend
+  # ===================
+  nido-web-frontend:
+    build: ../../apps/nido-web/frontend
+    container_name: nido-web-frontend
+    restart: always
+    ports:
+      - "3005:3005"
+
+  # ===================
+  # Nido Web - Backend
+  # ===================
+  nido-web-backend:
+    build: ../../apps/nido-web/backend
+    container_name: nido-web-backend
+    restart: always
+    ports:
+      - "8008:8008"

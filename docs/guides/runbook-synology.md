@@ -1,6 +1,15 @@
 # Runbook: Despliegue en Synology
 
-Este documento detalla los pasos para desplegar el proyecto "El Nido" (n8n) en tu NAS Synology.
+Este documento detalla los pasos para desplegar el ecosistema "El Nido" en tu NAS Synology. El despliegue incluye:
+
+| Servicio | Puerto | Descripción |
+|----------|--------|-------------|
+| **n8n** | 5678 | Motor de automatización y workflows |
+| **Nido Web Frontend** | 3005 | Interfaz web para dispositivos |
+| **Nido Web Backend** | 8008 | API backend para Nido Web |
+
+> [!NOTE]
+> El **Hub Central** (puerto 3000) se gestiona desde un repositorio separado: [synology_hub](https://github.com/tagore84/synology_hub)
 
 ## Prerrequisitos
 - Acceso SSH al Synology.
@@ -13,13 +22,16 @@ Recomendamos clonar el repositorio en `/volume1/docker/nido`.
 
 ```bash
 /volume1/docker/nido/
+├── apps/
+│   └── nido-web/      # Frontend + Backend web
+├── data/
 ├── docs/
 ├── infra/
 │   ├── dev/
-│   └── synology/  <-- Aquí ejecutaremos docker-compose
-├── workflows/
-├── nginx.conf
-└── ...
+│   └── synology/      <-- Aquí ejecutaremos docker-compose
+├── prompts/
+├── storage/
+└── workflows/
 ```
 
 ## Guía paso a paso
@@ -43,9 +55,9 @@ git pull origin main
 ```
 
 ### 2. Configurar Variables de Entorno
-El archivo `.env` contém secretos y **no se sube a Git**. Debes crearlo manualmente en el servidor.
+El archivo `.env` contiene secretos y **no se sube a Git**. Debes crearlo manualmente en el servidor.
 
-1. Navega a la carpeta de infraestructura de produccion:
+1. Navega a la carpeta de infraestructura de producción:
    ```bash
    cd infra/synology
    ```
@@ -68,32 +80,70 @@ Debes crear (o copiar) estos archivos:
 3.  **`telegram_chats_map.json`**: Mapea nombres de contactos/grupos a sus Chat IDs de Telegram.
     *   Ejemplo: `"Nido-Alberto-Laura": "-5223730192"`
 
-### 3. Arrancar n8n
+### 3. Arrancar todos los servicios
 Desde la carpeta `infra/synology`:
 
 ```bash
-sudo docker-compose up -d
+sudo docker-compose up -d --build
 ```
-Esto descargará la imagen y levantará el contenedor `n8n-prod`.
+
+Esto construirá las imágenes y levantará los 3 servicios:
+- `n8n-prod` (puerto 5678)
+- `nido-web-frontend` (puerto 3005)
+- `nido-web-backend` (puerto 8008)
+
+Para ver los logs:
+```bash
+sudo docker-compose logs -f
+```
+
+Para reiniciar un servicio específico:
+```bash
+sudo docker-compose restart nido-web-frontend
+```
 
 ### 4. Configurar Nginx / Reverse Proxy
 Tienes dos opciones, dependiendo de cómo ejecutes Nginx:
 
 **Opción A: Usas el Reverse Proxy integrado de Synology (Portal de Inicio de Sesión)**
 1. Ve a **Panel de Control** > **Portal de Inicio de Sesión** > **Avanzado** > **Proxy Inverso**.
-2. Crea una regla para `https://synology.tail69424a.ts.net`.
-3. Destino: `http://localhost:5678`.
-4. **Importante**: Synology UI a veces limita las cabeceras personalizadas. Asegúrate de habilitar "Websocket" en la pestaña de encabezados personalizados.
+2. Crea reglas para cada servicio:
 
-**Opción B: Usas tu propio contenedor Nginx (con el `nginx.conf` del repo)**
-Si tienes un contenedor Nginx que monta el archivo `nginx.conf` de la raíz de este proyecto:
-1. Asegúrate de reiniciar Nginx para que pille los cambios recientes (soporte de OAuth y WS).
-   ```bash
-   # Ejemplo si tu contenedor se llama nginx
-   docker restart nginx
-   ```
+| Origen | Destino |
+|--------|---------|
+| `https://synology.tail69424a.ts.net/` | `http://localhost:3000` (Hub - repo separado) |
+| `https://synology.tail69424a.ts.net/n8n/*` | `http://localhost:5678` |
+| `https://synology.tail69424a.ts.net/nido/*` | `http://localhost:3005` |
+| `https://synology.tail69424a.ts.net/api/*` | `http://localhost:8008` |
+
+3. **Importante**: Para n8n, asegúrate de habilitar "Websocket" en la pestaña de encabezados personalizados.
+
+**Opción B: Usas tu propio contenedor Nginx**
+Configura las rutas en tu `nginx.conf` y reinicia:
+```bash
+docker restart nginx
+```
 
 ### 5. Verificación
-1. Abre `https://synology.tail69424a.ts.net/` en tu navegador.
-2. Deberías ver la pantalla de login de n8n.
-3. Configura las credenciales de Google Calendar (con el Client ID/Secret de Prod).
+1. Abre `https://synology.tail69424a.ts.net/` - Deberías ver el **Hub Central**
+2. Abre `https://synology.tail69424a.ts.net/n8n/` - Deberías ver el login de **n8n**
+3. Haz clic en cualquier dispositivo del Hub - Deberías ver **Nido Web**
+4. Configura las credenciales de Google Calendar en n8n (con el Client ID/Secret de Prod)
+
+### 6. Troubleshooting
+
+**Los contenedores no arrancan:**
+```bash
+sudo docker-compose logs <nombre-servicio>
+```
+
+**Cambios en el código no se reflejan:**
+```bash
+sudo docker-compose up -d --build --force-recreate
+```
+
+**Reiniciar todo desde cero:**
+```bash
+sudo docker-compose down
+sudo docker-compose up -d --build
+```
