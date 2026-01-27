@@ -15,12 +15,13 @@ services:
       - N8N_BASIC_AUTH_USER=${N8N_USER}
       - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD}
       - N8N_HOST=${N8N_HOST}
-      - N8N_PORT=5678
-      - N8N_PROTOCOL=https
+      - N8N_PORT=${N8N_PORT}
+      - N8N_PROTOCOL=${N8N_PROTOCOL}
       - N8N_PATH=/n8n/
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
       - NODE_ENV=production
-      - WEBHOOK_URL=${WEBHOOK_URL}/n8n/
-      - N8N_EDITOR_BASE_URL=${WEBHOOK_URL}/n8n/
+      - WEBHOOK_URL=${WEBHOOK_URL}
+      - N8N_EDITOR_BASE_URL=${WEBHOOK_URL}
       - LLM_MODE=${LLM_MODE:-live}
       - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
       - NODE_FUNCTION_ALLOW_BUILTIN=crypto,fs,path
