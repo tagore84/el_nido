@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Nido - Central Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=3">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>El Nido</h1>
+            <p>Centro de Control</p>
+        </header>
+
+        <main class="grid">
+            <a href="/ha/" class="card" aria-label="Home Assistant">
+                <div class="icon">🏠</div>
+                <h2>Home Assistant</h2>
+                <p>Domótica y Control</p>
+            </a>
+
+            <!-- Nido Web Dropdown Card -->
+            <div class="card dropdown" tabindex="0">
+                <div class="card-content">
+                    <img src="logo.png" alt="Nido Web Logo" class="card-logo">
+                    <h2>Nido Web</h2>
+                    <p>Seleccionar Dispositivo</p>
+                </div>
+                <div class="device-list">
+                    <a href="/nido/iphone_alberto" class="device-link"><span>📱</span> iPhone Alberto</a>
+                    <a href="/nido/iphone_laura" class="device-link"><span>📱</span> iPhone Laura</a>
+                    <a href="/nido/ds_first_floor" class="device-link"><span>🖥️</span> Primera Planta</a>
+                    <a href="/nido/ds_zero_floor" class="device-link"><span>🖥️</span> Planta Baja</a>
+                    <a href="/nido/pc" class="device-link"><span>💻</span> PC</a>
+                </div>
+            </div>
+
+            <a href="/bga/" class="card" aria-label="Board Game Arena">
+                <div class="icon">🎲</div>
+                <h2>BGA</h2>
+                <p>Board Game Arena</p>
+            </a>
+
+            <a href="/n8n/" class="card" aria-label="n8n Workflows">
+                <div class="icon">⚡</div>
+                <h2>n8n</h2>
+                <p>Automatización</p>
+            </a>
+        </main>
+
+        <footer>
+            <p>Synology Hub &bull; tail69424a</p>
+        </footer>
+    </div>
+</body>
+
+</html>

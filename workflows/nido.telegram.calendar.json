@@ -227,6 +227,28 @@
         },
         {
             "parameters": {
+                "dataType": "string",
+                "value1": "={{ $node['Execute Workflow Trigger'].json.chat_id }}",
+                "rules": {
+                    "rules": [
+                        {
+                            "value2": "nido-web"
+                        }
+                    ]
+                },
+                "fallbackOutput": 1
+            },
+            "name": "Switch Chat ID",
+            "type": "n8n-nodes-base.switch",
+            "typeVersion": 1,
+            "position": [
+                2460,
+                -320
+            ],
+            "id": "switch-chat-id"
+        },
+        {
+            "parameters": {
                 "chatId": "={{ $json.chatId }}",
                 "text": "={{ $json.summary }}",
                 "replyMarkup": "inlineKeyboard",
@@ -260,7 +282,7 @@
             "type": "n8n-nodes-base.telegram",
             "typeVersion": 1,
             "position": [
-                2464,
+                2680,
                 -320
             ],
             "id": "a1b2c3d4-e5f6-7890-abcd-aaaaaaaaaaaa",
@@ -383,7 +405,6 @@
             }
         }
     ],
-    "pinData": {},
     "connections": {
         "Execute Workflow Trigger": {
             "main": [
@@ -513,12 +534,27 @@
             "main": [
                 [
                     {
+                        "node": "Switch Chat ID",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Switch Chat ID": {
+            "main": [
+                [],
+                [
+                    {
                         "node": "Send Confirmation",
                         "type": "main",
                         "index": 0
                     }
                 ]
             ]
+        },
+        "Send Confirmation": {
+            "main": []
         },
         "Parse Callback": {
             "main": [
@@ -560,16 +596,5 @@
                 ]
             ]
         }
-    },
-    "active": false,
-    "settings": {
-        "executionOrder": "v1",
-        "availableInMCP": false
-    },
-    "versionId": "3eb55415-959d-4afe-8bfe-5e941677bb92",
-    "meta": {
-        "instanceId": "e1f8529dafc1c7b24188afd104b1a8e8824324405683593c80fc8bc56ba17881"
-    },
-    "id": "rnr5kvlbBNvVA9wXvJGAE",
-    "tags": []
+    }
 }

@@ -34,5 +34,14 @@
         "visibleComponents": [
             "calendar"
         ]
+    },
+    "pc": {
+        "type": "pc",
+        "label": "PC",
+        "theme": "dark",
+        "visibleComponents": [
+            "calendar",
+            "system_register"
+        ]
     }
 }

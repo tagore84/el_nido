@@ -102,6 +102,19 @@
                     "name": "Home Assistant account"
                 }
             }
+        },
+        {
+            "parameters": {
+                "jsCode": "return { json: { result: \"✅ Lista de la compra actualizada.\" } };"
+            },
+            "name": "Format Summary",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1560,
+                260
+            ],
+            "id": "format-summary"
         }
     ],
     "connections": {
@@ -165,6 +178,13 @@
                 [
                     {
                         "node": "Update Entity",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Format Summary",
                         "type": "main",
                         "index": 0
                     }

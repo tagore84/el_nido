@@ -54,10 +54,26 @@
                     "rules": [
                         {
                             "value2": "HOME_ASSISTANT"
+                        },
+                        {
+                            "value2": "SHOPPING",
+                            "output": 1
+                        },
+                        {
+                            "value2": "MEAL_PLAN",
+                            "output": 2
+                        },
+                        {
+                            "value2": "MEAL_TRACKER",
+                            "output": 3
+                        },
+                        {
+                            "value2": "CALENDAR",
+                            "output": 4
                         }
                     ]
                 },
-                "fallbackOutput": 1
+                "fallbackOutput": 5
             },
             "name": "Switch Category",
             "type": "n8n-nodes-base.switch",
@@ -78,10 +94,70 @@
             "type": "n8n-nodes-base.executeWorkflow",
             "typeVersion": 1,
             "position": [
-                1140,
-                200
+                1200,
+                100
             ],
             "id": "execute-ha"
+        },
+        {
+            "parameters": {
+                "workflowId": "ApXo7C4Qijyz1gEK5D30F",
+                "mode": "each",
+                "options": {}
+            },
+            "name": "Execute Shopping",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1,
+            "position": [
+                1200,
+                300
+            ],
+            "id": "execute-shopping"
+        },
+        {
+            "parameters": {
+                "workflowId": "qFxG__hwtGSAfLK6Q83SR",
+                "mode": "each",
+                "options": {}
+            },
+            "name": "Execute Meal Plan",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1,
+            "position": [
+                1200,
+                500
+            ],
+            "id": "execute-meal-plan"
+        },
+        {
+            "parameters": {
+                "workflowId": "YCbLT5N1oGa3LKEa6xE2j",
+                "mode": "each",
+                "options": {}
+            },
+            "name": "Execute Meal Tracker",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1,
+            "position": [
+                1200,
+                700
+            ],
+            "id": "execute-meal-tracker"
+        },
+        {
+            "parameters": {
+                "workflowId": "rnr5kvlbBNvVA9wXvJGAE",
+                "mode": "each",
+                "options": {}
+            },
+            "name": "Execute Calendar",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1,
+            "position": [
+                1200,
+                900
+            ],
+            "id": "execute-calendar"
         },
         {
             "parameters": {
@@ -91,21 +167,21 @@
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                1140,
-                450
+                1200,
+                1100
             ],
             "id": "format-generic"
         },
         {
             "parameters": {
                 "mode": "runOnceForEachItem",
-                "jsCode": "const result = $input.item.json;\nreturn { json: { \n  text: result.result_text || result.result || \"Comando procesado.\",\n  data: result \n} };"
+                "jsCode": "const result = $input.item.json;\nlet text = \"Comando procesado.\";\n\n// Normalize outputs from different workflows\nif (result.result_text) text = result.result_text;\nelse if (result.result) text = result.result;\nelse if (result.text) text = result.text;\nelse if (result.summary) text = result.summary;\nelse if (result.message && result.message.text) text = result.message.text;\n// Special handling for Shopping list if no text returned but success\nelse if (result.new_state === 'on') text = \"✅ Añadido a la lista de la compra.\";\n\nreturn { json: { \n  text: text,\n  data: result \n} };"
             },
             "name": "Format Final Response",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                1400,
+                1600,
                 304
             ],
             "id": "format-final"
@@ -120,7 +196,7 @@
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                1620,
+                1820,
                 304
             ],
             "id": "respond-webhook"
@@ -171,6 +247,34 @@
                 ],
                 [
                     {
+                        "node": "Execute Shopping",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Execute Meal Plan",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Execute Meal Tracker",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Execute Calendar",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
                         "node": "Format Generic",
                         "type": "main",
                         "index": 0
@@ -179,6 +283,50 @@
             ]
         },
         "Execute HA Command": {
+            "main": [
+                [
+                    {
+                        "node": "Format Final Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Execute Shopping": {
+            "main": [
+                [
+                    {
+                        "node": "Format Final Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Execute Meal Plan": {
+            "main": [
+                [
+                    {
+                        "node": "Format Final Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Execute Meal Tracker": {
+            "main": [
+                [
+                    {
+                        "node": "Format Final Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Execute Calendar": {
             "main": [
                 [
                     {

@@ -4,16 +4,12 @@ import MealsTable from './MealsTable';
 import CalendarView from './CalendarView';
 
 import logo from '../assets/logo.png';
+import ChatInterface from './components/ChatInterface';
 
 function MainLayout({ deviceConfig }) {
     const [socket, setSocket] = useState(null);
     const [messages, setMessages] = useState([]);
-    const [inputValue, setInputValue] = useState("");
     const [isConnected, setIsConnected] = useState(false);
-    const logEndRef = useRef(null);
-
-    // Helper to check if a component should be visible
-    // If visibleComponents is undefined, show everything (backward compatibility)
     const isVisible = (componentName) => {
         if (!deviceConfig?.visibleComponents) return true;
         return deviceConfig.visibleComponents.includes(componentName);
@@ -54,7 +50,11 @@ function MainLayout({ deviceConfig }) {
 
         ws.onmessage = (event) => {
             console.log('Message received:', event.data);
-            setMessages(prev => [...prev, { type: 'rx', text: event.data }]);
+            let text = event.data;
+            if (text === "Connected to Nido Brain") {
+                text = "Conectado al Cerebro Nido";
+            }
+            setMessages(prev => [...prev, { type: 'rx', text }]);
         };
 
         ws.onclose = () => {
@@ -74,22 +74,6 @@ function MainLayout({ deviceConfig }) {
         };
     }, []);
 
-    useEffect(() => {
-        logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [messages]);
-
-    const sendMessage = () => {
-        if (socket && inputValue.trim()) {
-            socket.send(inputValue);
-            setMessages(prev => [...prev, { type: 'tx', text: inputValue }]);
-            setInputValue("");
-        }
-    };
-
-    const handleKeyDown = (e) => {
-        if (e.key === 'Enter') sendMessage();
-    }
-
     return (
         <div className={`container ${deviceConfig?.theme === 'dark' ? 'dark-theme' : ''}`}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '2rem' }}>
@@ -105,42 +89,16 @@ function MainLayout({ deviceConfig }) {
             {isVisible('meals') && <MealsTable deviceConfig={deviceConfig} />}
 
             {isVisible('system_register') && (
-                <div className="card">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                        <h2 style={{ margin: 0, fontSize: '1.2rem' }}>Introduzca instrucción</h2>
-                        <div style={{ display: 'flex', alignItems: 'center', fontSize: '0.9rem' }}>
-                            <span className={`status-indicator ${isConnected ? 'status-connected' : 'status-disconnected'}`}></span>
-                            {isConnected ? 'Conectado' : 'Desconectado'}
-                        </div>
-                    </div>
-
-                    <div className="log-container">
-                        {messages.length === 0 && <div style={{ textAlign: 'center', color: '#64748b', marginTop: '2rem' }}>Sin actividad</div>}
-                        {messages.map((msg, index) => (
-                            <div key={index} className="log-entry" style={{
-                                borderLeftColor: msg.type === 'tx' ? '#818cf8' : (msg.type === 'system' ? '#64748b' : '#38bdf8'),
-                                opacity: msg.type === 'system' ? 0.7 : 1
-                            }}>
-                                {msg.text}
-                            </div>
-                        ))}
-                        <div ref={logEndRef} />
-                    </div>
-
-                    <div className="input-group">
-                        <input
-                            type="text"
-                            placeholder="Introduce un comando..."
-                            value={inputValue}
-                            onChange={(e) => setInputValue(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                            disabled={!isConnected}
-                        />
-                        <button onClick={sendMessage} disabled={!isConnected || !inputValue.trim()}>
-                            Enviar
-                        </button>
-                    </div>
-                </div>
+                <ChatInterface
+                    messages={messages}
+                    onSendMessage={(text) => {
+                        if (socket) {
+                            socket.send(text);
+                            setMessages(prev => [...prev, { type: 'tx', text }]);
+                        }
+                    }}
+                    isConnected={isConnected}
+                />
             )}
         </div>
     )

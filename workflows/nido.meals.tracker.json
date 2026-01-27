@@ -118,8 +118,43 @@
         },
         {
             "parameters": {
-                "chatId": "={{ $('Prepare LLM Input').item.json.chat_id }}",
-                "text": "=✅ Apuntado: {{ $json.meal_name || $json.logged_food }}\nTipo: {{ $('Log and Load Catalog').item.json.logged_type }}\nFecha: {{ $('Log and Load Catalog').item.json.logged_date }}\nQuién: {{ $('Log and Load Catalog').item.json.logged_who }}\nFuente: {{ $('Log and Load Catalog').item.json.logged_source === 'casera' ? '🏠 Casera' : ($('Log and Load Catalog').item.json.logged_source === 'domicilio' ? '🛵 Domicilio' : '🍽️ Fuera') }}\n\n{{ $json.is_new ? \"🆕 Nueva comida registrada\" : $json.updated_entry ? \"🔄 Comida actualizada\" : \"\" }}\n{{ $json.updated_entry ? ('Ingredientes detectados: ' + ($json.updated_entry.ingredients.join(', ') || 'Ninguno')) : '' }}",
+                "jsCode": "const loggedFood = $json.meal_name || $json.logged_food;\nconst loggedType = $('Log and Load Catalog').item.json.logged_type;\nconst loggedDate = $('Log and Load Catalog').item.json.logged_date;\nconst loggedWho = $('Log and Load Catalog').item.json.logged_who;\nconst loggedSource = $('Log and Load Catalog').item.json.logged_source;\n\nconst sourceEmoji = loggedSource === 'casera' ? '🏠 Casera' : (loggedSource === 'domicilio' ? '🛵 Domicilio' : '🍽️ Fuera');\n\nlet text = `✅ Apuntado: ${loggedFood}\\nTipo: ${loggedType}\\nFecha: ${loggedDate}\\nQuién: ${loggedWho}\\nFuente: ${sourceEmoji}`;\n\nif ($json.is_new) {\n    text += \"\\n🆕 Nueva comida registrada\";\n} else if ($json.updated_entry) {\n    text += \"\\n🔄 Comida actualizada\";\n}\n\nif ($json.updated_entry && $json.updated_entry.ingredients) {\n    text += `\\nIngredientes detectados: ${$json.updated_entry.ingredients.join(', ') || 'Ninguno'}`;\n}\n\nreturn { json: { result_text: text, chat_id: $('Prepare LLM Input').item.json.chat_id } };"
+            },
+            "name": "Format Response",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                2020,
+                240
+            ],
+            "id": "format-response"
+        },
+        {
+            "parameters": {
+                "dataType": "string",
+                "value1": "={{ $json.chat_id }}",
+                "rules": {
+                    "rules": [
+                        {
+                            "value2": "nido-web"
+                        }
+                    ]
+                },
+                "fallbackOutput": 1
+            },
+            "name": "Switch Chat ID",
+            "type": "n8n-nodes-base.switch",
+            "typeVersion": 1,
+            "position": [
+                2240,
+                240
+            ],
+            "id": "switch-chat-id"
+        },
+        {
+            "parameters": {
+                "chatId": "={{ $json.chat_id }}",
+                "text": "={{ $json.result_text }}",
                 "additionalFields": {
                     "parse_mode": "HTML"
                 }
@@ -128,7 +163,7 @@
             "type": "n8n-nodes-base.telegram",
             "typeVersion": 1,
             "position": [
-                2020,
+                2460,
                 240
             ],
             "id": "telegram-reply-node-id",
@@ -140,7 +175,6 @@
             }
         }
     ],
-    "pinData": {},
     "connections": {
         "Execute Workflow Trigger": {
             "main": [
@@ -197,7 +231,7 @@
                 ],
                 [
                     {
-                        "node": "Confirm to User",
+                        "node": "Format Response",
                         "type": "main",
                         "index": 0
                     }
@@ -230,6 +264,29 @@
             "main": [
                 [
                     {
+                        "node": "Format Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Format Response": {
+            "main": [
+                [
+                    {
+                        "node": "Switch Chat ID",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Switch Chat ID": {
+            "main": [
+                [],
+                [
+                    {
                         "node": "Confirm to User",
                         "type": "main",
                         "index": 0
@@ -237,10 +294,5 @@
                 ]
             ]
         }
-    },
-    "active": true,
-    "settings": {
-        "executionOrder": "v1"
-    },
-    "id": "Mea1Track3rW0rkf10wID"
+    }
 }

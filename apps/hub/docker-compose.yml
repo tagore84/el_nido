@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  hub:
+    build: .
+    container_name: hub
+    ports:
+      - "3010:80"
+    restart: always
