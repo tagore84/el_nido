@@ -1,0 +1,36 @@
+{
+    "type": "object",
+    "properties": {
+        "important_emails": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "subject": {
+                        "type": "string"
+                    },
+                    "sender": {
+                        "type": "string"
+                    },
+                    "summary": {
+                        "type": "string",
+                        "description": "Resumen de 1 línea del contenido"
+                    },
+                    "reason": {
+                        "type": "string",
+                        "description": "Por qué es importante"
+                    }
+                },
+                "required": [
+                    "subject",
+                    "sender",
+                    "summary",
+                    "reason"
+                ]
+            }
+        }
+    },
+    "required": [
+        "important_emails"
+    ]
+}

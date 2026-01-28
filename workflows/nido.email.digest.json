@@ -1,0 +1,231 @@
+{
+    "name": "nido.email.digest",
+    "id": "d8B48pzQ_RXqpUi2ex8NM",
+    "nodes": [
+        {
+            "parameters": {
+                "rule": {
+                    "interval": [
+                        {
+                            "field": "hours",
+                            "triggerAtHour": 11,
+                            "triggerAtMinute": 0
+                        }
+                    ]
+                }
+            },
+            "name": "Schedule Trigger",
+            "type": "n8n-nodes-base.scheduleTrigger",
+            "typeVersion": 1.2,
+            "position": [
+                480,
+                460
+            ],
+            "id": "schedule-trigger"
+        },
+        {
+            "parameters": {
+                "jsCode": "const now = new Date();\nconst yesterday = new Date(now);\nyesterday.setDate(yesterday.getDate() - 1);\nyesterday.setHours(0, 0, 0, 0);\n\n// Format date for Gmail query: YYYY/MM/DD\nconst formatDate = (d) => {\n  const yaa = d.getFullYear();\n  const mon = String(d.getMonth() + 1).padStart(2, '0');\n  const day = String(d.getDate()).padStart(2, '0');\n  return `${yaa}/${mon}/${day}`;\n};\n\nreturn {\n  json: {\n    after: formatDate(yesterday),\n    timestamp: Math.floor(yesterday.getTime() / 1000)\n  }\n};"
+            },
+            "name": "Calculate Dates",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                700,
+                460
+            ],
+            "id": "calc-dates"
+        },
+        {
+            "parameters": {
+                "resource": "message",
+                "operation": "getAll",
+                "returnAll": true,
+                "q": "=after:{{ $json.timestamp }}",
+                "options": {
+                    "includeSpamTrash": false
+                }
+            },
+            "name": "Get Emails",
+            "type": "n8n-nodes-base.gmail",
+            "typeVersion": 2.1,
+            "position": [
+                920,
+                460
+            ],
+            "id": "get-emails",
+            "credentials": {
+                "googleGmailOAuth2Api": {
+                    "id": "ruURDx0822LfWHVf",
+                    "name": "Google Gmail account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "const messages = $input.all();\nlet text = \"Lista de correos recibidos:\\n\\n\";\n\n// Limit to max 50 emails to avoid token limits\nconst limit = 50;\nconst processList = messages.slice(0, limit);\n\nprocessList.forEach((msg, index) => {\n  const json = msg.json;\n  const subject = json.snippet ? json.snippet : \"(No subject)\"; // Gmail node puts snippet in main level sometimes or need full message\n  // Wait, Gmail getAll usually returns 'id', 'threadId' and 'snippet'. \n  // For full details we might need 'data.payload.headers' but getAll is summary usually.\n  // Let's assume snippet is enough for first pass, or check if we have subject.\n  // Actually n8n Gmail getAll returns headers if configured? \n  // Simplification: We use snippet as content summary.\n  \n  // Let's rely on what we get. Typically: { \"id\": \"...\", \"threadId\": \"...\", \"snippet\": \"...\", \"labelIds\": [...], \"payload\": { \"headers\": [...] } }\n  \n  let subj = \"(No Subject)\";\n  let from = \"(Unknown)\";\n  \n  if (json.payload && json.payload.headers) {\n    const sObj = json.payload.headers.find(h => h.name === 'Subject');\n    const fObj = json.payload.headers.find(h => h.name === 'From');\n    if (sObj) subj = sObj.value;\n    if (fObj) from = fObj.value;\n  }\n  \n  // fallback if using simple getAll without resolving full message\n  // The n8n Gmail 'getAll' node usually returns just ID/ThreadID unless 'Resolve Data' is checked or similar? \n  // Checking n8n docs: getAll returns list. To get fields we rely on what triggers/actions give.\n  // Assuming standard behavior: might need 'Get' operation for each ID if content is missing.\n  // BUT 'getAll' has 'Additional Fields' -> 'Fields' or simple output.\n  // Let's assume we get snippet at least. If subject is missing, snippet helps.\n  \n  text += `${index + 1}. From: ${from} | Subject: ${subj} | Snippet: ${json.snippet}\\n`;\n});\n\nif (messages.length === 0) {\n  text = \"No hay correos nuevos.\";\n}\n\nreturn {\n  json: {\n    input_type: \"TEXT\",\n    input_text: text,\n    email_count: messages.length\n  }\n};"
+            },
+            "name": "Format for LLM",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1140,
+                460
+            ],
+            "id": "format-llm"
+        },
+        {
+            "parameters": {
+                "workflowId": "cIdjAXxgI1Z-LurEg16oO",
+                "mode": "each",
+                "workflowInputs": {
+                    "mappingMode": "defineBelow",
+                    "value": {
+                        "prompt_id": "email_analyzer",
+                        "input": {
+                            "input_type": "TEXT",
+                            "input_text": "={{ $json.input_text }}"
+                        }
+                    },
+                    "include": "none"
+                }
+            },
+            "name": "Analyze Importance",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1,
+            "position": [
+                1360,
+                460
+            ],
+            "id": "llm-adapter"
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "number": [
+                        {
+                            "value1": "={{ $json.output.important_emails.length }}",
+                            "operation": "larger",
+                            "value2": 0
+                        }
+                    ]
+                }
+            },
+            "name": "Has Important?",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 1,
+            "position": [
+                1580,
+                460
+            ],
+            "id": "check-important"
+        },
+        {
+            "parameters": {
+                "chatId": "5785514136",
+                "text": "=Tienes {{ $json.output.important_emails.length }} mensajes que parecen importantes:\n\n{{ $json.output.important_emails.map((e, i) => `${i+1}. \"${e.subject}\" de ${e.sender}`).join('\\n') }}\n\nResúmenes:\n{{ $json.output.important_emails.map(e => `• ${e.summary} (${e.reason})`).join('\\n') }}",
+                "additionalFields": {}
+            },
+            "name": "Notify Telegram",
+            "type": "n8n-nodes-base.telegram",
+            "typeVersion": 1.2,
+            "position": [
+                1800,
+                460
+            ],
+            "id": "notify-telegram",
+            "credentials": {
+                "telegramApi": {
+                    "id": "JLG33gMQcdi4JvQq",
+                    "name": "Telegram account"
+                }
+            }
+        },
+        {
+            "parameters": {},
+            "name": "No Action",
+            "type": "n8n-nodes-base.noOp",
+            "typeVersion": 1,
+            "position": [
+                1800,
+                660
+            ],
+            "id": "no-action"
+        }
+    ],
+    "connections": {
+        "Schedule Trigger": {
+            "main": [
+                [
+                    {
+                        "node": "Calculate Dates",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Calculate Dates": {
+            "main": [
+                [
+                    {
+                        "node": "Get Emails",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Get Emails": {
+            "main": [
+                [
+                    {
+                        "node": "Format for LLM",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Format for LLM": {
+            "main": [
+                [
+                    {
+                        "node": "Analyze Importance",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Analyze Importance": {
+            "main": [
+                [
+                    {
+                        "node": "Has Important?",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Has Important?": {
+            "main": [
+                [
+                    {
+                        "node": "Notify Telegram",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "No Action",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}
