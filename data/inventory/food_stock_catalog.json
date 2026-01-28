@@ -1215,5 +1215,39 @@
       "on": "hay",
       "off": "falta"
     }
+  },
+  {
+    "id": "puerro",
+    "category": "verduras",
+    "display_name": "Puerro",
+    "entity_id": "input_boolean.stock_verduras_puerro",
+    "ean": "0000000000000",
+    "ticket_description": "PUERRO",
+    "quantity": "1,000",
+    "synonyms": [
+      "puerro"
+    ],
+    "icon": "mdi:carrot",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
+  },
+  {
+    "id": "caldo_de_pollo",
+    "category": "despensa",
+    "display_name": "Caldo de pollo",
+    "entity_id": "input_boolean.stock_despensa_caldo_de_pollo",
+    "ean": "0000000000000",
+    "ticket_description": "CALDO DE POLLO",
+    "quantity": "1,000",
+    "synonyms": [
+      "caldo de pollo"
+    ],
+    "icon": "mdi:pot",
+    "state_semantics": {
+      "on": "hay",
+      "off": "falta"
+    }
   }
 ]

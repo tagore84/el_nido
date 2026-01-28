@@ -92,7 +92,7 @@ cards:
   primary: Tomate
   secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_verduras_tomate'',''on'')
     else ''Falta'' }}'
-  icon: mdi:apple
+  icon: mdi:food-apple
   icon_color: '{{ ''green'' if is_state(''input_boolean.stock_verduras_tomate'',''on'')
     else ''red'' }}'
   tap_action:
@@ -164,8 +164,20 @@ cards:
   primary: Tomates Cherry
   secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_verduras_tomates_cherry'',''on'')
     else ''Falta'' }}'
-  icon: mdi:fruit-cherries
+  icon: mdi:food-apple
   icon_color: '{{ ''green'' if is_state(''input_boolean.stock_verduras_tomates_cherry'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_verduras_puerro
+  primary: Puerro
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_verduras_puerro'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:carrot
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_verduras_puerro'',''on'')
     else ''red'' }}'
   tap_action:
     action: toggle

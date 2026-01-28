@@ -41,3 +41,7 @@ stock_despensa_harina:
 stock_despensa_maiz:
   name: "Maíz"
   icon: mdi:corn
+
+stock_despensa_caldo_de_pollo:
+  name: "Caldo de pollo"
+  icon: mdi:pot

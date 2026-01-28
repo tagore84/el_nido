@@ -79,5 +79,19 @@
       "maiz",
       "guanciale"
     ]
+  },
+  {
+    "name": "Pastina",
+    "valid_for_lunch": true,
+    "valid_for_dinner": true,
+    "valid_for_alberto": true,
+    "valid_for_laura": true,
+    "ingredients": [
+      "puerro",
+      "pasta_plumas",
+      "zanahoria",
+      "cebolla",
+      "caldo_de_pollo"
+    ]
   }
 ]

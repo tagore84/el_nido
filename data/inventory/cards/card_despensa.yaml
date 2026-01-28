@@ -135,3 +135,15 @@ cards:
     action: toggle
   hold_action:
     action: more-info
+- type: custom:mushroom-template-card
+  entity: input_boolean.stock_despensa_caldo_de_pollo
+  primary: Caldo de pollo
+  secondary: '{{ ''Hay'' if is_state(''input_boolean.stock_despensa_caldo_de_pollo'',''on'')
+    else ''Falta'' }}'
+  icon: mdi:pot
+  icon_color: '{{ ''green'' if is_state(''input_boolean.stock_despensa_caldo_de_pollo'',''on'')
+    else ''red'' }}'
+  tap_action:
+    action: toggle
+  hold_action:
+    action: more-info

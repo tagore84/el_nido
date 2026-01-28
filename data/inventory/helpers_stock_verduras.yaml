@@ -53,3 +53,7 @@ stock_verduras_judia_verde:
 stock_verduras_tomates_cherry:
   name: "Tomates Cherry"
   icon: mdi:tomato
+
+stock_verduras_puerro:
+  name: "Puerro"
+  icon: mdi:carrot

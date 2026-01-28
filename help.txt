@@ -1,1 +1,6 @@
 python3 scripts/generate_homeasssitant_card_input_boolean.py --input data/inventory/helpers_stock_charcuteria.yaml --title Charcuteria --output data/inventory/cards/card_charcuteria.yaml
+python3 scripts/generate_homeasssitant_card_input_boolean.py --input data/inventory/helpers_stock_lacteos.yaml --title Lacteos --output data/inventory/cards/card_lacteos.yaml
+python3 scripts/generate_homeasssitant_card_input_boolean.py --input data/inventory/helpers_stock_panaderia.yaml --title Panaderia --output data/inventory/cards/card_panaderia.yaml
+python3 scripts/generate_homeasssitant_card_input_boolean.py --input data/inventory/helpers_stock_carne.yaml --title Carne --output data/inventory/cards/card_carne.yaml
+python3 scripts/generate_homeasssitant_card_input_boolean.py --input data/inventory/helpers_stock_verduras.yaml --title Verduras --output data/inventory/cards/card_verduras.yaml
+python3 scripts/generate_homeasssitant_card_input_boolean.py --input data/inventory/helpers_stock_despensa.yaml --title Despensa --output data/inventory/cards/card_despensa.yaml
